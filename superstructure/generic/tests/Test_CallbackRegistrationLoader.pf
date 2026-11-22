@@ -203,6 +203,76 @@ contains
       @assertEqual('offset_value', requires%of(1))
    end subroutine test_toy_scaling_loads
 
+   ! Exercises the real shipped callback_interfaces_test.yaml (copied
+   ! into this ctest working directory by this directory's
+   ! CMakeLists.txt), not a test-constructed inline file: the committed
+   ! fixture other tasks' tests rely on must actually load.
+   @test
+   subroutine test_shipped_toy_scaling_file_loads()
+      character(len=*), parameter :: FILENAME = 'callback_interfaces_test.yaml'
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpecMap) :: arguments
+      type(CallbackMethodSpecMap) :: methods
+      type(CallbackAttributeSpecMap) :: attributes
+      type(CallbackRuleVector) :: rules
+      type(CallbackRule), pointer :: rule
+      type(StringVector) :: requires
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'the shipped callback_interfaces_test.yaml must load')
+      @assertTrue(found, 'callback_interfaces_test.yaml must be staged in this working directory')
+
+      iface = get_callback_interface_by_name('toy_scaling', rc=status)
+      @assertEqual(0, status, 'toy_scaling must be registered from the shipped file')
+      @assertEqual(1, iface%get_version())
+      @assertEqual('toy scaling callback interface', iface%get_summary())
+
+      arguments = iface%get_arguments()
+      @assertEqual(2, arguments%size(), 'toy_scaling must declare exactly 2 arguments')
+      methods = iface%get_methods()
+      @assertEqual(2, methods%size(), 'toy_scaling must declare exactly 2 methods')
+      attributes = iface%get_attributes()
+      @assertEqual(2, attributes%size(), 'toy_scaling must declare exactly 2 attributes')
+      @assertTrue(iface%is_argument('quantity'))
+      @assertTrue(iface%is_argument('offset_value'))
+      @assertTrue(iface%is_method('get'))
+      @assertTrue(iface%is_method('put'))
+      @assertTrue(iface%is_attribute('operation'))
+      @assertTrue(iface%is_attribute('factor'))
+
+      rules = iface%get_rules()
+      @assertEqual(1, rules%size())
+      rule => rules%of(1)
+      @assertEqual('operation', rule%get_attribute())
+      @assertEqual('offset', rule%get_value())
+      requires = rule%get_required_arguments()
+      @assertEqual(1, requires%size())
+      @assertEqual('offset_value', requires%of(1))
+   end subroutine test_shipped_toy_scaling_file_loads
+
+   ! The shipped GEOS registration file still ships no interfaces, and
+   ! must load cleanly as-is: a map with no interface entries is
+   ! accepted, like the "{}" case in test_file_load_clears_no_file_mark
+   ! below, not treated as missing or malformed.
+   @test
+   subroutine test_shipped_geos_file_loads_with_no_interfaces()
+      character(len=*), parameter :: FILENAME = 'callback_interfaces_geos.yaml'
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'the shipped callback_interfaces_geos.yaml must load')
+      @assertTrue(found, 'callback_interfaces_geos.yaml must be staged in this working directory')
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'callback_interfaces_geos.yaml currently ships no interfaces')
+   end subroutine test_shipped_geos_file_loads_with_no_interfaces
+
    @test
    subroutine test_unknown_key_in_argument_entry()
       character(len=*), parameter :: FILENAME = 'toy_scaling_unknown_key.yaml'
@@ -649,6 +719,54 @@ contains
       @assertEqual(0, size(list_callback_interface_names()), &
            'a file with a name declared twice must register nothing')
    end subroutine test_duplicate_name_in_one_file
+
+   @test
+   subroutine test_duplicate_argument_name_in_one_entry()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_duplicate_argument.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! "quantity" appears twice under arguments: within one entry.
+      ! load_arguments iterates this map (not a keyString lookup), so
+      ! both occurrences reach declare_argument, which rejects the
+      ! second as an already-declared name: a hard load error, not a
+      ! silent first-wins.
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: duplicate argument name' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xy' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised('CallbackInterface: argument name already declared: quantity')
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: could not declare argument quantity')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_duplicate_argument_name_in_one_entry
 
    @test
    subroutine test_weight_optional_but_weighted_required()

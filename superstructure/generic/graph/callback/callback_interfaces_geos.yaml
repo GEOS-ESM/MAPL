@@ -1,0 +1,24 @@
+# Production callback registration file for GEOS, read by
+# mapl_CallbackRegistrationLoader_mod
+# (superstructure/generic/graph/callback/CallbackRegistrationLoader.F90)
+# through MaplFramework%initialize's default
+# "./callback_interfaces.yaml" lookup. CMake installs this file to
+# etc/callback_interfaces_geos.yaml; a run directory uses it by
+# copying or linking it as callback_interfaces.yaml, the same way
+# experiment scripts stage the installed GEOS field dictionary (see
+# geos_field_dictionary.yaml in the top CMakeLists.txt).
+#
+# A duplicate interface name at the top level of this file (e.g. two
+# "turbulent_mixing:" entries) is a load error naming the file and the
+# interface (CallbackRegistrationLoader checks every name in the file
+# against every other name before registering anything). A duplicate
+# argument/method/attribute/call-scalar name within one interface entry
+# is also a load error (CallbackInterface rejects an already-declared
+# name). A duplicate *scalar* key within one entry (e.g. a second
+# "version:" line) is not detected: the loader reads such a key by
+# name, and ESMF_HConfig's keyString lookup silently returns only the
+# first occurrence's value, never the last, never an error. Keep every
+# key unique within an entry.
+#
+# This file currently ships no interfaces.
+{}

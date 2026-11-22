@@ -19,12 +19,17 @@
 - [x] 3.4 Freeze and startup report in `mapl_cap_create` before
   `make_driver` (path, CRC-32, sorted interfaces with version and
   summary). Test F10 (registration after freeze) and the report text.
-- [ ] 3.5 Shipped files: `callback_interfaces_test.yaml` (toy_scaling,
-  plus test-only variants used by MF1b/MF2/MF3/F11/F12 kept in test
-  directories) and `callback_interfaces_geos.yaml` (turbulent_mixing);
-  header comments documenting duplicate-key behavior (from 0.1); CMake
+- [x] 3.5 Shipped files: `callback_interfaces_test.yaml` (toy_scaling)
+  and `callback_interfaces_geos.yaml` (ships no interfaces yet;
+  `turbulent_mixing` is 9.1's own deliverable); header comments
+  documenting duplicate-key behavior (from 0.1, scoped to scalar keys --
+  a duplicated name inside `arguments:`/`methods:`/`attributes:`/
+  `call_scalars:` is a hard load error, not silently shadowed); CMake
   `install(FILES ... DESTINATION etc)`; per-test copy into the ctest
-  working directory.
+  working directory. The MF1b/MF2/MF3/F11/F12 test-only variants belong
+  to their own slice test directories under decision 18, not this
+  shared file; they land with the tasks that build those directories
+  (4.3, 8.3, ...), not here.
 - [ ] 3.6 Hand-written constants modules for `toy_scaling` and
   `turbulent_mixing`, with a test that each constant names something in
   the loaded file.

@@ -137,6 +137,11 @@ target_include_directories(MAPL.generic PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/id_types
 )
 
+# Production callback registration file (static source, installed
+# as-is; not a configure_file template). See callback_interfaces_geos.yaml's
+# own header for how a run directory uses the installed copy.
+install(FILES callback/callback_interfaces_geos.yaml DESTINATION etc)
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()

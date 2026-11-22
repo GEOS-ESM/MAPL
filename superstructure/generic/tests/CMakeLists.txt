@@ -35,6 +35,24 @@ configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 # WORKING_DIRECTORY), in PERMISSIVE ValidationMode (the default).
 configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
 
+# Copy callback_interfaces_test.yaml to the binary dir so tests that call
+# load_callback_registration_file by this name can find it by relative
+# path at runtime (Test_CallbackRegistrationLoader.pf). Not also copied
+# under the default "./callback_interfaces.yaml" name: no test in this
+# directory depends on the default-name lookup path; slice test
+# directories elsewhere stage their own registration file under the
+# default name.
+configure_file(callback_interfaces_test.yaml callback_interfaces_test.yaml COPYONLY)
+
+# Also stage the shipped GEOS registration file (lives next to the
+# loader, not in this test directory, since it is installed to etc -
+# see its own header) so Test_CallbackRegistrationLoader.pf can prove
+# it loads cleanly before any interfaces are added to it.
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/../graph/callback/callback_interfaces_geos.yaml
+  callback_interfaces_geos.yaml COPYONLY
+)
+
 # Create a shared library for common test sources to avoid parallel build race conditions.
 # Unlike each pFUnit executable below, this library intentionally writes to the
 # shared module directory because it publishes modules for every test suite.
