@@ -1788,7 +1788,7 @@ contains
    ! check_materializable's failure_reason, or unsupported_item_class when
    ! the link itself is declared neither Field, Vector nor Bracket. `name`
    ! names the links, for consumers that look their inputs up by name.
-   subroutine materialize_extension_chain(export_item, import_item, &
+   module subroutine materialize_extension_chain(export_item, import_item, &
         intermediate_node_ids, graph, failure_reason, rc, name)
       type(StateItemDescriptor), intent(in) :: export_item
       type(StateItemDescriptor), intent(in) :: import_item
