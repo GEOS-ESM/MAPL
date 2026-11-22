@@ -219,7 +219,7 @@ declare SHALL fail with a message listing the declared names.
 
 #### Scenario: Misspelt name
 - **WHEN** the accessor is asked for `quantiy` on a `toy_scaling` State
-- **THEN** it fails with a message listing `quantity, offset_value`
+- **THEN** it fails with a message listing `offset_value, quantity`
 
 ### Requirement: Call scalars are written through a checked setter
 MAPL SHALL provide a setter for call scalars that writes into the

@@ -157,7 +157,7 @@ contains
 
    ! Spec scenarios F8, MF8 "Unknown key in the interface namespace".
    ! legal_names is the interface's declared attribute and call-scalar
-   ! names, in declaration order.
+   ! names, in sorted order.
    function unknown_key_violation(key, legal_names) result(violation)
       character(*), intent(in) :: key
       character(*), intent(in) :: legal_names(:)
