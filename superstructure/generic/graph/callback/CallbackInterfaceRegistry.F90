@@ -32,6 +32,11 @@
 ! empty registry that never had a file to load can be told apart from
 ! one a file loaded with zero entries into.
 !
+! mark_callback_registry_file_loaded records the path and CRC-32 of the
+! file the loader read; make_callback_registry_report turns that (or the
+! "no file" mark) plus every registered interface, in sorted name order
+! with its version and summary, into the lines of the startup report.
+!
 ! lookup_callback_interface_id gives a distinct message when it is
 ! about to fail, the registry is marked "no file", and nothing at all
 ! is registered: "no callback_interfaces.yaml found in <cwd>". Both
@@ -63,6 +68,8 @@ module mapl_CallbackInterfaceRegistry_mod
    public :: reset_callback_registry_for_testing
    public :: mark_callback_registry_no_file
    public :: is_callback_registry_no_file
+   public :: mark_callback_registry_file_loaded
+   public :: make_callback_registry_report
 
    type :: CallbackInterfaceRegistryType
       private
@@ -71,6 +78,8 @@ module mapl_CallbackInterfaceRegistry_mod
       type(CallbackInterfaceIdGenerator) :: id_generator
       logical :: frozen = .false.
       logical :: no_file = .false.
+      character(:), allocatable :: file_path
+      character(:), allocatable :: file_checksum
    end type CallbackInterfaceRegistryType
 
    ! The one shared instance. Not exposed outside this
@@ -165,6 +174,8 @@ contains
       registry%id_generator = CallbackInterfaceIdGenerator()
       registry%frozen = .false.
       registry%no_file = .false.
+      if (allocated(registry%file_path)) deallocate(registry%file_path)
+      if (allocated(registry%file_checksum)) deallocate(registry%file_checksum)
    end subroutine reset_callback_registry_for_testing
 
    ! Records that the registration file was not found, so an empty
@@ -176,6 +187,8 @@ contains
 
       registry => get_registry()
       registry%no_file = .true.
+      if (allocated(registry%file_path)) deallocate(registry%file_path)
+      if (allocated(registry%file_checksum)) deallocate(registry%file_checksum)
    end subroutine mark_callback_registry_no_file
 
    logical function is_callback_registry_no_file() result(no_file)
@@ -184,6 +197,62 @@ contains
       registry => get_registry()
       no_file = registry%no_file
    end function is_callback_registry_no_file
+
+   ! Records the file the loader read and its checksum, for the startup
+   ! report. Set by the loader after a successful load. Clears the "no
+   ! file" mark, as mark_callback_registry_no_file clears this one.
+   subroutine mark_callback_registry_file_loaded(path, checksum)
+      character(*), intent(in) :: path
+      character(*), intent(in) :: checksum
+
+      type(CallbackInterfaceRegistryType), pointer :: registry
+
+      registry => get_registry()
+      registry%file_path = path
+      registry%file_checksum = checksum
+      registry%no_file = .false.
+   end subroutine mark_callback_registry_file_loaded
+
+   ! The startup report, one line per element: first the file and its
+   ! CRC-32 (or that no file was found, worded as in
+   ! lookup_callback_interface_id), then one line per registered
+   ! interface in sorted name order with its version and summary.
+   ! Interfaces registered in code are listed too, file or no file.
+   function make_callback_registry_report(rc) result(lines)
+      integer, optional, intent(out) :: rc
+      type(StringVector) :: lines
+
+      type(CallbackInterfaceRegistryType), pointer :: registry
+      type(CallbackInterface) :: iface
+      character(:), allocatable :: names(:), cwd, header, name
+      character(16) :: count_text, version_text
+      integer :: i, status
+
+      registry => get_registry()
+      names = list_callback_interface_names()
+      write(count_text, '(i0)') size(names)
+
+      if (allocated(registry%file_path)) then
+         header = 'Callback registration file ' // registry%file_path // &
+              ', CRC-32 ' // registry%file_checksum
+      else if (registry%no_file) then
+         cwd = GetCurrentWorkingDirectory(_RC)
+         header = 'Callback registration: no callback_interfaces.yaml found in ' // cwd
+      else
+         header = 'Callback registration: no file loaded'
+      end if
+      call lines%push_back(header // ', ' // trim(count_text) // ' interface(s) registered')
+
+      do i = 1, size(names)
+         name = trim(names(i))
+         iface = get_callback_interface_by_name(name, _RC)
+         write(version_text, '(i0)') iface%get_version()
+         call lines%push_back('  ' // name // ' (version ' // trim(version_text) // '): ' // &
+              iface%get_summary())
+      end do
+
+      _RETURN(_SUCCESS)
+   end function make_callback_registry_report
 
    ! Spec scenario: "Registered interface is retrievable ... by the
    ! identity assigned at registration".

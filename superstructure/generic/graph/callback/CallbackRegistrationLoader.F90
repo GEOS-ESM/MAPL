@@ -10,17 +10,16 @@
 ! success, and the registry is marked "no file" (see
 ! mark_callback_registry_no_file) so a later lookup against an empty
 ! registry can tell that case apart from a file that loaded with no
-! entries. A found file is validated entry by entry: every entry is
+! entries. A file that loads records its path and CRC-32 in the
+! registry (mark_callback_registry_file_loaded) for the startup report.
+! A found file is validated entry by entry: every entry is
 ! built (every declare_* call on a fresh CallbackInterface) before any
 ! entry is registered, so one bad entry leaves the registry untouched
 ! for the whole file. Loading stops at the first invalid entry.
 !
-! Finding a file does not clear a "no file" mark left by an earlier
-! call: this is harmless for the one production load path
-! (mapl_initialize loads once), but a caller that loads a found,
-! possibly-empty file without first calling
-! reset_callback_registry_for_testing still sees a stale "no file"
-! mark.
+! The "no file" and "file loaded" marks clear each other, so after a
+! second call only the latest outcome is recorded. A found file that
+! fails to load changes neither mark.
 !
 ! An unknown key at any level (entry, argument, method-argument option
 ! map, attribute, call scalar, rule) is a load error naming the file,
@@ -52,6 +51,7 @@ module mapl_CallbackRegistrationLoader_mod
    use mapl_CallbackInterface_mod, only: CallbackInterface, make_CallbackInterface
    use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface
    use mapl_CallbackInterfaceRegistry_mod, only: mark_callback_registry_no_file
+   use mapl_CallbackInterfaceRegistry_mod, only: mark_callback_registry_file_loaded
    use mapl_CallbackInterfaceRegistry_mod, only: list_callback_interface_names
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
    use mapl_CallbackValueType_mod, only: CallbackValueType, operator(==)
@@ -82,7 +82,8 @@ module mapl_CallbackRegistrationLoader_mod
    use ESMF, only: ESMF_HConfigAsStringSeq, ESMF_HConfigAsI8Seq
    use ESMF, only: ESMF_HConfigAsR8Seq, ESMF_HConfigAsLogicalSeq
    use ESMF, only: ESMF_MAXSTR
-   use, intrinsic :: iso_fortran_env, only: INT64, REAL64
+   use, intrinsic :: iso_fortran_env, only: INT32, INT64, REAL64
+   use mapl_CRC32_mod, only: CRC32File, CRC32Hex
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -135,9 +136,10 @@ contains
    ! Loads path (an ESMF HConfig mapping of interface name -> entry). A
    ! missing file sets found .false., marks the registry "no file" (see
    ! mark_callback_registry_no_file), and returns success - not an
-   ! error. Existence is checked with inquire before parsing, so a file
-   ! that exists but fails to parse is a real error naming the file,
-   ! never mistaken for "no file". A found
+   ! error. A file that loads records its path and CRC-32 (see
+   ! mark_callback_registry_file_loaded). Existence is checked with
+   ! inquire before parsing, so a file that exists but fails to parse is
+   ! a real error naming the file, never mistaken for "no file". A found
    ! file is validated whole before anything is registered; loading
    ! stops at the first invalid entry and nothing from the file is
    ! registered.
@@ -148,6 +150,7 @@ contains
 
       type(ESMF_HConfig) :: file_hconfig
       integer :: status
+      integer(INT32) :: crc
 
       inquire(file=path, exist=found)
       if (.not. found) then
@@ -162,6 +165,9 @@ contains
 
       call process_all_entries(path, file_hconfig, _RC)
       call ESMF_HConfigDestroy(file_hconfig, _RC)
+
+      crc = CRC32File(path, _RC)
+      call mark_callback_registry_file_loaded(path, CRC32Hex(crc))
 
       _RETURN(_SUCCESS)
    end subroutine load_callback_registration_file

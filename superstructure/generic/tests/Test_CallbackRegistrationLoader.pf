@@ -10,8 +10,11 @@ module Test_CallbackRegistrationLoader
    use mapl_CallbackInterfaceRegistry_mod, only: is_callback_registry_no_file
    use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface
    use mapl_CallbackInterfaceRegistry_mod, only: freeze_callback_registry
+   use mapl_CallbackInterfaceRegistry_mod, only: make_callback_registry_report
+   use mapl_CRC32_mod, only: CRC32File, CRC32Hex
+   use mapl_os_mod, only: GetCurrentWorkingDirectory
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
-   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterface_mod, only: CallbackInterface, make_CallbackInterface
    use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
    use mapl_CallbackArgumentSpecMap_mod, only: CallbackArgumentSpecMap
    use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
@@ -757,5 +760,135 @@ contains
       @assertEqual('true', rule%get_value(), &
            'the "yes" spelling must normalize to the literal word true')
    end subroutine test_rule_bool_normalization
+
+   @test
+   subroutine test_report_lists_file_checksum_and_sorted_interfaces()
+      character(len=*), parameter :: FILENAME = 'report_two_interfaces.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content, checksum
+      type(StringVector) :: lines
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! File order is not name order: the report must sort.
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: toy scaling callback interface' // NL // &
+           '  arguments: {}' // NL // &
+           '  methods:' // NL // &
+           '    get: {}' // NL // &
+           'alpha_mixing:' // NL // &
+           '  version: 3' // NL // &
+           '  summary: 100% made-up mixing' // NL // &
+           '  arguments: {}' // NL // &
+           '  methods:' // NL // &
+           '    get: {}' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(found)
+
+      checksum = CRC32Hex(CRC32File(FILENAME, rc=status))
+      @assertEqual(0, status)
+      call delete_file(FILENAME)
+
+      lines = make_callback_registry_report(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, int(lines%size()))
+      @assertEqual('Callback registration file ' // FILENAME // ', CRC-32 ' // checksum // &
+           ', 2 interface(s) registered', lines%of(1))
+      @assertEqual('  alpha_mixing (version 3): 100% made-up mixing', lines%of(2))
+      @assertEqual('  toy_scaling (version 1): toy scaling callback interface', lines%of(3))
+   end subroutine test_report_lists_file_checksum_and_sorted_interfaces
+
+   @test
+   subroutine test_report_without_file()
+      type(StringVector) :: lines
+      character(len=:), allocatable :: cwd
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      call load_callback_registration_file('no_such_callback_interfaces.yaml', found, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(found)
+
+      cwd = GetCurrentWorkingDirectory(rc=status)
+      @assertEqual(0, status)
+
+      lines = make_callback_registry_report(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, int(lines%size()))
+      @assertEqual('Callback registration: no callback_interfaces.yaml found in ' // cwd // &
+           ', 0 interface(s) registered', lines%of(1))
+   end subroutine test_report_without_file
+
+   ! Without a Cap nothing freezes the registry, so code may still add an
+   ! interface after a file has loaded.
+   @test
+   subroutine test_register_in_code_after_file_load()
+      character(len=*), parameter :: FILENAME = 'report_then_code.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: id
+      type(StringVector) :: lines
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call write_file(FILENAME, &
+           'toy_scaling:' // NL // '  version: 1' // NL // &
+           '  summary: toy scaling callback interface' // NL // &
+           '  arguments: {}' // NL // '  methods:' // NL // '    get: {}' // NL)
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      call delete_file(FILENAME)
+      @assertEqual(0, status)
+
+      iface = make_CallbackInterface(2, 'registered in code', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('extra', iface, id, rc=status)
+      @assertEqual(0, status, 'registering in code after a load must succeed without a Cap')
+
+      lines = make_callback_registry_report(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, int(lines%size()))
+      @assertEqual('  extra (version 2): registered in code', lines%of(2))
+      @assertEqual('  toy_scaling (version 1): toy scaling callback interface', lines%of(3))
+   end subroutine test_register_in_code_after_file_load
+
+   ! A later load replaces the earlier load's mark: no file, then a file.
+   @test
+   subroutine test_file_load_clears_no_file_mark()
+      character(len=*), parameter :: FILENAME = 'report_after_no_file.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      type(StringVector) :: lines
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call load_callback_registration_file('no_such_callback_interfaces.yaml', found, rc=status)
+      @assertTrue(is_callback_registry_no_file())
+
+      call write_file(FILENAME, '{}' // NL)
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      call delete_file(FILENAME)
+      @assertEqual(0, status)
+      @assertFalse(is_callback_registry_no_file(), 'a loaded file clears the no-file mark')
+
+      lines = make_callback_registry_report(rc=status)
+      @assertEqual(0, status)
+      @assertTrue(index(lines%of(1), 'Callback registration file ' // FILENAME // ', CRC-32 ') == 1)
+
+      call load_callback_registration_file('no_such_callback_interfaces.yaml', found, rc=status)
+      lines = make_callback_registry_report(rc=status)
+      @assertTrue(index(lines%of(1), 'Callback registration: no callback_interfaces.yaml found in ') == 1, &
+           'a missing file clears the file-loaded mark')
+   end subroutine test_file_load_clears_no_file_mark
 
 end module Test_CallbackRegistrationLoader

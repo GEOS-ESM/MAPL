@@ -4,6 +4,9 @@ module mapl_CapDriver_mod
 
    use MAPL
    use mapl_HConfigUtilities_mod, only: merge_hconfig
+   use mapl_CallbackInterfaceRegistry_mod, only: freeze_callback_registry
+   use mapl_CallbackInterfaceRegistry_mod, only: make_callback_registry_report
+   use gFTL2_StringVector, only: StringVector
    use pflogger
    use esmf
 
@@ -51,6 +54,9 @@ contains
    ! app_config argument) is reused as cap_driver_hconfig instead of
    ! re-parsing cap_driver.yaml from disk. cap_driver.yaml's
    ! cap_gridcomp_config key names the cap_gridcomp.yaml file.
+   ! The callback registry is frozen before the root component's
+   ! SetServices, so no component can register an interface; programs
+   ! without the Cap (unit tests) can still register after loading.
    subroutine mapl_cap_create(driver, unusable, config, rc)
       type(MAPL_GriddedComponentDriver), intent(out) :: driver
       class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
@@ -74,11 +80,32 @@ contains
       cap_gridcomp_hconfig = merge_hconfig(cap_driver_hconfig, cap_gridcomp_hconfig, _RC)
       options = make_cap_options(cap_driver_hconfig, is_model_pet, _RC)
       clock = make_clock(cap_driver_hconfig, options%lgr, _RC)
+      call freeze_callback_registry()
+      call report_callback_registry(_RC)
       driver = make_driver(clock, cap_gridcomp_hconfig, options, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine mapl_cap_create
+
+   ! Logs the startup report of the callback registry, one log record
+   ! per report line. '%a' keeps a '%' in a summary from being read as a
+   ! format directive.
+   subroutine report_callback_registry(rc)
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(StringVector) :: lines
+      class(Logger), pointer :: lgr
+
+      lines = make_callback_registry_report(_RC)
+      lgr => logging%get_logger('MAPL', _RC)
+      do i = 1, lines%size()
+         call lgr%info('%a', lines%of(i))
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine report_callback_registry
 
    ! Run the cap lifecycle on model PETs; server PETs return immediately.
    ! config (the app.config-derived hconfig, as returned by MAPL_Initialize's

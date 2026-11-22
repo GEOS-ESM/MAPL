@@ -53,7 +53,7 @@
 - [x] 3.3 Call the loader from `MaplFramework%initialize`; "no file
   found" error on first interface lookup with an empty no-file
   registry. Test under a `mapl_pFUnit_Initialize_mod` executable.
-- [ ] 3.4 Freeze and startup report in `mapl_cap_create` before
+- [x] 3.4 Freeze and startup report in `mapl_cap_create` before
   `make_driver` (path, CRC-32, sorted interfaces with version and
   summary). Test F10 (registration after freeze) and the report text.
 - [ ] 3.5 Shipped files: `callback_interfaces_test.yaml` (toy_scaling,

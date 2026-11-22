@@ -4,6 +4,8 @@ list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWOR
 
 file(STRINGS "cases.txt" TEST_CASES)
 
+add_subdirectory(callback_freeze_gridcomp)
+
 if (APPLE)
   set(LD_PATH "DYLD_LIBRARY_PATH")
 else()
@@ -23,6 +25,6 @@ foreach(TEST_CASE ${TEST_CASES})
      )
    set_tests_properties("${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
    set_tests_properties("${TEST_CASE}"
-     PROPERTIES ENVIRONMENT "${LD_PATH}=$<TARGET_FILE_DIR:configurable_gridcomp>:$<TARGET_FILE_DIR:MAPL.componentDriverGridComp>:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
+     PROPERTIES ENVIRONMENT "${LD_PATH}=$<TARGET_FILE_DIR:configurable_gridcomp>:$<TARGET_FILE_DIR:callback_freeze_gridcomp>:$<TARGET_FILE_DIR:MAPL.componentDriverGridComp>:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
      )
 endforeach()
