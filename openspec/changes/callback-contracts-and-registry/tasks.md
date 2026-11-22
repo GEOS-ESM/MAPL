@@ -102,7 +102,7 @@
   (constant, profile), `record` under `mapl_mock/` and as export fields,
   `non_negative`. Tests of construction and conformance without an
   Invoker. Recording tests depend on 5.x (not done here).
-- [ ] 7.2 Configurable Handler `supply: function` using the state
+- [x] 7.2 Configurable Handler `supply: function` using the state
   arithmetic parser extended with `lon`, `lat`, `level`. Check first
   that `superstructure/state/ArthParser.md`'s parser fits; stop and
   report if not.
