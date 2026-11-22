@@ -2,6 +2,10 @@
 
 module Test_MaplServerUtilities
    use mapl_MaplServerUtilities_mod
+   use mapl_CallbackInterfaceRegistry_mod, only: lookup_callback_interface_id, &
+        is_callback_registry_no_file
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_os_mod, only: GetCurrentWorkingDirectory
    use esmf
    use pfunit
    implicit none
@@ -204,5 +208,36 @@ contains
       result = get_ssis_per_server(hcfg, ssiCount=2, num_model_ssis=2, rc=rc)
       @assertExceptionRaised("PET resources oversubscribed: no SSIs remain for wildcard server")
    end subroutine test_ssis_per_server_wildcard_oversubscribed
+
+   !----------------------------------------------------------------------
+   ! Callback interface registry load path
+   !
+   ! mapl_initialize() has already run once, as this executable's pFUnit
+   ! EXTRA_INITIALIZE hook (mapl_pFUnit_Initialize_mod::Initialize), before
+   ! any test method here starts - these tests intentionally never call
+   ! reset_callback_registry_for_testing(), so they exercise that one real
+   ! load (with no ./callback_interfaces.yaml in this executable's working
+   ! directory), not a hand-simulated one.
+   !----------------------------------------------------------------------
+
+   @test
+   subroutine test_registry_is_marked_no_file_after_mapl_initialize()
+      @assertTrue(is_callback_registry_no_file())
+   end subroutine test_registry_is_marked_no_file_after_mapl_initialize
+
+   @test
+   subroutine test_lookup_names_the_missing_file()
+      type(CallbackInterfaceId) :: id
+      character(:), allocatable :: cwd
+      integer :: status
+
+      cwd = GetCurrentWorkingDirectory(rc=status)
+      @assertEqual(0, status)
+
+      id = lookup_callback_interface_id('anything', rc=status)
+      @assertExceptionRaised( &
+           'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+           'no callback_interfaces.yaml found in ' // cwd)
+   end subroutine test_lookup_names_the_missing_file
 
 end module Test_MaplServerUtilities

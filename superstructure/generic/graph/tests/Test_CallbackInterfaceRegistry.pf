@@ -7,7 +7,8 @@ module Test_CallbackInterfaceRegistry
    use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
         get_callback_interface, get_callback_interface_by_name, &
         lookup_callback_interface_id, freeze_callback_registry, &
-        list_callback_interface_names, reset_callback_registry_for_testing
+        list_callback_interface_names, reset_callback_registry_for_testing, &
+        mark_callback_registry_no_file, is_callback_registry_no_file
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE
@@ -227,5 +228,38 @@ contains
       names = list_callback_interface_names()
       @assertEqual(0, size(names))
    end subroutine test_enumeration_of_empty_registry_is_empty
+
+   ! A registry marked "no file" (no callback_interfaces.yaml was found)
+   ! and holding no interfaces at all fails the lookup. This suite has no
+   ! exception handler installed, so @assertExceptionRaised cannot verify
+   ! message text here; the message wording itself (naming the missing
+   ! file and the working directory) is checked in
+   ! superstructure/generic/tests instead (see that suite's test file).
+   @test
+   subroutine test_lookup_with_no_file_mark_fails()
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call mark_callback_registry_no_file()
+      @assertTrue(is_callback_registry_no_file())
+
+      id = lookup_callback_interface_id('anything', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_lookup_with_no_file_mark_fails
+
+   ! An un-marked, empty registry (a file was found - or none has loaded
+   ! yet and nothing marked it - either way the "no file" flag is unset)
+   ! still fails the lookup; message text is checked where the exception
+   ! handler lives (see the note above).
+   @test
+   subroutine test_lookup_without_no_file_mark_fails()
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      @assertFalse(is_callback_registry_no_file())
+
+      id = lookup_callback_interface_id('anything', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_lookup_without_no_file_mark_fails
 
 end module Test_CallbackInterfaceRegistry

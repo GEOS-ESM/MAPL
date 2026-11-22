@@ -31,6 +31,15 @@
 ! calls mark_callback_registry_no_file when no file exists, so an
 ! empty registry that never had a file to load can be told apart from
 ! one a file loaded with zero entries into.
+!
+! lookup_callback_interface_id gives a distinct message when it is
+! about to fail, the registry is marked "no file", and nothing at all
+! is registered: "no callback_interfaces.yaml found in <cwd>". Both
+! conditions are required, not the "no file" mark alone, so a file that
+! was found (even an empty one, or one missing this particular name)
+! always gets the plain "service name not registered" message instead
+! - the specific message names a missing file as the cause, which is
+! only true when no entries came from anywhere.
 !------------------------------------------------------------------------------
 module mapl_CallbackInterfaceRegistry_mod
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator
@@ -39,6 +48,7 @@ module mapl_CallbackInterfaceRegistry_mod
    use mapl_CallbackServiceNameIdMap_mod, only: CallbackServiceNameIdMap, &
         CallbackServiceNameIdMapIterator, operator(/=)
    use mapl_StringSortUtilities_mod, only: sorted_names
+   use mapl_os_mod, only: GetCurrentWorkingDirectory
    use mapl_ErrorHandling_mod
    use gFTL2_StringVector, only: StringVector
    implicit none(type, external)
@@ -194,7 +204,10 @@ contains
    end function get_callback_interface
 
    ! Spec scenario: "Lookup of an unregistered service name fails
-   ! explicitly".
+   ! explicitly". When no interface at all is registered and the
+   ! registry was marked "no file" (see mark_callback_registry_no_file),
+   ! the failure names the missing file and the current working
+   ! directory instead of the generic message (module header comment).
    function lookup_callback_interface_id(service_name, rc) result(id)
       character(*), intent(in) :: service_name
       integer, optional, intent(out) :: rc
@@ -202,10 +215,21 @@ contains
 
       type(CallbackInterfaceRegistryType), pointer :: registry
       type(CallbackInterfaceId), pointer :: found
+      character(:), allocatable :: cwd, message
+      integer :: status
 
       registry => get_registry()
       found => registry%service_ids%at(service_name)
-      _ASSERT(associated(found), 'CallbackInterfaceRegistry: lookup_callback_interface_id - service name not registered')
+
+      if (.not. associated(found)) then
+         if (registry%no_file .and. size(list_callback_interface_names()) == 0) then
+            cwd = GetCurrentWorkingDirectory(_RC)
+            message = 'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+                 'no callback_interfaces.yaml found in ' // cwd
+            _FAIL(message)
+         end if
+         _FAIL('CallbackInterfaceRegistry: lookup_callback_interface_id - service name not registered')
+      end if
       id = found
 
       _RETURN(_SUCCESS)

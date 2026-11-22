@@ -2732,6 +2732,18 @@ come after; their order is not yet decided.
   state, name lookup (History, checkpoint, Expression) or sharing exposes
   it. Keep that "exposed" property derivable from the graph.
 
+## Observations
+
+- **Local MPI_Finalize/OFI limitation (this development machine).** Any
+  *second* MPI-linked pFUnit executable added under `mapl/tests/` aborts
+  at `MPI_Finalize` with `OFI poll failed (default nic=en0: Input/output
+  error)` regardless of its test content (confirmed empirically during
+  `callback-contracts-and-registry`'s CB3-InitLoad by copying a passing
+  test file verbatim into a throwaway second target, which failed
+  identically). A task that needs a new MPI-linked test executable in
+  that same directory should fold its test into the existing
+  `MAPL.mapl.server_utilities` executable instead, as CB3-InitLoad did.
+
 ## Prompt template for task agents
 
 Fill in each `<...>` before pasting: the label appears twice

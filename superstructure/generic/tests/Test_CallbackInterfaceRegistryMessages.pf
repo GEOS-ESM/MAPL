@@ -1,0 +1,88 @@
+! Message wording of CallbackInterfaceRegistry's lookup failure: these
+! tests pin down when the failure names a missing callback_interfaces.yaml
+! file, versus when it gives the generic "service name not registered"
+! message, distinguishing a registry that is empty because no file was
+! found from one that is empty, or just missing this particular name, for
+! some other reason. These need the exception handler the generic suites
+! install; the graph suite (graph/tests) does not have one, so they live
+! here (see Test_CallbackInterfaceMessages.pf).
+module Test_CallbackInterfaceRegistryMessages
+   use mapl_CallbackInterfaceRegistry_mod, only: lookup_callback_interface_id, &
+        reset_callback_registry_for_testing, mark_callback_registry_no_file, &
+        is_callback_registry_no_file, register_callback_interface
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_os_mod, only: GetCurrentWorkingDirectory
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_lookup_with_no_file_mark_names_the_missing_file()
+      type(CallbackInterfaceId) :: id
+      character(:), allocatable :: cwd
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      cwd = GetCurrentWorkingDirectory(rc=status)
+      @assertEqual(0, status)
+
+      call mark_callback_registry_no_file()
+      @assertTrue(is_callback_registry_no_file())
+
+      id = lookup_callback_interface_id('anything', rc=status)
+      @assertExceptionRaised( &
+           'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+           'no callback_interfaces.yaml found in ' // cwd)
+      @assertTrue(status /= 0)
+   end subroutine test_lookup_with_no_file_mark_names_the_missing_file
+
+   ! An un-marked, empty registry (a file was found - or none has loaded
+   ! yet and nothing marked it - either way the "no file" flag is unset)
+   ! keeps the generic message.
+   @test
+   subroutine test_lookup_without_no_file_mark_keeps_generic_message()
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      @assertFalse(is_callback_registry_no_file())
+
+      id = lookup_callback_interface_id('anything', rc=status)
+      @assertExceptionRaised( &
+           'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+           'service name not registered')
+      @assertTrue(status /= 0)
+   end subroutine test_lookup_without_no_file_mark_keeps_generic_message
+
+   ! A registry marked "no file" is not enough on its own: once anything
+   ! at all is registered (here, directly in code rather than from a
+   ! file), a lookup for some other, unregistered name still gets the
+   ! generic message, not the missing-file one - the specific message
+   ! only applies when nothing is registered from anywhere.
+   @test
+   subroutine test_no_file_mark_but_entry_registered_keeps_generic_message()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: registered_id, id
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call mark_callback_registry_no_file()
+      @assertTrue(is_callback_registry_no_file())
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('registered-despite-no-file', iface, registered_id, rc=status)
+      @assertEqual(0, status)
+
+      id = lookup_callback_interface_id('some-other-name', rc=status)
+      @assertExceptionRaised( &
+           'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+           'service name not registered')
+      @assertTrue(status /= 0)
+   end subroutine test_no_file_mark_but_entry_registered_keeps_generic_message
+
+end module Test_CallbackInterfaceRegistryMessages

@@ -179,6 +179,7 @@ set(components_test_srcs
   Test_GraphBuilder_ConnectionResolution.pf
   Test_GraphBuilder_CallbackWiring.pf
   Test_CallbackInterfaceMessages.pf
+  Test_CallbackInterfaceRegistryMessages.pf
   Test_CallbackRegistrationLoader.pf
   Test_GraphBuilder_RunPhaseNode.pf
   Test_ForwardNetworkErrors.pf

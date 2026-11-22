@@ -20,6 +20,7 @@ module mapl_MaplFramework_mod
    use mapl_ModelVerticalGrid_mod
     use mapl_FieldDictionary_mod, only: load_field_dictionary
     use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config
+    use mapl_CallbackRegistrationLoader_mod, only: load_callback_registration_file
     use mapl_Profiler_mod, only: profiler_initialize => initialize, profiler_finalize => finalize
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
      use pfio_DirectoryServiceMod, only: DirectoryService
@@ -79,6 +80,7 @@ module mapl_MaplFramework_mod
       procedure :: run_servers
       procedure :: initialize_field_dictionary
       procedure :: initialize_field_fill_defaults
+      procedure :: initialize_callback_registry
 
       procedure :: finalize
       procedure :: finalize_servers
@@ -169,6 +171,7 @@ contains
            field_default_fill_value_r4=field_default_fill_value_r4, &
            field_default_fill_value_r8=field_default_fill_value_r8, &
            _RC)
+      call this%initialize_callback_registry(_RC)
 
       ! Always create the default input/output servers and clients so that
       ! simple utilities (e.g. Regrid_Util.x) that never call MAPL_CreateServers
@@ -1257,5 +1260,24 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine initialize_field_dictionary
+
+   ! Loads ./callback_interfaces.yaml (relative to the current working
+   ! directory) into the shared CallbackInterfaceRegistry, so every
+   ! MAPL program shares one load path regardless of entry point. A
+   ! missing file is not an error (see load_callback_registration_file);
+   ! the registry is marked accordingly and lookups fail later with a
+   ! message naming the missing file.
+   subroutine initialize_callback_registry(this, rc)
+      class(MaplFramework), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: found
+
+      call load_callback_registration_file('./callback_interfaces.yaml', found, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end subroutine initialize_callback_registry
 
 end module mapl_MaplFramework_mod

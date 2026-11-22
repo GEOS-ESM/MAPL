@@ -50,7 +50,7 @@
   interface, key and legal names. Tests: `toy_scaling` loads exactly;
   F9; MF2; MF3; unknown key; missing file leaves an empty registry
   marked "no file". Depends on 1.x.
-- [ ] 3.3 Call the loader from `MaplFramework%initialize`; "no file
+- [x] 3.3 Call the loader from `MaplFramework%initialize`; "no file
   found" error on first interface lookup with an empty no-file
   registry. Test under a `mapl_pFUnit_Initialize_mod` executable.
 - [ ] 3.4 Freeze and startup report in `mapl_cap_create` before

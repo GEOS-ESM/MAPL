@@ -15,6 +15,13 @@
 ! entry is registered, so one bad entry leaves the registry untouched
 ! for the whole file. Loading stops at the first invalid entry.
 !
+! Finding a file does not clear a "no file" mark left by an earlier
+! call: this is harmless for the one production load path
+! (mapl_initialize loads once), but a caller that loads a found,
+! possibly-empty file without first calling
+! reset_callback_registry_for_testing still sees a stale "no file"
+! mark.
+!
 ! An unknown key at any level (entry, argument, method-argument option
 ! map, attribute, call scalar, rule) is a load error naming the file,
 ! the interface and the offending key. Most other validation (legal
