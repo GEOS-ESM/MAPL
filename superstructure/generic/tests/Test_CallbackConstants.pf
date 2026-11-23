@@ -1,0 +1,164 @@
+! Tests for mapl_ToyScalingConstants_mod and
+! mapl_TurbulentMixingConstants_mod: each hand-written constant must name
+! something that actually exists in the interface loaded from the real
+! shipped registration file, catching drift between the constants and
+! callback_interfaces_test.yaml / callback_interfaces_geos.yaml. Reuses
+! the same shipped-file fixture Test_CallbackRegistrationLoader.pf's
+! test_shipped_toy_scaling_file_loads and
+! test_shipped_geos_file_loads_turbulent_mixing load (both files are
+! staged into this ctest working directory by this directory's
+! CMakeLists.txt).
+module Test_CallbackConstants
+   use mapl_CallbackRegistrationLoader_mod, only: load_callback_registration_file
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface_by_name
+   use mapl_CallbackInterfaceRegistry_mod, only: reset_callback_registry_for_testing
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackAttributeSpec_mod, only: CallbackAttributeSpec
+   use gFTL2_StringVector, only: StringVector
+   use mapl_ToyScalingConstants_mod, only: TOY_SCALING_INTERFACE_NAME, &
+        TOY_SCALING_ARGUMENT_QUANTITY, TOY_SCALING_ARGUMENT_OFFSET_VALUE, &
+        TOY_SCALING_METHOD_GET, TOY_SCALING_METHOD_PUT, &
+        TOY_SCALING_ATTRIBUTE_OPERATION, TOY_SCALING_ATTRIBUTE_FACTOR, &
+        TOY_SCALING_OPERATION_SCALE, TOY_SCALING_OPERATION_OFFSET
+   use mapl_TurbulentMixingConstants_mod, only: &
+        TURBULENT_MIXING_INTERFACE_NAME, &
+        TURBULENT_MIXING_ARGUMENT_MIXED_QUANTITY, &
+        TURBULENT_MIXING_ARGUMENT_AIR_MASS, &
+        TURBULENT_MIXING_ARGUMENT_DRY_DEPOSITION_VELOCITY, &
+        TURBULENT_MIXING_METHOD_GET, TURBULENT_MIXING_METHOD_PUT, &
+        TURBULENT_MIXING_ATTRIBUTE_MIX_LIKE, &
+        TURBULENT_MIXING_ATTRIBUTE_BOTTOM_BOUNDARY, &
+        TURBULENT_MIXING_MIX_LIKE_HEAT, TURBULENT_MIXING_MIX_LIKE_MOISTURE, &
+        TURBULENT_MIXING_MIX_LIKE_MOMENTUM, &
+        TURBULENT_MIXING_BOTTOM_BOUNDARY_NEUMANN_HOMOGENEOUS, &
+        TURBULENT_MIXING_BOTTOM_BOUNDARY_ROBIN
+   use funit
+   implicit none
+
+contains
+
+   ! True when name appears somewhere in names (gFTL2_StringVector has no
+   ! built-in membership test).
+   logical function string_vector_contains(names, name) result(found)
+      type(StringVector), intent(in) :: names
+      character(*), intent(in) :: name
+
+      integer :: i
+
+      found = .false.
+      do i = 1, names%size()
+         if (names%of(i) == name) then
+            found = .true.
+            return
+         end if
+      end do
+   end function string_vector_contains
+
+   @test
+   subroutine test_toy_scaling_constants_match_loaded_interface()
+      character(len=*), parameter :: FILENAME = 'callback_interfaces_test.yaml'
+      type(CallbackInterface) :: iface
+      type(CallbackAttributeSpec) :: operation_spec
+      type(StringVector) :: allowed_operations
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'the shipped callback_interfaces_test.yaml must load')
+      @assertTrue(found, 'callback_interfaces_test.yaml must be staged in this working directory')
+
+      iface = get_callback_interface_by_name(TOY_SCALING_INTERFACE_NAME, rc=status)
+      @assertEqual(0, status, &
+           'TOY_SCALING_INTERFACE_NAME must name a registered interface')
+
+      @assertTrue(iface%is_argument(TOY_SCALING_ARGUMENT_QUANTITY), &
+           'TOY_SCALING_ARGUMENT_QUANTITY must name a declared argument')
+      @assertTrue(iface%is_argument(TOY_SCALING_ARGUMENT_OFFSET_VALUE), &
+           'TOY_SCALING_ARGUMENT_OFFSET_VALUE must name a declared argument')
+
+      @assertTrue(iface%is_method(TOY_SCALING_METHOD_GET), &
+           'TOY_SCALING_METHOD_GET must name a declared method')
+      @assertTrue(iface%is_method(TOY_SCALING_METHOD_PUT), &
+           'TOY_SCALING_METHOD_PUT must name a declared method')
+
+      @assertTrue(iface%is_attribute(TOY_SCALING_ATTRIBUTE_OPERATION), &
+           'TOY_SCALING_ATTRIBUTE_OPERATION must name a declared attribute')
+      @assertTrue(iface%is_attribute(TOY_SCALING_ATTRIBUTE_FACTOR), &
+           'TOY_SCALING_ATTRIBUTE_FACTOR must name a declared attribute')
+
+      operation_spec = iface%get_attribute(TOY_SCALING_ATTRIBUTE_OPERATION, rc=status)
+      @assertEqual(0, status, 'operation must be a retrievable attribute spec')
+      allowed_operations = operation_spec%get_allowed_strings(rc=status)
+      @assertEqual(0, status, 'operation must declare an allowed-string set')
+
+      @assertTrue(string_vector_contains(allowed_operations, TOY_SCALING_OPERATION_SCALE), &
+           'TOY_SCALING_OPERATION_SCALE must be one of operation''s allowed values')
+      @assertTrue(string_vector_contains(allowed_operations, TOY_SCALING_OPERATION_OFFSET), &
+           'TOY_SCALING_OPERATION_OFFSET must be one of operation''s allowed values')
+   end subroutine test_toy_scaling_constants_match_loaded_interface
+
+   @test
+   subroutine test_turbulent_mixing_constants_match_loaded_interface()
+      character(len=*), parameter :: FILENAME = 'callback_interfaces_geos.yaml'
+      type(CallbackInterface) :: iface
+      type(CallbackAttributeSpec) :: mix_like_spec, bottom_boundary_spec
+      type(StringVector) :: allowed_mix_like, allowed_bottom_boundary
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'the shipped callback_interfaces_geos.yaml must load')
+      @assertTrue(found, 'callback_interfaces_geos.yaml must be staged in this working directory')
+
+      iface = get_callback_interface_by_name(TURBULENT_MIXING_INTERFACE_NAME, rc=status)
+      @assertEqual(0, status, &
+           'TURBULENT_MIXING_INTERFACE_NAME must name a registered interface')
+
+      @assertTrue(iface%is_argument(TURBULENT_MIXING_ARGUMENT_MIXED_QUANTITY), &
+           'TURBULENT_MIXING_ARGUMENT_MIXED_QUANTITY must name a declared argument')
+      @assertTrue(iface%is_argument(TURBULENT_MIXING_ARGUMENT_AIR_MASS), &
+           'TURBULENT_MIXING_ARGUMENT_AIR_MASS must name a declared argument')
+      @assertTrue(iface%is_argument(TURBULENT_MIXING_ARGUMENT_DRY_DEPOSITION_VELOCITY), &
+           'TURBULENT_MIXING_ARGUMENT_DRY_DEPOSITION_VELOCITY must name a declared argument')
+
+      @assertTrue(iface%is_method(TURBULENT_MIXING_METHOD_GET), &
+           'TURBULENT_MIXING_METHOD_GET must name a declared method')
+      @assertTrue(iface%is_method(TURBULENT_MIXING_METHOD_PUT), &
+           'TURBULENT_MIXING_METHOD_PUT must name a declared method')
+
+      @assertTrue(iface%is_attribute(TURBULENT_MIXING_ATTRIBUTE_MIX_LIKE), &
+           'TURBULENT_MIXING_ATTRIBUTE_MIX_LIKE must name a declared attribute')
+      @assertTrue(iface%is_attribute(TURBULENT_MIXING_ATTRIBUTE_BOTTOM_BOUNDARY), &
+           'TURBULENT_MIXING_ATTRIBUTE_BOTTOM_BOUNDARY must name a declared attribute')
+
+      mix_like_spec = iface%get_attribute(TURBULENT_MIXING_ATTRIBUTE_MIX_LIKE, rc=status)
+      @assertEqual(0, status, 'mix_like must be a retrievable attribute spec')
+      allowed_mix_like = mix_like_spec%get_allowed_strings(rc=status)
+      @assertEqual(0, status, 'mix_like must declare an allowed-string set')
+
+      @assertTrue(string_vector_contains(allowed_mix_like, TURBULENT_MIXING_MIX_LIKE_HEAT), &
+           'TURBULENT_MIXING_MIX_LIKE_HEAT must be one of mix_like''s allowed values')
+      @assertTrue(string_vector_contains(allowed_mix_like, TURBULENT_MIXING_MIX_LIKE_MOISTURE), &
+           'TURBULENT_MIXING_MIX_LIKE_MOISTURE must be one of mix_like''s allowed values')
+      @assertTrue(string_vector_contains(allowed_mix_like, TURBULENT_MIXING_MIX_LIKE_MOMENTUM), &
+           'TURBULENT_MIXING_MIX_LIKE_MOMENTUM must be one of mix_like''s allowed values')
+
+      bottom_boundary_spec = iface%get_attribute(TURBULENT_MIXING_ATTRIBUTE_BOTTOM_BOUNDARY, rc=status)
+      @assertEqual(0, status, 'bottom_boundary must be a retrievable attribute spec')
+      allowed_bottom_boundary = bottom_boundary_spec%get_allowed_strings(rc=status)
+      @assertEqual(0, status, 'bottom_boundary must declare an allowed-string set')
+
+      @assertTrue(string_vector_contains(allowed_bottom_boundary, &
+           TURBULENT_MIXING_BOTTOM_BOUNDARY_NEUMANN_HOMOGENEOUS), &
+           'TURBULENT_MIXING_BOTTOM_BOUNDARY_NEUMANN_HOMOGENEOUS must be one of '// &
+           'bottom_boundary''s allowed values')
+      @assertTrue(string_vector_contains(allowed_bottom_boundary, &
+           TURBULENT_MIXING_BOTTOM_BOUNDARY_ROBIN), &
+           'TURBULENT_MIXING_BOTTOM_BOUNDARY_ROBIN must be one of bottom_boundary''s allowed values')
+   end subroutine test_turbulent_mixing_constants_match_loaded_interface
+
+end module Test_CallbackConstants

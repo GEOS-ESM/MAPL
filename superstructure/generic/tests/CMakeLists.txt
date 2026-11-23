@@ -61,6 +61,7 @@ add_library(MAPL.generic.test_common SHARED
   MockAspect.F90
   GraphBuilderTestSupport.F90
   ImplicitColumnDiffusion.F90
+  ToyScalingConstants.F90
 )
 target_link_libraries(MAPL.generic.test_common PUBLIC MAPL.generic MAPL.utils MAPL.pfunit)
 set_target_properties(MAPL.generic.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
@@ -200,6 +201,7 @@ set(components_test_srcs
   Test_CallbackInterfaceRegistryMessages.pf
   Test_CallbackAttributeAccessMessages.pf
   Test_CallbackRegistrationLoader.pf
+  Test_CallbackConstants.pf
   Test_GraphBuilder_RunPhaseNode.pf
   Test_ForwardNetworkErrors.pf
   Test_GraphBuilderMaterializeGate.pf
