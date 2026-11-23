@@ -30,7 +30,7 @@
   to their own slice test directories under decision 18, not this
   shared file; they land with the tasks that build those directories
   (4.3, 8.3, ...), not here.
-- [ ] 3.6 Hand-written constants modules for `toy_scaling` and
+- [x] 3.6 Hand-written constants modules for `toy_scaling` and
   `turbulent_mixing`, with a test that each constant names something in
   the loaded file.
 - [x] 3.7 YAML key `callback_interface: <name>` for imports and STATE
