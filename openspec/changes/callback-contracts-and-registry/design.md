@@ -460,10 +460,17 @@ Decision 12).**
   **Known limitation, tracked as required follow-up, not optional
   polish (owner 2026-11-23: 3D support is important, must be on the
   roadmap):** a plain `members:` entry is 2D only (vertical stagger
-  hard-defaulted to none) -- a composite member is realized directly
-  from its own characteristics, not through connection-resolution, so it
-  has nothing to mirror a vertical grid from the way an ordinary
-  top-level item does. See tasks.md 5.1a.
+  hard-defaulted to none). Scoped 2026-11-23: no new resolution
+  mechanism is needed -- a member leaf is already a real, registered
+  `StateItemNode` that goes through the same `make_characteristics` and
+  GEOM_B `resolve_deferred`/`harvest_deferred` passes a flat top-level
+  item does (that is already how a member gets its horizontal geometry
+  today); the fix is parser-level (accept
+  `dims:`/`vertical_stagger:`/`vertical_grid:` on a `members:` entry,
+  drop the hard `NONE` override), with `vertical_stagger: mirror`
+  explicitly rejected on a member since it is never part of the
+  IMPORT/EXPORT connection-resolution graph and has no partner to mirror
+  from. See tasks.md 5.1a.
 - **Invoker API shape for 5.3: an iterator, not count-and-index.**
   `MAPL_CallbackCollectionGet` and friends present an iterator over the
   bound Handlers for one collection (canonical pattern: advance, check

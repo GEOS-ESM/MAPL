@@ -112,12 +112,22 @@
   field today (vertical stagger hard-defaulted to none); give it a way
   to declare a vertical grid/stagger, matching what an ordinary
   top-level item's YAML can already express. Owner priority: important,
-  not optional -- GEOS physics callback arguments are routinely 3D.
-  Needs its own design pass (a composite member has no connection to
-  mirror a vertical grid from the way a top-level item does via
-  GEOM_A/B's DEFERRED machinery; a `members:` entry likely needs an
-  explicit `vertical_grid:`/`vertical_stagger:` key instead, or some
-  other resolution this task should propose). Depends on 5.1.
+  not optional -- GEOS physics callback arguments are routinely 3D. A
+  member leaf is already a real, registered `StateItemNode` that goes
+  through the same `make_characteristics` and GEOM_B
+  `resolve_deferred`/`harvest_deferred` passes a flat top-level item
+  does (confirmed: that is already how a member gets its horizontal
+  geometry today), so no new resolution mechanism is needed: accept
+  `dims:`/`vertical_stagger:`/`vertical_grid:` on a `members:` entry
+  with the same parsing a top-level item uses
+  (`to_VerticalStaggerLoc`/`parse_geometry_spec` in
+  `parse_var_specs.F90`), and drop the hard `vertical_stagger: NONE`
+  override on `member_var_spec`. Explicitly reject
+  `vertical_stagger: mirror` on a member (clear error, not silent
+  no-op): a composite member is never part of the IMPORT/EXPORT
+  connection-resolution graph, so there is no partner to mirror from.
+  Design: `~/.opencode/plan/cb5-design-notes.md` ("5.1a scoping").
+  Depends on 5.1.
 - [ ] 5.2 Fill the Invoker's collection State with each matched callback
   State, then `ESMF_MethodExecute`-backed `StateMethodInvoker`; production
   calls to `build_callback_state_binding` /
