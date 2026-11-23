@@ -353,12 +353,14 @@ propagation into the Handler's real internal item (through
 `SnapshotTransform`/`WeightedDeltaBackTransform`/etc., task 6.x) happens
 the next time something calls `update()` on that downstream item, not as
 a separate forced step inside `MAPL_CallbackExecute`.
-`MAPL_CallbackExecute(state, method, rc)` finds its `CallbackMethodBinding`
-by an Info key recorded on the callback State at REALIZE_ACCEPTED
-(decision C1 of the execution design notes), mirroring legacy
-`StateAddMethod.F90`'s `MAPL_CALLBACK_MAP` Info key (method name ->
-attached routine on that same State) -- no separate global
-NodeId-keyed registry.
+*Amended 2026-11-23:* finding a method's binding from a bare
+`ESMF_State` by an Info key recorded at REALIZE_ACCEPTED, as a free
+function `MAPL_CallbackExecute(state, method, rc)` (mirroring legacy
+`StateAddMethod.F90`'s `MAPL_CALLBACK_MAP` Info key), is superseded by
+decision 21's amended Invoker API shape below. "No separate global
+NodeId-keyed registry" still holds -- it turns out to be unneeded
+outright, not merely avoided, once the iterator hands back a handle
+that already carries what the Info key would have had to recover.
 
 **20. `wire_callback_argument` requires both sides already resolved; a
 DEFERRED characteristic is a caller-ordering bug, not something it
@@ -436,6 +438,35 @@ Decision 12).**
   author should pick the smallest iterator shape that satisfies the
   same-grid get/put test in task 5.3 and leave qualified-name access and
   stricter error handling as later, compatible additions.
+
+  *Amended 2026-11-23: `current()` returns a handle, not a bare
+  `ESMF_State`.* Executing a bound Handler's method needs the Invoker's
+  own `ComponentGraph` and the target method's `MethodGraphNode` NodeId
+  (`invoke_callback_method`'s two arguments); a bare `ESMF_State` carries
+  neither, which is exactly why decision 19's original design had
+  `MAPL_CallbackExecute` recover them from an Info key. The iterator
+  already resolves both, once, for each collection member while
+  advancing -- it was built from the same `ComponentGraph` and the same
+  matched `NodeId`s `materialize_callback_collection`/
+  `build_callback_method_binding` produced. Handing that resolution back
+  as part of `current()`'s return value is free; recovering it a second
+  time from the State's own Info on every call is not, and needs
+  machinery (the Info key, decision C1's REALIZE_ACCEPTED write) that
+  buys nothing once the handle exists. So `current()` returns a small
+  value (exact type name left to the implementer) wrapping the member's
+  `ESMF_State` plus its already-resolved graph pointer and method
+  `NodeId` lookup, with two operations: `%execute(method, rc)`
+  (replaces the free-function `MAPL_CallbackExecute`, runs
+  `invoke_callback_method`'s three phases) and `%get_state()` (returns
+  the bare `ESMF_State`, unchanged, for `MAPL_CallbackGetAttribute`/
+  `MAPL_CallbackSetScalar`, which stay free functions -- they only ever
+  touch the State's own Info, confirmed to have no graph dependency in
+  `CallbackAttributeAccess.F90`, so they have nothing to gain from the
+  handle). No Info key is written for method-binding lookup at
+  REALIZE_ACCEPTED; `record_callback_interface_name`'s Info key (5.1,
+  `MAPL_InfoSetCallbackInterface`) is a separate, still-needed mechanism
+  for a different purpose (resolving the attribute/call-scalar schema),
+  unaffected by this amendment.
 
 ## Risks / Trade-offs
 

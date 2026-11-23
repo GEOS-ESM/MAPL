@@ -100,10 +100,14 @@
 - [ ] 5.3 Invoker API: an iterator over one collection's bound Handlers
   (advance, done, current) -- not count-and-index; qualified-name access
   and detailed error behavior (loud `_FAIL` vs. a `found` out-argument)
-  deliberately left open past this task. `MAPL_CallbackExecute(state,
-  method, rc)` running check-if-needed, pre-call pull, the procedure,
-  post-call advance; failure propagation; unknown-method error. Same-grid
-  get/put test. Design: design.md decision 21 (Invoker API shape).
+  deliberately left open past this task. `current()` returns a handle
+  (exact type name open) wrapping the member's `ESMF_State` plus its
+  already-resolved `ComponentGraph` pointer and method `NodeId`, with
+  `%execute(method, rc)` (check-if-needed, pre-call pull, the procedure,
+  post-call advance; failure propagation; unknown-method error) and
+  `%get_state()` for `MAPL_CallbackGetAttribute`/`MAPL_CallbackSetScalar`,
+  which stay free functions. Same-grid get/put test. Design: design.md
+  decision 21 (Invoker API shape, amended 2026-11-23).
 - [ ] 5.4 Hook the lazy conformance check (4.3) into 5.3 and add the
   explicit collection check request.
 
