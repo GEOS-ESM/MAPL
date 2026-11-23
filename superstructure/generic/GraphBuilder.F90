@@ -55,7 +55,7 @@
 ! GRAPH_MODE_REGISTRY.
 !------------------------------------------------------------------------------
 module mapl_GraphBuilder_mod
-   use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_Geom, ESMF_STATEINTENT_EXPORT, ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, ESMF_StateItem_Flag, operator(==)
+   use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_Geom, ESMF_State, ESMF_STATEINTENT_EXPORT, ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, ESMF_StateItem_Flag, operator(==)
    use gFTL2_StringVector, only: StringVector
    use mapl_CallbackContractReport_mod, only: format_callback_contract_report
    use mapl_CallbackContractViolation_mod, only: CallbackContractViolation
@@ -87,6 +87,7 @@ module mapl_GraphBuilder_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
    use mapl_PortId_mod, only: PortId
    use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_STATE, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_WILDCARD
+   use mapl_StateItemKeyPrefix_mod, only: INTERNAL_ITEM_KEY_PREFIX
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_VariableSpec_mod, only: VariableSpec
@@ -138,6 +139,7 @@ module mapl_GraphBuilder_mod
    public :: graphbuilder_run_export_propagate_hook
    public :: graphbuilder_run_reexport_hook
    public :: graphbuilder_allocate_internals
+   public :: graphbuilder_realize_callback_states
 
    ! Stateless by design: every bound procedure still takes the
    ! OuterMetaComponent it operates on. All bindings are NOPASS, e.g.
@@ -169,6 +171,7 @@ module mapl_GraphBuilder_mod
       ! Completes and allocates this component's INTERNAL Fields at
       ! REALIZE_ACCEPTED (where legacy allocates them).
       procedure, nopass :: allocate_internals => graphbuilder_allocate_internals
+      procedure, nopass :: realize_callback_states => graphbuilder_realize_callback_states
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
       ! Resolves an EXPRESSION item's named variable references against
@@ -359,6 +362,11 @@ module mapl_GraphBuilder_mod
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
    end subroutine graphbuilder_allocate_internals
+   module subroutine graphbuilder_realize_callback_states(this, export_state, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ESMF_State), intent(inout) :: export_state
+      integer, optional, intent(out) :: rc
+   end subroutine graphbuilder_realize_callback_states
    module subroutine for_each_matching_import(dst_graph, dst_pt, op, rc)
       type(ComponentGraph), target, intent(in) :: dst_graph
       type(ConnectionPt), intent(in) :: dst_pt
@@ -746,16 +754,13 @@ contains
       character(*), intent(in) :: short_name
       character(:), allocatable :: key
 
-      character(:), allocatable :: intent_str
-
       if (state_intent == ESMF_STATEINTENT_IMPORT) then
-         intent_str = 'IMPORT'
+         key = 'IMPORT:' // short_name
       else if (state_intent == ESMF_STATEINTENT_EXPORT) then
-         intent_str = 'EXPORT'
+         key = 'EXPORT:' // short_name
       else
-         intent_str = 'INTERNAL'
+         key = INTERNAL_ITEM_KEY_PREFIX // short_name
       end if
-      key = intent_str // ':' // short_name
    end function item_key
 
    logical function is_self(this, comp_name) result(self_ref)

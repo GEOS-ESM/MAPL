@@ -3,7 +3,7 @@
 ! Callback wiring: callback states, method nodes and their get/put networks.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
-   use esmf, only: ESMF_State, ESMF_StateCreate
+   use esmf, only: ESMF_StateCreate
    use mapl_AccessSpec_mod, only: AccessSpec, MAPL_ACCESS_IN, MAPL_ACCESS_INOUT, MAPL_ACCESS_OUT, operator(==)
    use mapl_AccessSpecMap_mod, only: AccessSpecMap, AccessSpecMapIterator, operator(/=)
    use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec

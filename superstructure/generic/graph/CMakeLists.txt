@@ -80,6 +80,7 @@ target_sources(MAPL.generic PRIVATE
   GraphOwnsUserStates.F90
   ExtensionMaterialization.F90
 
+  StateItemKeyPrefix.F90
   CompositeStateMaterialization.F90
 
   characteristics/CharacteristicStatus.F90

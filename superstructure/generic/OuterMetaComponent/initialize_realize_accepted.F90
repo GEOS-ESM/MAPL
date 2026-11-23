@@ -28,9 +28,12 @@ contains
 
       call this%registry%allocate(_RC)
       call gb%allocate_internals(this, _RC)
+      call gb%realize_callback_states(this, exportState, _RC)
+
+      user_states = this%user_gc_driver%get_states()
+      call gb%realize_callback_states(this, user_states%exportState, _RC)
 
       if (.not. graph_populates_user_states()) then
-         user_states = this%user_gc_driver%get_states()
          tmp_states = MultiState(importState=user_states%importState)
          call this%registry%add_to_states(tmp_states, mode='user', _RC)
       end if

@@ -4,7 +4,7 @@
 ! ESMF import/export States.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
-   use esmf, only: ESMF_State, ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, &
+   use esmf, only: ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, &
         ESMF_STATEITEM_FIELDBUNDLE, operator(==), ESMF_STATEINTENT_INTERNAL
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE

@@ -248,6 +248,20 @@ module mapl_VariableSpec_mod
       logical :: is_inout_borrower = .false.
 
       !=====================
+      ! Callback member alias
+      !=====================
+      ! A declare_member member only: an `alias:` view of one of the
+      ! Handler's own INTERNAL items, named by its short_name.
+      character(:), allocatable :: callback_member_alias
+
+      !=====================
+      ! Callback unit placeholder binding
+      !=====================
+      ! A declare_member member only: binds a CallbackInterface unit
+      ! placeholder (this field, bare name) to a concrete value (`units`).
+      character(:), allocatable :: callback_unit_placeholder
+
+      !=====================
       ! declared quantity-type/conservation/normalization
       !=====================
       ! Read by the QuantityType, Conservation and Normalization factories

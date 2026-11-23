@@ -418,11 +418,52 @@ Decision 12).**
   already-existing Handler item (geometry/typekind/units come from the
   aliased item, per Decision B above); `template: true` on the same
   declaration expands it, via the existing wildcard-matching regex code
-  already used for import names, into one member per matching internal
-  item (e.g. `alias: 'TR.*'` with `template: true` yields one member per
-  `TR001`, `TR002`, ...). Neither key changes `declare_member`'s
+  already used for import names, into **one callback State per matching
+  internal item, each containing one member** (e.g. `alias: 'TR.*'` with
+  `template: true` on an interface's `tracer` argument yields three
+  sibling callback States, one per `TR001`/`TR002`/`TR003`, each with its
+  own single `tracer` member) -- owner decision 2026-11-23, amending this
+  bullet's earlier "one member per matching internal item" wording, which
+  conflicted with the working notes (topic B) and with
+  `build_callback_state_binding`'s one `members%at(name)` lookup per
+  fixed argument name inside one State. Whether a callback interface
+  should be able to opt into the other shape (one State, many members) is
+  left open for later, per-interface refinement; this is the only shape
+  built now. Neither `alias:` nor `template:` changes `declare_member`'s
   existing meaning when absent: a plain declaration is still always a
-  new, framework-allocated field.
+  new, framework-allocated field. **Split from 5.1 into its own task 5.1b
+  (owner 2026-11-23, following cumulative review): plain `declare_member`
+  and single-item `alias:` are done and tested; `template:` expansion is
+  not implemented at all.** Landing 5.1 without it is additive -- nothing
+  downstream (5.2/5.3) needs template expansion, since the Invoker-side
+  execution path operates per already-realized callback State regardless
+  of how many sibling States a template produced it from.
+- **Minimal YAML syntax for declaring a Handler's callback-State members
+  (owner decision 2026-11-23): build just enough now, refine later
+  alongside the GEOS registration-entry work (9.x).** Before this, a
+  Handler's callback State and its members could only be built by
+  calling `declare_member` from Fortran; no YAML key reached it. A
+  callback-State EXPORT gains a `members:` map (member name -> an
+  optional `{alias:, units:}`, the same two keys `declare_member` already
+  takes) that `parse_var_specs`'s own `parse_callback_members` turns into
+  one `declare_member` call per entry. This covers a Handler whose
+  callback-State members are plain
+  new fields or single-item aliases declared from YAML; template
+  expansion and nested composite members stay Fortran-API-only for now
+  (no concrete YAML shape designed yet for either). `alias:`/map-shaped
+  `units:` remain a hard parse error anywhere outside a `members:` entry.
+  **A `members:` entry only answers a FIELD-kind interface argument
+  (owner 2026-11-23): reject it loudly at parse/advertise time when the
+  interface argument is a FieldBundle, rather than letting the mismatch
+  surface later at conformance-check time.** Real FieldBundle-via-YAML
+  support is an undesigned follow-up, not part of this change.
+  **Known limitation, tracked as required follow-up, not optional
+  polish (owner 2026-11-23: 3D support is important, must be on the
+  roadmap):** a plain `members:` entry is 2D only (vertical stagger
+  hard-defaulted to none) -- a composite member is realized directly
+  from its own characteristics, not through connection-resolution, so it
+  has nothing to mirror a vertical grid from the way an ordinary
+  top-level item does. See tasks.md 5.1a.
 - **Invoker API shape for 5.3: an iterator, not count-and-index.**
   `MAPL_CallbackCollectionGet` and friends present an iterator over the
   bound Handlers for one collection (canonical pattern: advance, check

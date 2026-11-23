@@ -1,0 +1,1398 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Tests for GraphBuilder_CallbackRealization_smod.F90's
+! graphbuilder_realize_callback_states: giving each Handler's declared
+! callback composite (itemType STATE) a real ESMF_State holding its
+! members, at the point initialize_realize_accepted.F90 calls
+! gb%realize_callback_states (right after gb%allocate_internals).
+!
+! type=ESMF_TestMethod, npes=[1] throughout, following
+! Test_GraphBuilderMaterializeGate.pf's own precedent: every test here
+! creates a real ESMF_Geom and real Fields, which needs a real per-test
+! ESMF VM.
+module Test_GraphBuilder_CallbackRealization
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_ComponentSpecParser_mod, only: parse_var_specs
+   use mapl_StateRegistry_mod, only: StateRegistry
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_VariableSpecVector_mod, only: VariableSpecVector, VariableSpecVectorIterator, operator(/=)
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_FIELD
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
+        reset_callback_registry_for_testing
+   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE, &
+        MAPL_VARIANT_FIELD => MAPL_STATEITEM_FIELD
+   use mapl_GeomUtilities_mod, only: GeomSetId
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, GRAPH_MODE_REGISTRY
+   use mapl_field_api, only: MAPL_FieldGet
+   use mapl_FieldCreate_mod, only: FieldsAreAliased
+   use mapl_InfoUtilities_mod, only: MAPL_InfoHasCallbackInterface, MAPL_InfoGetCallbackInterface
+   use mapl_geom_api, only: mapl_SameGeom
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_MultiState_mod, only: MultiState
+   use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use ESMF_TestMethod_mod
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! A declared composite's one FIELD member, never aliased, is a "new"
+   ! member: ADVERTISE only attached its descriptor, and realization must
+   ! create/complete a real Field for it and insert it into the
+   ! composite's own real ESMF_State under its member name.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_creates_new_field_member(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: cb_export, arg_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(ESMF_StateItem_Flag) :: cb_kind
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 401, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_new_field', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+
+      arg_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1', units='K')
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      arg_member%geom = geom
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('K', got_units)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_creates_new_field_member
+
+   ! A member declared with callback_member_alias set shares the aliased
+   ! INTERNAL item's own Field zero-copy: realization must not create a
+   ! second Field, just insert the same one under the member's own name.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_alias_member_shares_internal_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: internal_var, cb_export, tracer_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: tracer_field, internal_field
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: internal_id
+      class(GraphNode), pointer :: internal_node
+      type(GraphStateItem), pointer :: internal_payload
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 402, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_alias', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      internal_var = make_var(ESMF_STATEINTENT_INTERNAL, 'TR1', units='kg kg-1')
+      internal_var%itemType = MAPL_STATEITEM_FIELD
+      internal_var%geom = geom
+      call spec%add_var_spec(internal_var)
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+
+      tracer_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracer')
+      tracer_member%itemType = MAPL_STATEITEM_FIELD
+      tracer_member%callback_member_alias = 'TR1'
+      call cb_export%declare_member('tracer', tracer_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'tracer', tracer_field, rc=status)
+      @assertEqual(0, status)
+
+      ! The alias member's own node IS the aliased INTERNAL item's own
+      ! node (CompositeStateMaterialization.F90's materialize_member),
+      ! so the INTERNAL item's own real Field - fetched directly from the
+      ! graph, not from the real internal ESMF_State (populate_state was
+      ! never called in this test) - is the same object.
+      graph => meta%get_component_graph()
+      internal_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, 'TR1'))
+      @assertTrue(associated(internal_id))
+      internal_node => graph%get_node(internal_id)
+      select type (internal_node)
+      class is (StateItemNode)
+         internal_payload => internal_node%get_payload_ptr()
+      class default
+         @assertTrue(.false., 'TR1 is not a StateItemNode')
+      end select
+      internal_field = internal_payload%get_field(rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(FieldsAreAliased(tracer_field, internal_field))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_alias_member_shares_internal_field
+
+   ! A Handler composite that declares a valid callback_interface_id gets
+   ! its interface name recorded on the realized ESMF_State's own Info
+   ! (MAPL_InfoSetCallbackInterface, through record_callback_interface_name),
+   ! readable back via MAPL_InfoGetCallbackInterface.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_records_interface_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: cb_export, tracers_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      logical :: has_interface
+      character(:), allocatable :: recorded_name
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 403, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('tracers', MAPL_VARIANT_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-realize-name', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_iface_name', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+
+      tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers')
+      tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      tracers_member%geom = geom
+      call cb_export%declare_member('tracers', tracers_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+
+      has_interface = MAPL_InfoHasCallbackInterface(cb_state, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(has_interface)
+      call MAPL_InfoGetCallbackInterface(cb_state, recorded_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('svc-realize-name', recorded_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_records_interface_name
+
+   ! REALIZE_ACCEPTED can run a second time (initialize_realize_accepted.F90's
+   ! own call site may be reached more than once in some lifecycles) - a
+   ! second gb%realize_callback_states call must not duplicate the
+   ! composite entry in export_state, nor the member entry inside it, and
+   ! must leave the SAME underlying Field object in place (add-or-replace
+   ! by name via MAPL_NamedAlias+ESMF_StateAddReplace, not a fresh one).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_idempotent_second_pass(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: cb_export, arg_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field_pass1, arg_field_pass2
+      integer :: export_item_count, cb_item_count
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 404, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_idempotent', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+
+      arg_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1', units='K')
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      arg_member%geom = geom
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+
+      call gb%realize_callback_states(meta, export_state, status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field_pass1, rc=status)
+      @assertEqual(0, status)
+
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, itemCount=export_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, export_item_count)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, itemCount=cb_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, cb_item_count)
+
+      call ESMF_StateGet(cb_state, 'arg1', arg_field_pass2, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(FieldsAreAliased(arg_field_pass1, arg_field_pass2))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_idempotent_second_pass
+
+   ! A composite member that declares no geom of its own (DEFERRED, not
+   ! SPECIFIED) picks up the Handler's own component geometry, the same
+   ! way an ordinary flat export does - graphbuilder_resolve_deferred
+   ! (run via gb%run_geometry_hook) walks every registered StateItemNode,
+   ! composite members included, not just advertise_one's flat items.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_member_defaults_geometry(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: cb_export, arg_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Geom), allocatable :: field_geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 405, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_geom_default', gc, meta, _RC)
+      call meta%set_geom(geom)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+
+      ! Built by hand, not make_var: make_var always assigns a geom_id,
+      ! which would make the geometry entry SPECIFIED by identity alone
+      ! rather than DEFERRED.
+      arg_member%state_intent = ESMF_STATEINTENT_EXPORT
+      arg_member%short_name = 'arg1'
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      arg_member%vertical_stagger = VERTICAL_STAGGER_NONE
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, geom=field_geom, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(mapl_SameGeom(geom, field_geom))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_member_defaults_geometry
+
+   ! A composite member nested one level deep (declared via its own
+   ! declare_member on an intermediate composite member) recurses through
+   ! realize_callback_member -> realize_callback_state a second time,
+   ! producing a nested real ESMF_State inside the top-level composite.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_nested_composite_member(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: cb_export, inner_state, leaf_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state, inner_cb_state
+      type(ESMF_Field) :: leaf_field
+      type(ESMF_StateItem_Flag) :: inner_kind
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 406, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_nested', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+
+      inner_state = make_var(ESMF_STATEINTENT_EXPORT, 'inner')
+      inner_state%itemType = MAPL_STATEITEM_STATE
+
+      leaf_member = make_var(ESMF_STATEINTENT_EXPORT, 'leaf', units='K')
+      leaf_member%itemType = MAPL_STATEITEM_FIELD
+      leaf_member%geom = geom
+      call inner_state%declare_member('leaf', leaf_member, rc=status)
+      @assertEqual(0, status)
+
+      call cb_export%declare_member('inner', inner_state, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'inner', itemType=inner_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(inner_kind == ESMF_STATEITEM_STATE)
+      call ESMF_StateGet(cb_state, 'inner', inner_cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(inner_cb_state, 'leaf', leaf_field, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_nested_composite_member
+
+   ! check_unit_placeholders also binds a fixed (non-placeholder)
+   ! CallbackArgumentSpec unit onto its member's own
+   ! PHYSICAL_UNITS_CHARACTERISTIC_KIND characteristic
+   ! (CompositeStateMaterialization.F90's bind_concrete_units) when the
+   ! member itself leaves its own units unspecified.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_binds_concrete_unit_from_interface(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: cb_export, arg_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      character(:), allocatable :: got_units
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 407, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', units='kg kg-1', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-concrete-unit-fill', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_concrete_unit', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+
+      ! No units declared on the member: the interface's own fixed unit
+      ! fills it.
+      arg_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1')
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      arg_member%geom = geom
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('kg kg-1', got_units)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_binds_concrete_unit_from_interface
+
+   ! A member that declares its own fixed unit conflicting with the
+   ! interface's own fixed (non-placeholder) unit for that argument is a
+   ! hard wiring error at ADVERTISE.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_advertise_rejects_concrete_unit_mismatch(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: cb_export, arg_member
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', units='kg kg-1', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-concrete-unit-mismatch', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_concrete_mismatch', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+
+      arg_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1', units='g g-1')
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      expected_message = 'CompositeStateMaterialization: Handler "cb" argument "arg1" ' // &
+           'expects unit "kg kg-1", member declares "g g-1"'
+
+      call gb%advertise(meta, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_rejects_concrete_unit_mismatch
+
+   ! Two arguments sharing one unit placeholder name must agree on the
+   ! concrete unit bound to it by their respective members.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_advertise_rejects_conflicting_placeholder_units(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: cb_export, arg1_member, arg2_member
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', units='$U', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('arg2', MAPL_VARIANT_FIELD, dims='xy', units='$U', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-conflicting-placeholder', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_conflicting_placeholder', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+
+      arg1_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1', units='kg kg-1')
+      arg1_member%itemType = MAPL_STATEITEM_FIELD
+      arg1_member%callback_unit_placeholder = 'U'
+      call cb_export%declare_member('arg1', arg1_member, rc=status)
+      @assertEqual(0, status)
+
+      arg2_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg2', units='g g-1')
+      arg2_member%itemType = MAPL_STATEITEM_FIELD
+      arg2_member%callback_unit_placeholder = 'U'
+      call cb_export%declare_member('arg2', arg2_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      expected_message = 'CompositeStateMaterialization: Handler "cb" placeholder "U" bound to ' // &
+           '"kg kg-1" and "g g-1" by different arguments'
+
+      call gb%advertise(meta, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_rejects_conflicting_placeholder_units
+
+   ! A zero-member STATE export (registered via advertise_one's flat-item
+   ! branch, not CompositeStateMaterialization) must be skipped by
+   ! graphbuilder_realize_callback_states, not treated as a callback
+   ! composite with an unallocated payload.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_skips_empty_state_var_spec(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: empty_state
+      type(ESMF_State) :: export_state
+      type(ESMF_StateItem_Flag) :: item_kind
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_empty_state', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      empty_state = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      empty_state%itemType = MAPL_STATEITEM_STATE
+      call spec%add_var_spec(empty_state)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      @assertTrue(ESMF_StateIsCreated(export_state, rc=status))
+      @assertEqual(0, status)
+      call ESMF_StateGet(export_state, itemName='cb', itemType=item_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item_kind == ESMF_STATEITEM_NOTFOUND)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_skips_empty_state_var_spec
+
+   ! A Handler composite member bound to a CallbackArgumentSpec's unit
+   ! placeholder ('$U') must itself declare a matching
+   ! callback_unit_placeholder (check_unit_placeholders,
+   ! CompositeStateMaterialization.F90) - a plain fixed-unit member is a
+   ! hard wiring error at ADVERTISE, before realization is ever reached.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_advertise_rejects_missing_unit_placeholder_binding(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: cb_export, tracers_member
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      call iface%declare_argument('tracers', MAPL_VARIANT_FIELDBUNDLE, units='$U', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-missing-placeholder', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_missing_placeholder', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+
+      ! 'tracers' binds a plain fixed unit, not the interface's
+      ! placeholder - callback_unit_placeholder is left unallocated.
+      tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers', units='kg kg-1')
+      tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call cb_export%declare_member('tracers', tracers_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      expected_message = 'CompositeStateMaterialization: Handler "cb" argument "tracers" ' // &
+           'expects unit placeholder "U" bound on its member, but the member binds none'
+
+      call gb%advertise(meta, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_rejects_missing_unit_placeholder_binding
+
+   ! A member that declares callback_unit_placeholder under a different
+   ! name than the interface's own placeholder is a hard wiring error at
+   ! ADVERTISE, distinct from binding none at all.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_advertise_rejects_wrong_unit_placeholder_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: cb_export, tracers_member
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      call iface%declare_argument('tracers', MAPL_VARIANT_FIELDBUNDLE, units='$U', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-wrong-placeholder-name', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_wrong_placeholder', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+
+      ! 'tracers' binds a placeholder, but named "V", not the interface's
+      ! own placeholder name "U".
+      tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers', units='kg kg-1')
+      tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      tracers_member%callback_unit_placeholder = 'V'
+      call cb_export%declare_member('tracers', tracers_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      expected_message = 'CompositeStateMaterialization: Handler "cb" argument "tracers" ' // &
+           'binds placeholder "V", interface expects "U"'
+
+      call gb%advertise(meta, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_rejects_wrong_unit_placeholder_name
+
+   ! A `members:` YAML entry with no `alias:`/`units:` (parse_var_specs.F90's
+   ! parse_callback_members) reaches declare_member as a plain new FIELD
+   ! member, through the full pipeline (YAML text -> parse_var_specs ->
+   ! add_var_spec -> advertise -> realize), not a hand-built VariableSpec -
+   ! exercising the real HConfig-reading path, not just declare_member
+   ! itself.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_yaml_members_new_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 406, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-new-field', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_new_field', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {callback_interface: svc-yaml-new-field, members: {arg1: {units: K}}}' // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+      @assertTrue(cb_export%itemType == MAPL_STATEITEM_STATE)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('K', got_units)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_yaml_members_new_field
+
+   ! A `members:` YAML entry with `alias:` (parse_callback_members) reaches
+   ! declare_member with callback_member_alias set, sharing the aliased
+   ! INTERNAL item's own Field zero-copy, through the full YAML pipeline -
+   ! the YAML counterpart of
+   ! test_realize_callback_states_alias_member_shares_internal_field. The
+   ! aliased INTERNAL item (TR1) is declared in the same YAML document, not
+   ! hand-built, exercising the real parser's internal-items-first
+   ! ordering (parse_var_specs parses INTERNAL before EXPORT).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_yaml_members_alias(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: internal_var, cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: tracer_field, internal_field
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: internal_id
+      class(GraphNode), pointer :: internal_node
+      type(GraphStateItem), pointer :: internal_payload
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 407, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('tracer', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('toy_yaml_alias', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_alias', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {' // &
+           'internal: {TR1: {units: kg kg-1}}, ' // &
+           'export: {cb: {callback_interface: toy_yaml_alias, members: {tracer: {alias: TR1}}}}' // &
+           '}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         internal_var => iter%of()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+      @assertEqual('TR1', internal_var%short_name)
+      @assertEqual('cb', cb_export%short_name)
+      @assertTrue(cb_export%itemType == MAPL_STATEITEM_STATE)
+
+      call spec%add_var_spec(internal_var)
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'tracer', tracer_field, rc=status)
+      @assertEqual(0, status)
+
+      graph => meta%get_component_graph()
+      internal_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, 'TR1'))
+      @assertTrue(associated(internal_id))
+      internal_node => graph%get_node(internal_id)
+      select type (internal_node)
+      class is (StateItemNode)
+         internal_payload => internal_node%get_payload_ptr()
+      class default
+         @assertTrue(.false., 'TR1 is not a StateItemNode')
+      end select
+      internal_field = internal_payload%get_field(rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(FieldsAreAliased(tracer_field, internal_field))
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_yaml_members_alias
+
+   ! A `members:` YAML entry whose `units:` is a one-entry map
+   ! (`units: {U: '...'}`, parse_var_specs.F90's to_units_or_placeholder)
+   ! binds the interface's own `$U` placeholder end to end: the realized
+   ! member Field carries the bound concrete unit, not the placeholder
+   ! text.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_yaml_binds_unit_placeholder(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      character(:), allocatable :: got_units
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 408, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', units='$U', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-unit-placeholder', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_unit_placeholder', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           "cb: {callback_interface: svc-yaml-unit-placeholder, members: {arg1: {units: {U: 'kg kg-1'}}}}" // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+      @assertTrue(cb_export%itemType == MAPL_STATEITEM_STATE)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('kg kg-1', got_units)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_yaml_binds_unit_placeholder
+
+   ! gb%realize_callback_states is safe to call a second time into a
+   ! different, independent ESMF_State (not just the idempotent-same-State
+   ! case covered by test_realize_callback_states_idempotent_second_pass):
+   ! each call reads the already-realized member Field/FieldBundle off the
+   ! graph (no second materialize_field_extension) and inserts a fresh
+   ! MAPL_NamedAlias of it into whichever target State it is given. This is
+   ! necessary for, but does not by itself prove,
+   ! initialize_realize_accepted.F90's own two real calls (one into the
+   ! outer exportState, one into the user exportState) actually both run;
+   ! see test_initialize_realize_accepted_reaches_both_export_states for
+   ! that.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_repeats_into_second_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: cb_export, arg_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: outer_export_state, user_export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(ESMF_StateItem_Flag) :: cb_kind
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 409, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_both_exports', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+
+      arg_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1', units='K')
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      arg_member%geom = geom
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      outer_export_state = ESMF_StateCreate(name='outer_export', rc=status)
+      @assertEqual(0, status)
+      user_export_state = ESMF_StateCreate(name='user_export', rc=status)
+      @assertEqual(0, status)
+
+      call gb%realize_callback_states(meta, outer_export_state, status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, user_export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(outer_export_state, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+      call ESMF_StateGet(outer_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(user_export_state, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+      call ESMF_StateGet(user_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_repeats_into_second_state
+
+   ! The real routing regression test: drives the actual
+   ! OuterMetaComponent%initialize_realize_accepted (not a direct
+   ! gb%realize_callback_states call made by the test itself), so this
+   ! fails if that routine ever drops either of its own two
+   ! gb%realize_callback_states calls - the outer exportState one or the
+   ! this%user_gc_driver exportState one (the exact gap round 1 found and
+   ! fixed).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_initialize_realize_accepted_reaches_both_export_states(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: cb_export, arg_member
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: import_state, outer_export_state, user_export_state, cb_state
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0
+      type(ESMF_TimeInterval) :: dt
+      type(ESMF_Field) :: arg_field
+      type(ESMF_StateItem_Flag) :: cb_kind
+      type(GriddedComponentDriver) :: user_driver
+      type(MultiState) :: user_states
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 410, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_init_realize_accepted', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+
+      arg_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1', units='K')
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      arg_member%geom = geom
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+
+      import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      outer_export_state = ESMF_StateCreate(name='outer_export', rc=status)
+      @assertEqual(0, status)
+      call ESMF_TimeSet(t0, timeString="2000-01-01T00:00:00", rc=status)
+      @assertEqual(0, status)
+      call ESMF_TimeIntervalSet(dt, h=1, rc=status)
+      @assertEqual(0, status)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, rc=status)
+      @assertEqual(0, status)
+
+      call meta%initialize_realize_accepted(import_state, outer_export_state, clock, rc=status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(outer_export_state, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+      call ESMF_StateGet(outer_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+
+      user_driver = meta%get_user_gc_driver()
+      user_states = user_driver%get_states()
+      user_export_state = user_states%exportState
+      call ESMF_StateGet(user_export_state, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+      call ESMF_StateGet(user_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_initialize_realize_accepted_reaches_both_export_states
+
+   @before
+   subroutine reset_graph_gates(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine reset_graph_gates
+
+   @after
+   subroutine restore_graph_gates(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      call reset_callback_registry_for_testing()
+      _UNUSED_DUMMY(this)
+   end subroutine restore_graph_gates
+
+end module Test_GraphBuilder_CallbackRealization

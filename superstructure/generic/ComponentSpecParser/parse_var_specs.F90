@@ -4,6 +4,13 @@ submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    use mapl_VerticalGrid_mod
    use mapl_HorizontalDimsSpec_mod
    use mapl_QuantityType_mod, only: QuantityType, QUANTITY_UNKNOWN, operator(/=)
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
+   ! Renamed on import: MAPL_STATEITEM_FIELD below would otherwise clash
+   ! with the ESMF_StateItem_Flag constant of the same name already in
+   ! scope from mapl_StateItem_mod (see StateItemFlag.F90's own header).
+   use mapl_StateItemFlag_mod, only: CALLBACK_ARGUMENT_FIELD_KIND => MAPL_STATEITEM_FIELD, operator(==)
    implicit none(type,external)
 
    character(*), parameter :: KEY_DIMS = 'dims'
@@ -11,6 +18,9 @@ submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    character(*), parameter :: KEY_NON_NEGATIVE = 'non_negative'
    character(*), parameter :: KEY_NON_NEGATIVE_FILL = 'fill'
    character(*), parameter :: KEY_CALLBACK_INTERFACE = 'callback_interface'
+   character(*), parameter :: KEY_CALLBACK_MEMBER_ALIAS = 'alias'
+   character(*), parameter :: KEY_CALLBACK_MEMBER_UNITS = 'units'
+   character(*), parameter :: KEY_CALLBACK_MEMBERS = 'members'
 
 contains
 
@@ -67,6 +77,10 @@ contains
          character(:), allocatable :: non_negative
          character(:), allocatable :: callback_interface
          logical :: has_callback_interface
+         character(:), allocatable :: callback_unit_placeholder
+         logical :: has_callback_member_alias
+         logical :: has_callback_members
+         logical :: is_callback_state_export
          type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
@@ -83,6 +97,7 @@ contains
          logical :: mirror_vgrid, has_mirror_vgrid
          character(:), allocatable :: dims_str
          type(HorizontalDimsSpec) :: horizontal_dims_spec
+         character(:), allocatable :: msg
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
 
@@ -158,10 +173,16 @@ contains
                long_name = ESMF_HConfigAsString(attributes,keyString='long_name', _RC)
             end if
 
-            has_units = ESMF_HConfigIsDefined(attributes,keyString='units', _RC)
-            if (has_units) then
-               units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
-            end if
+            if (allocated(callback_unit_placeholder)) deallocate(callback_unit_placeholder)
+            call to_units_or_placeholder(units, callback_unit_placeholder, attributes, has_units, _RC)
+            msg = 'a unit-placeholder binding ({Placeholder: ConcreteUnit}) is only valid inside a "' // &
+                 KEY_CALLBACK_MEMBERS // '" entry, not a top-level state item: ' // short_name
+            _ASSERT(.not. allocated(callback_unit_placeholder), msg)
+
+            has_callback_member_alias = ESMF_HConfigIsDefined(attributes, keyString=KEY_CALLBACK_MEMBER_ALIAS, _RC)
+            msg = '"' // KEY_CALLBACK_MEMBER_ALIAS // '" is only valid inside a "' // KEY_CALLBACK_MEMBERS // &
+                 '" entry, not a top-level state item: ' // short_name
+            _ASSERT(.not. has_callback_member_alias, msg)
 
             has_expression = ESMF_HConfigIsDefined(attributes,keyString='expression', _RC)
             if (has_expression) then
@@ -174,6 +195,12 @@ contains
             if (has_callback_interface) then
                callback_interface = ESMF_HConfigAsString(attributes, keyString=KEY_CALLBACK_INTERFACE, _RC)
             end if
+
+            has_callback_members = ESMF_HConfigIsDefined(attributes, keyString=KEY_CALLBACK_MEMBERS, _RC)
+            is_callback_state_export = has_callback_interface .and. (state_intent == COMPONENT_EXPORT_STATE_SECTION)
+            msg = '"' // KEY_CALLBACK_MEMBERS // '" is only valid on a Handler callback-State EXPORT ' // &
+                 'declaring "' // KEY_CALLBACK_INTERFACE // '": ' // short_name
+            _ASSERT(.not. has_callback_members .or. is_callback_state_export, msg)
 
             itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
@@ -216,6 +243,8 @@ contains
                  non_negative=non_negative, &
                  callback_interface=callback_interface, _RC)
 
+            if (has_callback_members) call parse_callback_members(var_spec, attributes, _RC)
+
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
             if (allocated(long_name)) deallocate(long_name)
@@ -248,6 +277,146 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
+
+      ! units: a plain scalar string is an ordinary concrete unit
+      ! (unchanged behavior, placeholder stays unallocated). A one-entry
+      ! map ({Placeholder: ConcreteUnit}, e.g. {U: 'kg kg-1'}) binds the
+      ! owning CallbackInterface's named unit placeholder to a concrete
+      ! value for this Handler member: units gets the concrete value and
+      ! placeholder gets the bare placeholder name (no leading '$').
+      ! has_units reports whether the key was present at all, either shape.
+      subroutine to_units_or_placeholder(units, placeholder, attributes, has_units, rc)
+         character(:), allocatable, intent(out) :: units
+         character(:), allocatable, intent(out) :: placeholder
+         type(ESMF_HConfig), intent(in) :: attributes
+         logical, intent(out) :: has_units
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_HConfig) :: subcfg
+         type(ESMF_HConfigIter) :: iter, b, e
+         logical :: looped, is_map
+         integer :: num_keys
+
+         has_units = ESMF_HConfigIsDefined(attributes, keyString='units', _RC)
+         _RETURN_UNLESS(has_units)
+
+         subcfg = ESMF_HConfigCreateAt(attributes, keyString='units', _RC)
+         is_map = ESMF_HConfigIsMap(subcfg, _RC)
+         if (is_map) then
+            num_keys = ESMF_HConfigGetSize(subcfg, _RC)
+            _ASSERT(num_keys == 1, 'units map must have exactly one entry, e.g. {U: "kg kg-1"}')
+            b = ESMF_HConfigIterBegin(subcfg, _RC)
+            e = ESMF_HConfigIterEnd(subcfg, _RC)
+            iter = b
+            looped = ESMF_HConfigIterLoop(iter, b, e, _RC)
+            _ASSERT(looped, 'units map must have exactly one entry, e.g. {U: "kg kg-1"}')
+            placeholder = ESMF_HConfigAsStringMapKey(iter, _RC)
+            units = ESMF_HConfigAsStringMapVal(iter, _RC)
+         else
+            units = ESMF_HConfigAsString(subcfg, _RC)
+         end if
+         call ESMF_HConfigDestroy(subcfg, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine to_units_or_placeholder
+
+      ! `members:` (Handler callback-State EXPORT only, gated by the caller):
+      ! a map of member name -> optional {alias:, units:} map, the same two
+      ! keys VariableSpec%declare_member's own member argument takes
+      ! (callback_member_alias, callback_unit_placeholder/units via
+      ! to_units_or_placeholder's shared shape). Any other key in an entry
+      ! is rejected immediately (e.g. vertical_dim_spec, typekind, nested
+      ! members, template: true), rather than failing later with a
+      ! confusing downstream error: a YAML member is 2D only (vertical
+      ! stagger hard-defaulted to NONE), since a composite member is
+      ! realized directly from its own characteristics
+      ! (CompositeStateMaterialization.F90's materialize_member), not
+      ! through the connection-resolution graph that lets a flat top-level
+      ! item defer and later mirror its vertical grid. A member name that
+      ! matches a declared interface argument must answer a FIELD-kind
+      ! argument; a FieldBundle-kind argument is rejected here rather than
+      ! deferred to conformance-check. One declare_member call per entry.
+      subroutine parse_callback_members(var_spec, attributes, rc)
+         type(VariableSpec), intent(inout) :: var_spec
+         type(ESMF_HConfig), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_HConfig) :: members_cfg, member_cfg
+         type(ESMF_HConfigIter) :: iter, b, e
+         type(ESMF_HConfigIter) :: key_iter, key_b, key_e
+         character(:), allocatable :: member_name
+         character(:), allocatable :: member_alias
+         character(:), allocatable :: member_units
+         character(:), allocatable :: member_placeholder
+         character(:), allocatable :: key_name
+         logical :: has_alias, has_units, is_known_key, is_map
+         character(:), allocatable :: msg
+         type(CallbackInterface) :: iface
+         type(CallbackArgumentSpec) :: arg_spec
+         type(VariableSpec) :: member_var_spec
+
+         iface = get_callback_interface(var_spec%callback_interface_id, _RC)
+
+         members_cfg = ESMF_HConfigCreateAt(attributes, keyString=KEY_CALLBACK_MEMBERS, _RC)
+         b = ESMF_HConfigIterBegin(members_cfg, _RC)
+         e = ESMF_HConfigIterEnd(members_cfg, _RC)
+         iter = b
+         do while (ESMF_HConfigIterLoop(iter, b, e))
+            member_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+            member_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
+
+            is_map = ESMF_HConfigIsMap(member_cfg, _RC)
+            msg = '"' // KEY_CALLBACK_MEMBERS // '" entry "' // member_name // &
+                 '" must be a map (use "{}" for a plain member with no "' // KEY_CALLBACK_MEMBER_ALIAS // &
+                 '"/"' // KEY_CALLBACK_MEMBER_UNITS // '"), not a bare key'
+            _ASSERT(is_map, msg)
+
+            key_b = ESMF_HConfigIterBegin(member_cfg, _RC)
+            key_e = ESMF_HConfigIterEnd(member_cfg, _RC)
+            key_iter = key_b
+            do while (ESMF_HConfigIterLoop(key_iter, key_b, key_e))
+               key_name = ESMF_HConfigAsStringMapKey(key_iter, _RC)
+               is_known_key = (key_name == KEY_CALLBACK_MEMBER_ALIAS) .or. (key_name == KEY_CALLBACK_MEMBER_UNITS)
+               msg = '"' // KEY_CALLBACK_MEMBERS // '" entry "' // member_name // '" has unsupported key "' // &
+                    key_name // '": a YAML member is 2D only and supports only "' // KEY_CALLBACK_MEMBER_ALIAS // &
+                    '" and "' // KEY_CALLBACK_MEMBER_UNITS // '"'
+               _ASSERT(is_known_key, msg)
+            end do
+
+            if (iface%is_argument(member_name)) then
+               arg_spec = iface%get_argument(member_name, _RC)
+               msg = '"' // KEY_CALLBACK_MEMBERS // '" entry "' // member_name // '" answers a non-FIELD-kind ' // &
+                    'interface argument; a YAML member can only answer a FIELD-kind argument: ' // var_spec%short_name
+               _ASSERT(arg_spec%get_expected_kind() == CALLBACK_ARGUMENT_FIELD_KIND, msg)
+            end if
+
+            if (allocated(member_alias)) deallocate(member_alias)
+            has_alias = ESMF_HConfigIsDefined(member_cfg, keyString=KEY_CALLBACK_MEMBER_ALIAS, _RC)
+            if (has_alias) then
+               member_alias = ESMF_HConfigAsString(member_cfg, keyString=KEY_CALLBACK_MEMBER_ALIAS, _RC)
+            end if
+
+            if (allocated(member_units)) deallocate(member_units)
+            if (allocated(member_placeholder)) deallocate(member_placeholder)
+            call to_units_or_placeholder(member_units, member_placeholder, member_cfg, has_units, _RC)
+
+            member_var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name=member_name, &
+                 itemtype=MAPL_STATEITEM_FIELD, vertical_stagger=VERTICAL_STAGGER_NONE, &
+                 units=member_units, _RC)
+            if (has_alias) member_var_spec%callback_member_alias = member_alias
+            if (allocated(member_placeholder)) member_var_spec%callback_unit_placeholder = member_placeholder
+
+            call var_spec%declare_member(member_name, member_var_spec, _RC)
+
+            call ESMF_HConfigDestroy(member_cfg, _RC)
+         end do
+
+         call ESMF_HConfigDestroy(members_cfg, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine parse_callback_members
 
       ! non_negative: {fill: column}. Unallocated when the key is absent. The
       ! map must hold exactly one key, fill, with a scalar value.

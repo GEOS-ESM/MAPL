@@ -87,14 +87,39 @@
   interface declares must be bound before the callback State is
   realized. `alias: <name>` makes the member a zero-copy view of an
   existing Handler item (geometry/typekind/units come from the aliased
-  item, no units binding needed); `alias: <pattern>` with `template:
-  true` expands it, via the existing wildcard-matching regex code for
-  import names, into one member per matching internal item. Fill the
-  Invoker's collection State with the matched callback States; record
-  the interface name in each callback State's Info. Depends on 5.0.
-  Design: design.md decision 21 (unit placeholder binding, alias/template
-  YAML), decision notes topics A-units (D1-D3) and B.
-- [ ] 5.2 `ESMF_MethodExecute`-backed `StateMethodInvoker`; production
+  item, no units binding needed). A minimal `members:` YAML map (name ->
+  `{alias:, units:}`) on a callback-State EXPORT reaches `declare_member`
+  for plain/aliased members (nested composite members stay
+  Fortran-API-only for now); a `members:` entry only answers a FIELD-kind
+  interface argument -- reject loudly at parse/advertise time otherwise.
+  Record the interface name in each callback State's Info. Template
+  expansion (`alias: <pattern>` with `template: true`) is its own task,
+  5.1b. Depends on 5.0. Design: design.md decision 21 (unit placeholder
+  binding, alias YAML, minimal `members:` YAML, FIELD-only `members:`),
+  decision notes topics A-units (D1-D3) and B.
+- [ ] 5.1b `alias: <pattern>` with `template: true` on `declare_member`:
+  expand it, via the existing wildcard-matching regex code already used
+  for import names, into one callback State per matching internal item,
+  each containing one member (e.g. `alias: 'TR.*'` with `template: true`
+  on an interface's `tracer` argument yields three sibling callback
+  States, one per `TR001`/`TR002`/`TR003`, each with its own single
+  `tracer` member). No YAML shape required yet (Fortran-API-only, same as
+  nested composite members). Split out from 5.1 (owner 2026-11-23) after
+  cumulative review found it unimplemented; landing 5.1 without it is
+  additive since nothing downstream needs it. Depends on 5.1. Design:
+  design.md decision 21 (alias/template YAML).
+- [ ] 5.1a A plain `members:` YAML entry (5.1) can only declare a 2D
+  field today (vertical stagger hard-defaulted to none); give it a way
+  to declare a vertical grid/stagger, matching what an ordinary
+  top-level item's YAML can already express. Owner priority: important,
+  not optional -- GEOS physics callback arguments are routinely 3D.
+  Needs its own design pass (a composite member has no connection to
+  mirror a vertical grid from the way a top-level item does via
+  GEOM_A/B's DEFERRED machinery; a `members:` entry likely needs an
+  explicit `vertical_grid:`/`vertical_stagger:` key instead, or some
+  other resolution this task should propose). Depends on 5.1.
+- [ ] 5.2 Fill the Invoker's collection State with each matched callback
+  State, then `ESMF_MethodExecute`-backed `StateMethodInvoker`; production
   calls to `build_callback_state_binding` /
   `build_callback_method_binding` for every collection member.
 - [ ] 5.3 Invoker API: an iterator over one collection's bound Handlers

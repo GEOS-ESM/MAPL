@@ -21,6 +21,10 @@ module Test_ComponentSpecParser
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
         reset_callback_registry_for_testing
+   ! Renamed on import: mapl_StateItem_mod's own MAPL_STATEITEM_FIELDBUNDLE
+   ! (an ESMF_StateItem_Flag) already in scope is a different type than
+   ! CallbackInterface%declare_argument's expected_kind argument.
+   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE
    use mapl_ErrorHandling_mod
    use mapl_Connection_mod
    use mapl_ConnectionPt_mod
@@ -381,10 +385,10 @@ contains
 
    ! callback_interface: <name> resolves through CallbackInterfaceRegistry to
    ! the registered CallbackInterfaceId, on both an import (callback
-   ! consumer role) and an export (Handler role; parse_var_specs has no YAML
-   ! way to declare a composite STATE item, so this uses an ordinary FIELD
-   ! export - the key's resolution does not depend on itemType); an item
-   ! that omits the key keeps an invalid (unset) callback_interface_id.
+   ! consumer role) and an export (Handler role; this uses an ordinary
+   ! FIELD export, not a `members:`-bearing composite, since the key's own
+   ! resolution does not depend on itemType); an item that omits the key
+   ! keeps an invalid (unset) callback_interface_id.
    @test
    subroutine test_parse_var_specs_callback_interface()
       type(ESMF_HConfig) :: config
@@ -452,6 +456,181 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
       call reset_callback_registry_for_testing()
    end subroutine test_parse_var_specs_rejects_unregistered_callback_interface
+
+   ! `alias: <name>` is only valid inside a `members:` entry (parsed by
+   ! parse_var_specs's own parse_callback_members, not at this top level);
+   ! a top-level state item using it is a hard error.
+   @test
+   subroutine test_parse_var_specs_rejects_top_level_callback_member_alias()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'tracer: {typekind: R4, alias: TR1}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"alias" is only valid inside a "members" ' // &
+           'entry, not a top-level state item: tracer')
+      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_top_level_callback_member_alias
+
+   ! A one-entry map value for `units:` (`units: {U: 'kg kg-1'}`) is a
+   ! unit placeholder binding, only valid inside a `members:` entry; a
+   ! top-level state item using it is a hard error.
+   @test
+   subroutine test_parse_var_specs_rejects_top_level_unit_placeholder_binding()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content="{states: {export: {" // &
+           "bound: {typekind: R4, units: {U: 'kg kg-1'}}" // &
+           "}}}", _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('a unit-placeholder binding ({Placeholder: ConcreteUnit}) is only ' // &
+           'valid inside a "members" entry, not a top-level state item: bound')
+      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_top_level_unit_placeholder_binding
+
+   ! `members:` is only valid on a Handler callback-State EXPORT (one
+   ! declaring `callback_interface:`); on a plain export with no
+   ! `callback_interface:` it is the same hard error as a bare top-level
+   ! `alias:`/unit-placeholder `units:`.
+   @test
+   subroutine test_parse_var_specs_rejects_members_without_callback_interface()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, members: {arg1: {}}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members" is only valid on a Handler callback-State EXPORT ' // &
+           'declaring "callback_interface": cb')
+      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_members_without_callback_interface
+
+   ! A `members:` entry carries only `alias`/`units` (parse_var_specs.F90's
+   ! parse_callback_members); any other key is a hard parse error.
+   @test
+   subroutine test_parse_var_specs_rejects_unsupported_member_key()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_members_unsupported_key', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_unsupported_key, ' // &
+           'members: {arg1: {typekind: R8}}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members" entry "arg1" has unsupported key "typekind": a YAML member ' // &
+           'is 2D only and supports only "alias" and "units"')
+      ! parse_callback_members's own call site and parse_var_specs's own
+      ! call site each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_unsupported_member_key
+
+   ! A `members:` entry whose name matches a declared interface argument
+   ! must answer a FIELD-kind argument; a FieldBundle-kind argument is a
+   ! hard parse error, not deferred to conformance-check.
+   @test
+   subroutine test_parse_var_specs_rejects_member_for_fieldbundle_argument()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call iface%declare_argument('bundle_arg', MAPL_VARIANT_FIELDBUNDLE, _RC)
+      call register_callback_interface('toy_members_fieldbundle', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_fieldbundle, ' // &
+           'members: {bundle_arg: {}}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members" entry "bundle_arg" answers a non-FIELD-kind interface ' // &
+           'argument; a YAML member can only answer a FIELD-kind argument: cb')
+      ! parse_callback_members's own call site and parse_var_specs's own
+      ! call site each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_member_for_fieldbundle_argument
+
+   ! `members:` cannot be combined with `expression:` or with `class:` on
+   ! the same item (to_itemtype.F90).
+   @test
+   subroutine test_parse_var_specs_rejects_members_plus_expression_or_class()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_members_combo', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_combo, ' // &
+           "members: {arg1: {}}, expression: 'A+B'}" // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members:" cannot be combined with "expression:" on the same item')
+      ! to_itemtype's own call site and parse_var_specs's own call site
+      ! each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_combo, ' // &
+           'members: {arg1: {}}, class: field}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members:" cannot be combined with "class:" on the same item')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_members_plus_expression_or_class
 
    ! vertical_alignment reaches the VariableSpec as written; omitted stays unallocated.
    @test

@@ -12,16 +12,30 @@ contains
 
       integer :: status
       character(:), allocatable :: subclass
+      character(:), allocatable :: msg
       logical :: has_subclass
       logical :: has_expression
+      logical :: has_members
 
       itemtype = MAPL_STATEITEM_FIELD ! default
       has_expression = ESMF_HConfigIsDefined(attributes,keyString='expression',_RC)
       if (has_expression) then
          itemtype = MAPL_STATEITEM_EXPRESSION
       end if
-      
+
+      ! `members:` (a Handler callback-State EXPORT's declared members, see
+      ! parse_var_specs.F90) is the only way a plain top-level YAML item
+      ! becomes a STATE itemType today; there is no `class: state`.
+      has_members = ESMF_HConfigIsDefined(attributes,keyString='members',_RC)
+      msg = '"members:" cannot be combined with "expression:" on the same item'
+      _ASSERT(.not. (has_members .and. has_expression), msg)
+      if (has_members) then
+         itemtype = MAPL_STATEITEM_STATE
+      end if
+
       has_subclass = ESMF_HConfigIsDefined(attributes,keyString='class',_RC)
+      msg = '"members:" cannot be combined with "class:" on the same item'
+      _ASSERT(.not. (has_members .and. has_subclass), msg)
       _RETURN_UNLESS(has_subclass)
 
       subclass = ESMF_HConfigAsString(attributes, keyString='class',_RC)

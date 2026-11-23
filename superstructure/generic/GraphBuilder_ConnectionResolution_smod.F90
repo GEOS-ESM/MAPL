@@ -9,7 +9,7 @@
 ! characteristics are read off each already-advertised StateItemNode, never
 ! re-derived from a VariableSpec.
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
-   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, &
+   use esmf, only: ESMF_StateCreate, ESMF_StateGet, &
         ESMF_FieldDestroy, &
         ESMF_STATEITEM_NOTFOUND, ESMF_STATEITEM_FIELD, &
         ESMF_STATEITEM_FIELDBUNDLE, ESMF_STATEITEM_STATE, &

@@ -17,7 +17,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use mapl_MultiState_mod, only: MultiState
    use mapl_geom_api, only: MAPL_GeomGetId
    use mapl_field_api, only: MAPL_FieldGet
-   use esmf, only: ESMF_State, ESMF_StateGet, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
+   use esmf, only: ESMF_StateGet, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
         ESMF_FieldStatus_Flag, ESMF_FieldGet, ESMF_FieldIsCreated, ESMF_FieldBundleIsCreated, ESMF_FieldBundleGet, &
         operator(==), ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE
    use mapl_ErrorHandling_mod
