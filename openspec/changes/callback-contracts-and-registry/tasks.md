@@ -76,7 +76,7 @@
   does not exist until 5.1. Tests on hand-built interfaces (`toy_scaling`
   or a new fixture). Depends on 1.1, 3.2. Design: design.md decision 21
   (unit placeholder YAML), decision notes topic A-units (D1-D3).
-- [ ] 5.1 Realize each Handler's callback State as an `ESMF_State`
+- [x] 5.1 Realize each Handler's callback State as an `ESMF_State`
   holding its member items. A plain `declare_member` is a new,
   framework-allocated field: geometry from the Handler's component;
   units from the interface's concrete value (5.0), or, for a placeholder,
