@@ -17,6 +17,7 @@ module mapl_FieldBundleGet_mod
    use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoGet
    use mapl_InfoUtilities_mod
    use mapl_LU_Bound_mod
+   use mapl_UnownedGeom_mod, only: get_unowned_geom
    use esmf
    implicit none
    private
@@ -87,6 +88,7 @@ contains
       integer :: vgrid_id
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
       character(len=ESMF_MAXSTR) :: fname
+      type(ESMF_Geom) :: bundle_geom
 
       if (present(short_name)) then
          call ESMF_FieldBundleGet(fieldBundle, name=fname, _RC)
@@ -129,8 +131,10 @@ contains
       end if
 
       if (present(geom) .and. has_geom) then
+         ! The bundle's own wrapper is freed when the bundle empties.
+         call ESMF_FieldBundleGet(fieldBundle, geom=bundle_geom, _RC)
          allocate(geom)
-         call ESMF_FieldBundleGet(fieldBundle, geom=geom, _RC)
+         call get_unowned_geom(bundle_geom, geom, _RC)
       end if
 
       if (present(vgrid)) then
