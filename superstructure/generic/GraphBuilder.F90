@@ -74,6 +74,7 @@ module mapl_GraphBuilder_mod
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
@@ -86,6 +87,7 @@ module mapl_GraphBuilder_mod
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
    use mapl_PortId_mod, only: PortId
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_STATE, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_WILDCARD
    use mapl_StateItemKeyPrefix_mod, only: INTERNAL_ITEM_KEY_PREFIX
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
@@ -109,6 +111,10 @@ module mapl_GraphBuilder_mod
    ! Called from GraphBuilder_CallbackWiring_smod.F90 as well as its home
    ! submodule; public for the same gfortran cross-submodule-linkage reason.
    public :: materialize_extension_chain
+   ! Called from GraphBuilder_ConnectionResolution_smod.F90 (reexport_one,
+   ! resolve_callback_import's plain-name/merge lookups); public for the
+   ! same gfortran cross-submodule-linkage reason.
+   public :: find_export_port_node_ids
    ! Public so tests and other code that identify a geometry node need not
    ! duplicate the key format.
    public :: GEOMETRY_ITEM_NAME
@@ -830,6 +836,96 @@ contains
       _RETURN(_SUCCESS)
    end function resolve_qualified_component
 
+   ! Every NodeId registered under a port named `name` in graph's own
+   ! export-port table: 0 (name not exported), 1 (an ordinary export or a
+   ! single re-export), or more than 1 (a merged callback name - see
+   ! reexport_one). Read-only scan, mirrors find_export_node's loop but
+   ! collects every match instead of returning the first.
+   function find_export_port_node_ids(graph, name) result(node_ids)
+      type(ComponentGraph), target, intent(in) :: graph
+      character(*), intent(in) :: name
+      type(NodeId), allocatable :: node_ids(:)
+
+      type(PortIdNodeIdMap), target :: export_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId), allocatable :: grown(:)
+      type(NodeId) :: candidate_id
+      class(GraphNode), pointer :: candidate_node
+      integer :: n
+
+      allocate(node_ids(0))
+      export_ports = graph%get_export_ports()
+      associate (e => export_ports%ftn_end())
+         iter = export_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            if (graph%get_export_port_name(iter%first()) == name) then
+               candidate_id = iter%second()
+               ! Same StateItemNode filter find_export_node uses: a
+               ! non-StateItemNode port entry is not an export candidate.
+               candidate_node => graph%get_node(candidate_id)
+               if (.not. associated(candidate_node)) cycle
+               select type (candidate_node)
+               class is (StateItemNode)
+                  ! Grow via move_alloc; see collect_qualified_exports.
+                  n = size(node_ids)
+                  allocate(grown(n + 1))
+                  if (n > 0) grown(1:n) = node_ids
+                  grown(n + 1) = candidate_id
+                  call move_alloc(grown, node_ids)
+               class default
+                  ! Not a StateItemNode: not an export candidate; skip.
+               end select
+            end if
+         end do
+      end associate
+   end function find_export_port_node_ids
+
+   ! Same resolution as resolve_qualified_export_node_id, but found is
+   ! .false. (rather than a build-failing _ASSERT) for an export not yet
+   ! advertised. resolve_callback_import's candidate search calls this on
+   ! every namespace entry while a merge is possible, including ones that
+   ! may not be this import's match and may not be advertised yet; only
+   ! resolve_qualified_export_node_id's own callers, downstream of an
+   ! already-decided match, need the hard failure.
+   function try_resolve_export_node_id(this, src_component_name, entry, node_id) result(found)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: src_component_name
+      type(QualifiedExportEntry), intent(in) :: entry
+      type(NodeId), intent(out) :: node_id
+      logical :: found
+
+      integer :: status
+      character(:), allocatable :: full_path
+      type(ComponentGraph), pointer :: owner_graph
+      type(NodeId), pointer :: owner_item_id
+      type(OuterMetaComponent), pointer :: owner_meta
+
+      found = .false.
+
+      ! allocate(source=) rather than `=`: see resolve_qualified_export_node_id.
+      if (is_self(this, src_component_name)) then
+         allocate(full_path, source=entry%comp_path)
+      else if (len(entry%comp_path) == 0) then
+         allocate(full_path, source=src_component_name)
+      else
+         allocate(full_path, source=src_component_name // '/' // entry%comp_path)
+      end if
+
+      if (len(full_path) == 0) then
+         owner_meta => this
+      else
+         owner_meta => resolve_descendant(this, full_path, status)
+         if (status /= 0) return
+      end if
+      owner_graph => owner_meta%get_component_graph()
+      owner_item_id => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
+      if (.not. associated(owner_item_id)) return
+
+      node_id = owner_item_id
+      found = .true.
+   end function try_resolve_export_node_id
+
    ! Human-readable item-class name for unsupported-item-class failure
    ! messages; mirrors VariableSpec.F90's %itemType%ot select-case.
    function itemtype_name(item_type) result(name)
@@ -861,8 +957,24 @@ contains
    ! Expands the connection's source pattern (src_pt%v_pt)
    ! against the flattened qualified-export namespace rooted at
    ! src_pt%component_name, keeping only matches that implement the
-   ! CallbackInterface for expected_interface_id. rejected (optional)
-   ! collects a reason string per rejected candidate: a joined-
+   ! CallbackInterface for expected_interface_id. A literal (non-regex)
+   ! src_name matches:
+   !  - an export whose full qualified name equals src_name exactly (an
+   !    explicit path works at any depth; an unqualified src_name only
+   !    ever matches one of src_comp's own direct exports, since a
+   !    descendant's qualified_name always carries a comp_path prefix);
+   !  - one of src_comp's own direct exports whose declared callback name
+   !    (get_callback_declared_name) equals src_name, even when its
+   !    short_name differs;
+   !  - any export, at any depth, whose real NodeId is registered under a
+   !    port named src_name in src_comp's own export-port table - i.e.
+   !    every source merged under that name by a re-export
+   !    (reexport_one). There is no search of src_comp's descendants by
+   !    bare name: a descendant's export reaches a plain src_name only via
+   !    an explicit re-export.
+   ! A regex src_name matches only the exact-match case above, applied as
+   ! an anchored regex over the full subtree. rejected
+   ! (optional) collects a reason string per rejected candidate: a joined-
    ! violation-codes string for an undeclared export that does not
    ! conform, or 'declares_other_interface:<name>' for an export that
    ! declares a *different* callback interface as its own
@@ -889,7 +1001,7 @@ contains
       type(VirtualConnectionPt) :: candidate_v_pt
       type(CallbackInterface) :: expected_iface
       type(StringVector) :: reject_reasons
-      integer :: i
+      integer :: i, j
       integer :: n
       logical :: conforms
       type(CallbackInterfaceId) :: declared_id
@@ -898,6 +1010,11 @@ contains
       character(:), allocatable :: reason
       character(:), allocatable :: report_message
       type(QualifiedExportEntry), allocatable :: grown_matches(:)
+      logical :: is_candidate
+      logical :: is_own_declared_name_match
+      logical :: is_merged_under_src_name
+      type(NodeId), allocatable :: merged_node_ids(:)
+      type(NodeId) :: candidate_node_id
 
       allocate(matches(0))
 
@@ -905,11 +1022,43 @@ contains
       namespace = build_qualified_export_namespace(root_meta, _RC)
       expected_iface = get_callback_interface(expected_interface_id, _RC)
 
+      if (src_pt%v_pt%is_literal()) then
+         ! Every node src_comp itself exports under this literal name,
+         ! including every source a re-export merged under it. Looked up
+         ! once; namespace entries below are checked against it by NodeId.
+         merged_node_ids = find_export_port_node_ids(root_meta%get_component_graph(), src_pt%v_pt%get_full_name())
+      end if
+
       do i = 1, size(namespace)
          candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
-         if (.not. src_pt%v_pt%matches(candidate_v_pt)) cycle
-
          declared_id = namespace(i)%var_spec%callback_interface_id
+
+         if (src_pt%v_pt%is_literal()) then
+            ! Not gated on declares_expected: an own export whose declared
+            ! name matches but whose declared_id names a different
+            ! interface must still reach the declares_other_interface
+            ! rejection below, not fall through to an empty collection.
+            is_own_declared_name_match = (len(namespace(i)%comp_path) == 0) .and. &
+                 (namespace(i)%var_spec%get_callback_declared_name() == src_pt%v_pt%get_full_name())
+
+            is_merged_under_src_name = .false.
+            if (size(merged_node_ids) > 0) then
+               if (try_resolve_export_node_id(this, src_pt%component_name, namespace(i), candidate_node_id)) then
+                  do j = 1, size(merged_node_ids)
+                     if (merged_node_ids(j) == candidate_node_id) then
+                        is_merged_under_src_name = .true.
+                        exit
+                     end if
+                  end do
+               end if
+            end if
+
+            is_candidate = src_pt%v_pt%matches(candidate_v_pt) .or. is_own_declared_name_match .or. is_merged_under_src_name
+         else
+            is_candidate = src_pt%v_pt%matches(candidate_v_pt)
+         end if
+         if (.not. is_candidate) cycle
+
          if (declared_id%is_valid() .and. .not. (declared_id == expected_interface_id)) then
             ! declared_id is valid, so it came from lookup_callback_interface_id,
             ! which already fails the build if it cannot find a registered name

@@ -130,6 +130,25 @@ contains
       _RETURN(_SUCCESS)
    end function wildcard_import_has_match
 
+   ! The empty-collection exception applies only to a PLAIN
+   ! (unqualified) src_name: a bare connection name with zero
+   ! resolve_callback_import matches and zero rejected candidates means
+   ! src_comp has no Handler of its own under that plain name at all, so it
+   ! resolves to an empty collection rather than staying unresolved. An
+   ! explicit '/'-qualified path or a regex src_name keeps the ordinary rule:
+   ! zero matches there is a real failure (a typo'd path, say), not "no
+   ! Handler". Shared by check_one and connection_pt_pair_resolves so the two
+   ! copies of this predicate cannot drift apart.
+   function callback_zero_match_is_empty(src_pt, callback_rejected) result(is_empty)
+      type(ConnectionPt), intent(in) :: src_pt
+      type(StringVector), intent(in) :: callback_rejected
+      logical :: is_empty
+
+      is_empty = src_pt%v_pt%is_literal() .and. &
+           index(src_pt%v_pt%get_full_name(), '/') == 0 .and. &
+           callback_rejected%size() == 0
+   end function callback_zero_match_is_empty
+
    ! Read-only counterpart of resolve_match_connection() below: same
    ! destination-import filtering and same-name export existence check,
    ! but never calls resolve_local_node_id() or add_dependency() -
@@ -171,6 +190,7 @@ contains
          logical :: has_match
          type(CallbackInterfaceId) :: callback_interface_id
          type(QualifiedExportEntry), allocatable :: callback_matches(:)
+         type(StringVector) :: callback_rejected
          type(StateItemDescriptor), pointer :: node_descriptor
 
          ! A destination declaring an expected callback interface is checked
@@ -180,9 +200,16 @@ contains
          ! NAG rejects `f()%method()` on a function result; use a local temporary.
          callback_interface_id = node%get_callback_interface_id()
          if (callback_interface_id%is_valid()) then
-            callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, rc=status)
+            callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, &
+                 rejected=callback_rejected, rc=status)
             _VERIFY(status)
-            if (size(callback_matches) == 0) then
+            ! See callback_zero_match_is_empty: a plain src_name with zero
+            ! matches and zero rejected candidates resolves with an empty
+            ! collection (the Invoker loops zero times), not bubbled up as
+            ! unresolved. Any other zero-match case (a rejected candidate, an
+            ! explicit path, or a regex src_name) stays unresolved.
+            if (size(callback_matches) == 0 .and. &
+                 .not. callback_zero_match_is_empty(src_pt, callback_rejected)) then
                call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
             end if
             _RETURN(_SUCCESS)
@@ -750,6 +777,7 @@ contains
       type(OuterMetaComponent), pointer :: dst_meta, src_meta
       type(CallbackInterfaceId) :: callback_interface_id
       type(QualifiedExportEntry), allocatable :: callback_matches(:)
+      type(StringVector) :: callback_rejected
       logical :: has_export
       type(StateItemDescriptor), pointer :: node_descriptor
 
@@ -768,9 +796,15 @@ contains
 
       callback_interface_id = node%get_callback_interface_id()
       if (callback_interface_id%is_valid()) then
-         callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, rc=status)
+         callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, &
+              rejected=callback_rejected, rc=status)
          _VERIFY(status)
-         resolved = (size(callback_matches) > 0)
+         ! Same callback_zero_match_is_empty exception as check_one: resolved
+         ! with an empty collection only when src_comp has no Handler of its
+         ! own under that plain name at all, not when a candidate existed and
+         ! was rejected or src_name was an explicit path.
+         resolved = (size(callback_matches) > 0) .or. &
+              callback_zero_match_is_empty(src_pt, callback_rejected)
          _RETURN(_SUCCESS)
       end if
 
@@ -958,6 +992,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_run_reexport_hook
 
+   ! Re-exports every node src_name names on src_meta (ordinarily one; more
+   ! than one when src_name is itself an already-merged callback name -
+   ! carries every source along, not only the first) to a port named
+   ! dst_name on this's own graph, merging into dst_name rather than
+   ! failing where callback_exports_mergeable allows it.
    subroutine reexport_one(this, conn, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(Connection), intent(in) :: conn
@@ -968,11 +1007,9 @@ contains
       type(OuterMetaComponent), pointer :: src_meta
       type(ComponentGraph), pointer :: src_graph, this_graph
       type(NodeId), pointer :: internal_id
-      class(StateItemNode), pointer :: export_node
-      type(NodeId) :: src_node_id, existing_id
-      type(PortId) :: new_port_id
+      type(NodeId), allocatable :: src_node_ids(:)
       character(:), allocatable :: dst_name, src_name, msg
-      logical :: taken
+      integer :: k
 
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
@@ -988,52 +1025,100 @@ contains
               item_key(ESMF_STATEINTENT_INTERNAL, src_name))
          msg = 'Re-export source does not exist: ' // src_name
          _ASSERT(associated(internal_id), msg)
-         src_node_id = internal_id
+         allocate(src_node_ids(1))
+         src_node_ids(1) = internal_id
       else
-         export_node => find_export_node(src_meta, src_name)
+         src_node_ids = find_export_port_node_ids(src_graph, src_name)
          msg = 'Re-export source does not exist: ' // src_name
-         _ASSERT(associated(export_node), msg)
-         src_node_id = export_node%get_node_id()
+         _ASSERT(size(src_node_ids) > 0, msg)
       end if
 
-      call find_export_port_by_name(this_graph, dst_name, taken, existing_id)
-      if (taken) then
-         msg = 'Re-export destination already exists: ' // dst_name
-         _ASSERT(existing_id == src_node_id, msg)
-         _RETURN(_SUCCESS)
-      end if
-
-      new_port_id = this_graph%next_port_id(_RC)
-      call this_graph%add_export_port(new_port_id, src_node_id, status, &
-           qualified_name=dst_name)
-      _VERIFY(status)
+      do k = 1, size(src_node_ids)
+         call reexport_add_or_merge(this_graph, dst_name, src_node_ids(k), status)
+         ! Not _VERIFY: reexport_add_or_merge's own _ASSERT already raised
+         ! the one reportable exception for this failure; an extra _VERIFY
+         ! here would raise a second, redundant 'status=1' on top of it.
+         if (status /= 0) then
+            rc = status
+            return
+         end if
+      end do
 
       _RETURN(_SUCCESS)
    end subroutine reexport_one
 
-   subroutine find_export_port_by_name(graph, name, found, node_id)
-      type(ComponentGraph), target, intent(in) :: graph
+   ! Adds node_id as an export port named `name` on graph. A name already
+   ! taken by a different node fails ('Re-export destination already
+   ! exists'), unless both are callback exports declaring the same
+   ! callback_interface_id, in which case node_id is added as a second
+   ! source under the same name. A repeat of the same (name, node) pair is
+   ! a no-op.
+   subroutine reexport_add_or_merge(graph, name, node_id, rc)
+      type(ComponentGraph), intent(inout) :: graph
       character(*), intent(in) :: name
-      logical, intent(out) :: found
-      type(NodeId), intent(out) :: node_id
+      type(NodeId), intent(in) :: node_id
+      integer, intent(out) :: rc
 
-      type(PortIdNodeIdMap), target :: export_ports
-      type(PortIdNodeIdMapIterator) :: iter
+      integer :: status
+      type(NodeId), allocatable :: existing_ids(:)
+      type(PortId) :: new_port_id
+      character(:), allocatable :: msg
+      integer :: j
 
-      found = .false.
-      export_ports = graph%get_export_ports()
-      associate (e => export_ports%ftn_end())
-         iter = export_ports%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            if (graph%get_export_port_name(iter%first()) == name) then
-               found = .true.
-               node_id = iter%second()
-               return
-            end if
-         end do
-      end associate
-   end subroutine find_export_port_by_name
+      existing_ids = find_export_port_node_ids(graph, name)
+
+      do j = 1, size(existing_ids)
+         if (existing_ids(j) == node_id) then
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      if (size(existing_ids) > 0) then
+         msg = 'Re-export destination already exists: ' // name
+         _ASSERT(callback_exports_mergeable(graph, existing_ids(1), node_id), msg)
+      end if
+
+      new_port_id = graph%next_port_id(_RC)
+      call graph%add_export_port(new_port_id, node_id, status, &
+           qualified_name=name)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end subroutine reexport_add_or_merge
+
+   ! True when id_a and id_b are both StateItemNodes that declare the same
+   ! valid callback_interface_id - the opt-in that lets a re-export add a
+   ! second source under an already-taken name instead of failing.
+   function callback_exports_mergeable(graph, id_a, id_b) result(mergeable)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: id_a
+      type(NodeId), intent(in) :: id_b
+      logical :: mergeable
+
+      class(GraphNode), pointer :: node_a, node_b
+      type(CallbackInterfaceId) :: iface_a, iface_b
+
+      mergeable = .false.
+      node_a => graph%get_node(id_a)
+      node_b => graph%get_node(id_b)
+      if (.not. (associated(node_a) .and. associated(node_b))) return
+
+      select type (node_a)
+      class is (StateItemNode)
+         iface_a = node_a%get_callback_interface_id()
+      class default
+         return
+      end select
+
+      select type (node_b)
+      class is (StateItemNode)
+         iface_b = node_b%get_callback_interface_id()
+      class default
+         return
+      end select
+
+      mergeable = iface_a%is_valid() .and. iface_b%is_valid() .and. (iface_a == iface_b)
+   end function callback_exports_mergeable
 
    ! Name a child's export-port entry carries once propagated into the
    ! parent's export-port table. Mirrors legacy propagate_exports_virtual_pt:

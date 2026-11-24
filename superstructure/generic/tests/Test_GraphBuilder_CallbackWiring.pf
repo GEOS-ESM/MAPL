@@ -60,6 +60,10 @@ module Test_GraphBuilder_CallbackWiring
    use mapl_ComponentSpecParser_mod, only: parse_var_specs
    use mapl_VariableSpecVector_mod, only: VariableSpecVector, VariableSpecVectorIterator, operator(/=)
    use gFTL2_StringVector, only: StringVector
+   use mapl_ReexportConnection_mod, only: ReexportConnection
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
+   use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
    use esmf
    use pfunit
@@ -1782,5 +1786,1035 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_callback_method_binding_wires_cross_grid_regrid
+
+   ! -- Same-named Handlers merge through re-export, not a subtree search --
+   !
+   ! Builds root -> CHEM -> {H1, H2} (build_two_handler_hierarchy), gives
+   ! H1 and H2 each an export named short_name declaring interface_id, and
+   ! advertises H1 and H2 (not CHEM or root - matching
+   ! test_reexport_child_export_and_chain's precedent: the caller adds its
+   ! own ReexportConnections to chem_meta's/root_meta's ComponentSpec and
+   ! calls gb%run_reexport_hook() explicitly, since advertise() alone does
+   ! not run a component's own reexport hook for a meta that is never
+   ! itself advertised).
+   subroutine build_reexport_merge_hierarchy(label, short_name, root_gc, root_meta, chem_meta, h1_meta, h2_meta, &
+        iface, interface_id, rc)
+      character(*), intent(in) :: label
+      character(*), intent(in) :: short_name
+      type(ESMF_GridComp), intent(out) :: root_gc
+      type(OuterMetaComponent), pointer, intent(out) :: root_meta
+      type(OuterMetaComponent), pointer, intent(out) :: chem_meta
+      type(OuterMetaComponent), pointer, intent(out) :: h1_meta
+      type(OuterMetaComponent), pointer, intent(out) :: h2_meta
+      type(CallbackInterface), intent(out) :: iface
+      type(CallbackInterfaceId), intent(out) :: interface_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: h1_spec, h2_spec
+      type(VariableSpec) :: h1_export, h2_export
+      type(GraphBuilder) :: gb
+
+      call build_two_handler_hierarchy(label, root_gc, root_meta, chem_meta, h1_meta, h2_meta, _RC)
+
+      iface = make_passive_tracer_interface(_RC)
+      call register_callback_interface(label, iface, interface_id, _RC)
+
+      h1_export = make_tracer_callback_export(short_name)
+      h1_export%callback_interface_id = interface_id
+      h1_spec => h1_meta%get_component_spec()
+      call h1_spec%add_var_spec(h1_export)
+
+      h2_export = make_tracer_callback_export(short_name)
+      h2_export%callback_interface_id = interface_id
+      h2_spec => h2_meta%get_component_spec()
+      call h2_spec%add_var_spec(h2_export)
+
+      call gb%advertise(h1_meta, _RC)
+      call gb%advertise(h2_meta, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_reexport_merge_hierarchy
+
+   ! Adds a ReexportConnection (src_comp/src_name export -> <self>/dst_name
+   ! export) to owner_meta's own ComponentSpec - the YAML shape is
+   ! `{src_name: X, src_intent: export, src_comp: child, dst_name: X,
+   ! dst_comp: <self>, dst_intent: export}` (scenario_reexport_twice).
+   subroutine add_reexport(owner_meta, src_comp, src_name, dst_name)
+      type(OuterMetaComponent), pointer, intent(in) :: owner_meta
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: src_name
+      character(*), intent(in) :: dst_name
+
+      type(ComponentSpec), pointer :: owner_spec
+      type(ReexportConnection) :: conn
+
+      conn = ReexportConnection( &
+           ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name=src_name)), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name=dst_name)))
+      owner_spec => owner_meta%get_component_spec()
+      call owner_spec%add_connection(conn)
+   end subroutine add_reexport
+
+   ! H1 and H2 each re-export their own 'MIXING_CB' up to CHEM's own
+   ! export 'MIXING_CB': both declare interface_id, so reexport_add_or_merge
+   ! merges the second under the name already taken by the first instead
+   ! of failing. A plain-name callback import rooted at CHEM then collects
+   ! both.
+   @test(npes=[0])
+   subroutine test_reexport_merge_collects_both_sources(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, h1_meta, h2_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      logical :: found_h1, found_h2
+      integer :: status
+      integer :: i
+      type(GraphBuilder) :: gb
+
+      call build_reexport_merge_hierarchy('svc-5-1d-merge', 'MIXING_CB', root_gc, root_meta, chem_meta, &
+           h1_meta, h2_meta, iface, interface_id, _RC)
+
+      call add_reexport(chem_meta, 'H1', 'MIXING_CB', 'MIXING_CB')
+      call add_reexport(chem_meta, 'H2', 'MIXING_CB', 'MIXING_CB')
+      call gb%run_reexport_hook(chem_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(2, size(matches))
+
+      found_h1 = .false.
+      found_h2 = .false.
+      do i = 1, size(matches)
+         if (matches(i)%qualified_name == 'H1/MIXING_CB') found_h1 = .true.
+         if (matches(i)%qualified_name == 'H2/MIXING_CB') found_h2 = .true.
+      end do
+      @assert_that(found_h1, is(true()))
+      @assert_that(found_h2, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_merge_collects_both_sources
+
+   ! Same hierarchy as test_reexport_merge_collects_both_sources but
+   ! without the re-exports: the plain-name callback import at CHEM finds
+   ! nothing, proving resolve_callback_import does not search CHEM's
+   ! descendants by bare name - only exports CHEM itself carries (directly
+   ! or via re-export) are candidates.
+   @test(npes=[0])
+   subroutine test_reexport_merge_without_reexport_finds_nothing(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, h1_meta, h2_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      integer :: status
+
+      call build_reexport_merge_hierarchy('svc-5-1d-nomerge', 'MIXING_CB', root_gc, root_meta, chem_meta, &
+           h1_meta, h2_meta, iface, interface_id, _RC)
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(matches))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_merge_without_reexport_finds_nothing
+
+   ! H1 and H2 declare DIFFERENT callback interfaces under the same
+   ! 'MIXING_CB' export name: CHEM's second re-export is not mergeable
+   ! (callback_exports_mergeable requires the SAME callback_interface_id),
+   ! so it fails with the 'Re-export destination already exists' message.
+   @test(npes=[0])
+   subroutine test_reexport_merge_different_interfaces_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, h1_meta, h2_meta
+      type(CallbackInterface) :: iface1, iface2
+      type(CallbackInterfaceId) :: interface_id1, interface_id2
+      type(ComponentSpec), pointer :: h2_spec
+      type(VariableSpec) :: h2_export
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_two_handler_hierarchy('svc-5-1d-diff-iface', root_gc, root_meta, chem_meta, h1_meta, h2_meta, _RC)
+
+      iface1 = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-5-1d-diff-iface-1', iface1, interface_id1, status)
+      @assert_that(status, is(0))
+
+      iface2 = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-5-1d-diff-iface-2', iface2, interface_id2, status)
+      @assert_that(status, is(0))
+
+      call h1_spec_add_export(h1_meta, 'MIXING_CB', interface_id1)
+
+      h2_export = make_tracer_callback_export('MIXING_CB')
+      h2_export%callback_interface_id = interface_id2
+      h2_spec => h2_meta%get_component_spec()
+      call h2_spec%add_var_spec(h2_export)
+
+      call gb%advertise(h1_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(h2_meta, status)
+      @assert_that(status, is(0))
+
+      call add_reexport(chem_meta, 'H1', 'MIXING_CB', 'MIXING_CB')
+      call add_reexport(chem_meta, 'H2', 'MIXING_CB', 'MIXING_CB')
+      call gb%run_reexport_hook(chem_meta, status)
+      @assertExceptionRaised('Re-export destination already exists: MIXING_CB')
+      @assertExceptionRaised('status=1')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_merge_different_interfaces_fails
+
+   ! H1 declares interface_id; H2's export of the same name is a plain
+   ! (non-callback) export with no callback_interface_id. Merging a
+   ! callback export with a non-callback export under the same name still
+   ! fails: callback_exports_mergeable requires both sides to declare a
+   ! VALID callback_interface_id.
+   @test(npes=[0])
+   subroutine test_reexport_merge_non_callback_export_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, h1_meta, h2_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: h2_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_two_handler_hierarchy('svc-5-1d-non-cb', root_gc, root_meta, chem_meta, h1_meta, h2_meta, _RC)
+
+      iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-5-1d-non-cb', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      call h1_spec_add_export(h1_meta, 'MIXING_CB', interface_id)
+
+      h2_spec => h2_meta%get_component_spec()
+      call h2_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'MIXING_CB'))
+
+      call gb%advertise(h1_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(h2_meta, status)
+      @assert_that(status, is(0))
+
+      call add_reexport(chem_meta, 'H1', 'MIXING_CB', 'MIXING_CB')
+      call add_reexport(chem_meta, 'H2', 'MIXING_CB', 'MIXING_CB')
+      call gb%run_reexport_hook(chem_meta, status)
+      @assertExceptionRaised('Re-export destination already exists: MIXING_CB')
+      @assertExceptionRaised('status=1')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_merge_non_callback_export_fails
+
+   ! CHEM merges H1's and H2's 'MIXING_CB' (as in
+   ! test_reexport_merge_collects_both_sources), then root re-exports
+   ! CHEM's already-merged 'MIXING_CB' one level further, to root's own
+   ! export under the same name. A plain-name callback import rooted at
+   ! root collects both original sources, not just the first re-export
+   ! found - reexport_one's find_export_port_node_ids(src_graph, src_name)
+   ! on CHEM's graph returns both, and reexport_add_or_merge carries each
+   ! one up individually.
+   @test(npes=[0])
+   subroutine test_reexport_merge_carries_both_sources_one_level_up(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, h1_meta, h2_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      logical :: found_h1, found_h2
+      integer :: status
+      integer :: i
+      type(GraphBuilder) :: gb
+
+      call build_reexport_merge_hierarchy('svc-5-1d-up', 'MIXING_CB', root_gc, root_meta, chem_meta, &
+           h1_meta, h2_meta, iface, interface_id, _RC)
+
+      call add_reexport(chem_meta, 'H1', 'MIXING_CB', 'MIXING_CB')
+      call add_reexport(chem_meta, 'H2', 'MIXING_CB', 'MIXING_CB')
+      call gb%run_reexport_hook(chem_meta, status)
+      @assert_that(status, is(0))
+
+      call add_reexport(root_meta, 'CHEM', 'MIXING_CB', 'MIXING_CB')
+      call gb%run_reexport_hook(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(2, size(matches))
+
+      found_h1 = .false.
+      found_h2 = .false.
+      do i = 1, size(matches)
+         if (matches(i)%qualified_name == 'CHEM/H1/MIXING_CB') found_h1 = .true.
+         if (matches(i)%qualified_name == 'CHEM/H2/MIXING_CB') found_h2 = .true.
+      end do
+      @assert_that(found_h1, is(true()))
+      @assert_that(found_h2, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_merge_carries_both_sources_one_level_up
+
+   ! Adds a declared tracer-callback export named short_name, declaring
+   ! interface_id, to meta's ComponentSpec - factored out of the
+   ! "different interface"/"non-callback" merge-failure tests above, which
+   ! each need exactly one declared Handler plus one differently-shaped
+   ! second export under the same name.
+   subroutine h1_spec_add_export(meta, short_name, interface_id)
+      type(OuterMetaComponent), pointer, intent(in) :: meta
+      character(*), intent(in) :: short_name
+      type(CallbackInterfaceId), intent(in) :: interface_id
+
+      type(ComponentSpec), pointer :: spec
+      type(VariableSpec) :: export
+
+      export = make_tracer_callback_export(short_name)
+      export%callback_interface_id = interface_id
+      spec => meta%get_component_spec()
+      call spec%add_var_spec(export)
+   end subroutine h1_spec_add_export
+
+   ! A regex src_name is unaffected by the merge rule: is_literal() is
+   ! false for '^MIXING_CB$' (it contains ERE metacharacters), so only the
+   ! anchored-regex match against the full qualified name applies - it
+   ! never matches a descendant's qualified name (always comp-prefixed),
+   ! merged or not, regardless of the re-exports below CHEM.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_regex_unaffected_by_merge(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, h1_meta, h2_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_reexport_merge_hierarchy('svc-5-1d-regex', 'MIXING_CB', root_gc, root_meta, chem_meta, &
+           h1_meta, h2_meta, iface, interface_id, _RC)
+
+      call add_reexport(chem_meta, 'H1', 'MIXING_CB', 'MIXING_CB')
+      call add_reexport(chem_meta, 'H2', 'MIXING_CB', 'MIXING_CB')
+      call gb%run_reexport_hook(chem_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='^MIXING_CB$'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(matches))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_regex_unaffected_by_merge
+
+   ! CHEM's own direct export has short_name 'MIXING_CB__DU' but declares
+   ! 'MIXING_CB' as its callback_declared_name: a literal src_name of
+   ! 'MIXING_CB' matches it by declared name, even though no export's
+   ! qualified name equals 'MIXING_CB' and there is no re-export.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_matches_own_declared_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: chem_spec
+      type(VariableSpec) :: chem_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-name', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-name', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      chem_export = make_tracer_callback_export('MIXING_CB__DU')
+      chem_export%callback_interface_id = interface_id
+      chem_export%callback_declared_name = 'MIXING_CB'
+      chem_spec => chem_meta%get_component_spec()
+      call chem_spec%add_var_spec(chem_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(matches))
+      @assertEqual('MIXING_CB__DU', matches(1)%qualified_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_matches_own_declared_name
+
+   ! Same shape as test_resolve_callback_import_matches_own_declared_name,
+   ! but CHEM's export declares a DIFFERENT interface than the one being
+   ! searched for: the declared-name match is not gated on the interface
+   ! agreeing, so it still reaches the declares_other_interface rejection
+   ! (is_own_declared_name_match must not require declares_expected).
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declared_name_other_iface_skip(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: other_iface, expected_iface
+      type(CallbackInterfaceId) :: other_id, expected_id
+      type(ComponentSpec), pointer :: chem_spec
+      type(VariableSpec) :: chem_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(StringVector) :: rejected
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-name-other', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      other_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-name-other', other_iface, other_id, status)
+      @assert_that(status, is(0))
+
+      expected_iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-name-expected', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      chem_export = make_tracer_callback_export('MIXING_CB__DU')
+      chem_export%callback_interface_id = other_id
+      chem_export%callback_declared_name = 'MIXING_CB'
+      chem_spec => chem_meta%get_component_spec()
+      call chem_spec%add_var_spec(chem_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
+
+      matches = resolve_callback_import(root_meta, src_pt, expected_id, rejected=rejected, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(matches))
+      @assertEqual(1, rejected%size())
+      @assertEqual('MIXING_CB__DU:declares_other_interface:svc-decl-name-other', rejected%of(1))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declared_name_other_iface_skip
+
+   ! A plain src_name whose only candidate at src_comp declares a
+   ! DIFFERENT callback interface than the destination expects stays
+   ! unresolved through check_unsatisfied_imports (check_one): a rejected
+   ! candidate is not the same as "no Handler of src_comp itself under that
+   ! plain name", so it must not resolve to an empty collection.
+   @test(npes=[0])
+   subroutine test_check_one_literal_rejected_stays_unresolved(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: src_driver, invoker_driver
+      type(ESMF_GridComp) :: src_gc, invoker_gc
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, invoker_meta
+      type(ComponentSpec), pointer :: src_spec, invoker_spec, parent_spec
+      type(VariableSpec) :: src_export, cb_import
+      type(CallbackInterface) :: expected_iface, other_iface
+      type(CallbackInterfaceId) :: expected_id, other_id
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      expected_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-check-one-expected', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      other_iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-check-one-other', other_iface, other_id, status)
+      @assert_that(status, is(0))
+
+      call make_outer_meta('parent_check_one_reject', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      src_export = make_tracer_callback_export('MIXING_CB')
+      src_export%callback_interface_id = other_id
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(src_export)
+
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'MIXING_CB')
+      cb_import%callback_interface_id = expected_id
+      invoker_spec => invoker_meta%get_component_spec()
+      call invoker_spec%add_var_spec(cb_import)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(invoker_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='MIXING_CB')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%check_unsatisfied_imports(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(1, unresolved%size())
+      entry => unresolved%at(1, status)
+      @assert_that(status, is(0))
+      @assertEqual('INVOKER', entry%component_name)
+      @assertEqual('MIXING_CB', entry%short_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_check_one_literal_rejected_stays_unresolved
+
+   ! A plain src_name with zero candidates at src_comp (no export under
+   ! that name at all) resolves to an empty collection: check_unsatisfied_imports
+   ! reports zero unresolved imports, not one.
+   @test(npes=[0])
+   subroutine test_check_unsatisfied_imports_no_candidate_resolved(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: src_driver, invoker_driver
+      type(ESMF_GridComp) :: src_gc, invoker_gc
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, invoker_meta
+      type(ComponentSpec), pointer :: invoker_spec, parent_spec
+      type(VariableSpec) :: cb_import
+      type(CallbackInterface) :: expected_iface
+      type(CallbackInterfaceId) :: expected_id
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      expected_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-no-candidate-expected', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      call make_outer_meta('parent_no_candidate', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      ! SRC has no export named 'MIXING_CB' at all.
+
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'MIXING_CB')
+      cb_import%callback_interface_id = expected_id
+      invoker_spec => invoker_meta%get_component_spec()
+      call invoker_spec%add_var_spec(cb_import)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(invoker_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='MIXING_CB')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%check_unsatisfied_imports(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(0, unresolved%size())
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_check_unsatisfied_imports_no_candidate_resolved
+
+   ! An explicit '/'-qualified path with zero matches and zero rejected
+   ! candidates is NOT the plain-name "no Handler" case: it stays
+   ! unresolved through check_unsatisfied_imports. Only a plain
+   ! (unqualified) src_name gets the empty-collection exception.
+   @test(npes=[0])
+   subroutine test_check_unsatisfied_imports_explicit_path_stays_unresolved(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: src_driver, invoker_driver
+      type(ESMF_GridComp) :: src_gc, invoker_gc
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, invoker_meta
+      type(ComponentSpec), pointer :: invoker_spec, parent_spec
+      type(VariableSpec) :: cb_import
+      type(CallbackInterface) :: expected_iface
+      type(CallbackInterfaceId) :: expected_id
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      expected_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-path-missing-expected', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      call make_outer_meta('parent_path_missing', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      ! SRC has no child 'NOPE' and no export under any name: the
+      ! explicit path below matches nothing anywhere in the namespace.
+
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'MIXING_CB')
+      cb_import%callback_interface_id = expected_id
+      invoker_spec => invoker_meta%get_component_spec()
+      call invoker_spec%add_var_spec(cb_import)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(invoker_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='NOPE/MIXING_CB')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='MIXING_CB')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%check_unsatisfied_imports(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(1, unresolved%size())
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_check_unsatisfied_imports_explicit_path_stays_unresolved
+
+   ! graphbuilder_unresolved_import_node_ids is the structural counterpart
+   ! of check_unsatisfied_imports: a plain src_name with zero candidates
+   ! at src_comp must likewise not be mirrored into the unresolved-import
+   ! scan.
+   @test(npes=[0])
+   subroutine test_node_ids_literal_no_candidate_not_mirrored(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: src_driver, invoker_driver
+      type(ESMF_GridComp) :: src_gc, invoker_gc
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, invoker_meta
+      type(ComponentSpec), pointer :: invoker_spec, parent_spec
+      type(VariableSpec) :: cb_import
+      type(CallbackInterface) :: expected_iface
+      type(CallbackInterfaceId) :: expected_id
+      type(MatchConnection) :: conn
+      type(UnresolvedImportEntry), allocatable :: unresolved_ids(:)
+      integer :: status
+      integer :: i
+      logical :: found
+      type(GraphBuilder) :: gb
+
+      expected_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-node-ids-no-candidate', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      call make_outer_meta('parent_node_ids_no_candidate', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      ! SRC has no export named 'MIXING_CB' at all.
+
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'MIXING_CB')
+      cb_import%callback_interface_id = expected_id
+      invoker_spec => invoker_meta%get_component_spec()
+      call invoker_spec%add_var_spec(cb_import)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(invoker_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='MIXING_CB')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      unresolved_ids = graphbuilder_unresolved_import_node_ids(parent_meta, invoker_meta, status)
+      @assert_that(status, is(0))
+
+      found = .false.
+      do i = 1, size(unresolved_ids)
+         if (unresolved_ids(i)%short_name == 'MIXING_CB') found = .true.
+      end do
+      @assert_that(found, is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_node_ids_literal_no_candidate_not_mirrored
+
+   ! Structural counterpart of
+   ! test_check_unsatisfied_imports_explicit_path_stays_unresolved: an
+   ! explicit '/'-qualified path with zero matches and zero rejected
+   ! candidates is mirrored into the unresolved-import scan, unlike a
+   ! plain src_name under the same zero-candidate condition.
+   @test(npes=[0])
+   subroutine test_node_ids_explicit_path_missing_mirrored(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: src_driver, invoker_driver
+      type(ESMF_GridComp) :: src_gc, invoker_gc
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, invoker_meta
+      type(ComponentSpec), pointer :: invoker_spec, parent_spec
+      type(VariableSpec) :: cb_import
+      type(CallbackInterface) :: expected_iface
+      type(CallbackInterfaceId) :: expected_id
+      type(MatchConnection) :: conn
+      type(UnresolvedImportEntry), allocatable :: unresolved_ids(:)
+      integer :: status
+      integer :: i
+      logical :: found
+      type(GraphBuilder) :: gb
+
+      expected_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-node-ids-path-missing', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      call make_outer_meta('parent_node_ids_path_missing', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      ! SRC has no child 'NOPE' and no export under any name: the
+      ! explicit path below matches nothing anywhere in the namespace.
+
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'MIXING_CB')
+      cb_import%callback_interface_id = expected_id
+      invoker_spec => invoker_meta%get_component_spec()
+      call invoker_spec%add_var_spec(cb_import)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(invoker_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='NOPE/MIXING_CB')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='MIXING_CB')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      unresolved_ids = graphbuilder_unresolved_import_node_ids(parent_meta, invoker_meta, status)
+      @assert_that(status, is(0))
+
+      found = .false.
+      do i = 1, size(unresolved_ids)
+         if (unresolved_ids(i)%short_name == 'MIXING_CB') found = .true.
+      end do
+      @assert_that(found, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_node_ids_explicit_path_missing_mirrored
+
+   ! graphbuilder_unresolved_import_node_ids mirrors a rejected candidate
+   ! (wrong declared interface), the same as check_unsatisfied_imports
+   ! does: a rejected candidate is a real unresolved failure, not an
+   ! allowed-empty case.
+   @test(npes=[0])
+   subroutine test_node_ids_literal_rejected_mirrored(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: src_driver, invoker_driver
+      type(ESMF_GridComp) :: src_gc, invoker_gc
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, invoker_meta
+      type(ComponentSpec), pointer :: src_spec, invoker_spec, parent_spec
+      type(VariableSpec) :: src_export, cb_import
+      type(CallbackInterface) :: expected_iface, other_iface
+      type(CallbackInterfaceId) :: expected_id, other_id
+      type(MatchConnection) :: conn
+      type(UnresolvedImportEntry), allocatable :: unresolved_ids(:)
+      integer :: status
+      integer :: i
+      logical :: found
+      type(GraphBuilder) :: gb
+
+      expected_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-node-ids-expected', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      other_iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-node-ids-other', other_iface, other_id, status)
+      @assert_that(status, is(0))
+
+      call make_outer_meta('parent_node_ids_reject', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      src_export = make_tracer_callback_export('MIXING_CB')
+      src_export%callback_interface_id = other_id
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(src_export)
+
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'MIXING_CB')
+      cb_import%callback_interface_id = expected_id
+      invoker_spec => invoker_meta%get_component_spec()
+      call invoker_spec%add_var_spec(cb_import)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(invoker_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='MIXING_CB')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      unresolved_ids = graphbuilder_unresolved_import_node_ids(parent_meta, invoker_meta, status)
+      @assert_that(status, is(0))
+
+      found = .false.
+      do i = 1, size(unresolved_ids)
+         if (unresolved_ids(i)%short_name == 'MIXING_CB') found = .true.
+      end do
+      @assert_that(found, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_node_ids_literal_rejected_mirrored
+
+   ! Builds root -> CHEM -> LOOKALIKE: CHEM's own export 'MIXING_CB' is
+   ! undeclared but conforms to iface's shape (the exact-top-level-match
+   ! case); LOOKALIKE's export, same short name, same conforming shape, is
+   ! also undeclared. Children advertised before parents.
+   subroutine build_undeclared_lookalike_hierarchy(service_name, root_gc, root_meta, chem_meta, &
+        iface, interface_id, rc)
+      character(*), intent(in) :: service_name
+      type(ESMF_GridComp), intent(out) :: root_gc
+      type(OuterMetaComponent), pointer, intent(out) :: root_meta
+      type(OuterMetaComponent), pointer, intent(out) :: chem_meta
+      type(CallbackInterface), intent(out) :: iface
+      type(CallbackInterfaceId), intent(out) :: interface_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: chem_driver, lookalike_driver
+      type(ESMF_GridComp) :: chem_gc, lookalike_gc
+      type(OuterMetaComponent), pointer :: lookalike_meta
+      type(ComponentSpec), pointer :: chem_spec, lookalike_spec
+      type(GraphBuilder) :: gb
+
+      iface = make_passive_tracer_interface(_RC)
+      call register_callback_interface(service_name, iface, interface_id, _RC)
+
+      call make_outer_meta('root_' // service_name, root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('CHEM', child_spec, _RC)
+
+      chem_driver = root_meta%get_child('CHEM', _RC)
+      chem_gc = chem_driver%get_gridcomp()
+      chem_meta => get_outer_meta(chem_gc, _RC)
+      chem_spec => chem_meta%get_component_spec()
+      call chem_spec%add_var_spec(make_tracer_callback_export('MIXING_CB'))
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('LOOKALIKE', child_spec, _RC)
+      lookalike_driver = chem_meta%get_child('LOOKALIKE', _RC)
+      lookalike_gc = lookalike_driver%get_gridcomp()
+      lookalike_meta => get_outer_meta(lookalike_gc, _RC)
+      lookalike_spec => lookalike_meta%get_component_spec()
+      call lookalike_spec%add_var_spec(make_tracer_callback_export('MIXING_CB'))
+
+      call gb%advertise(lookalike_meta, _RC)
+      call gb%advertise(chem_meta, _RC)
+      call gb%advertise(root_meta, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_undeclared_lookalike_hierarchy
+
+   ! A literal src_name never searches src_comp's descendants by bare
+   ! name, declared or not: LOOKALIKE's undeclared 'MIXING_CB' export is
+   ! not collected merely for matching CHEM's own export's name. The
+   ! exact-top-level match (CHEM's own undeclared export) is unaffected.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_undeclared_lookalike_not_collected(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      integer :: status
+
+      call build_undeclared_lookalike_hierarchy('svc-5-1d-lookalike', root_gc, root_meta, chem_meta, &
+           iface, interface_id, _RC)
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(matches))
+      @assertEqual('MIXING_CB', matches(1)%qualified_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_undeclared_lookalike_not_collected
+
+   ! A literal src_name that is an explicit path (not a plain name) to a
+   ! Handler declaring a *different* callback interface is rejected: an
+   ! explicit path matches exactly one export, and that export's declared
+   ! interface still has to equal the one the destination expects.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_literal_path_other_iface_skip(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: other_iface, expected_iface
+      type(CallbackInterfaceId) :: other_id, expected_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(StringVector) :: rejected
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-other-literal', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      other_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-5-1d-other-literal', other_iface, other_id, status)
+      @assert_that(status, is(0))
+
+      expected_iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-5-1d-expected-literal', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_tracer_callback_export('tracer_callback')
+      bad_export%callback_interface_id = other_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      ! An explicit path, not a plain name, but still literal (no regex
+      ! metacharacters): matches by exact qualified name.
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='BAD/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, expected_id, rejected=rejected, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(matches))
+      @assertEqual(1, rejected%size())
+      @assertEqual('BAD/tracer_callback:declares_other_interface:svc-5-1d-other-literal', rejected%of(1))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_literal_path_other_iface_skip
 
 end module Test_GraphBuilder_CallbackWiring

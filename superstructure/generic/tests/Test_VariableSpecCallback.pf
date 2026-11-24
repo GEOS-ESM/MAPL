@@ -7,7 +7,7 @@ module Test_VariableSpecCallback
    use pfunit
    use mapl_VariableSpec_mod, only: VariableSpec
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator, operator(==)
-   use esmf, only: ESMF_STATEINTENT_IMPORT
+   use esmf, only: ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT
    implicit none(type, external)
 
 contains
@@ -39,5 +39,31 @@ contains
       @assertTrue(var_spec%callback_interface_id%is_valid())
       @assertTrue(var_spec%callback_interface_id == id)
    end subroutine test_callback_item_reports_its_declared_interface_id
+
+   ! get_callback_declared_name falls back to short_name when
+   ! callback_declared_name is never set.
+   @test
+   subroutine test_declared_callback_name_defaults_to_short_name()
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      var_spec%short_name = 'MIXING_CB'
+
+      @assertEqual('MIXING_CB', var_spec%get_callback_declared_name())
+   end subroutine test_declared_callback_name_defaults_to_short_name
+
+   ! get_callback_declared_name returns callback_declared_name, not
+   ! short_name, once set - the branch a plain-name connection match
+   ! relies on to match an export by its declared callback name.
+   @test
+   subroutine test_declared_callback_name_returns_set_value()
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      var_spec%short_name = 'MIXING_CB__DU'
+      var_spec%callback_declared_name = 'MIXING_CB'
+
+      @assertEqual('MIXING_CB', var_spec%get_callback_declared_name())
+   end subroutine test_declared_callback_name_returns_set_value
 
 end module Test_VariableSpecCallback

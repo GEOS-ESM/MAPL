@@ -119,19 +119,40 @@
   name, so re-exporting a template's declared name will not yet pick up
   its expansions (each expansion's own generated short name is a
   separate port) until this task wires that lookup.
-- [ ] 5.1d Re-export merge and plain-name callback match. (1)
+- [x] 5.1d Re-export merge and plain-name callback match. (1)
   `reexport_one`: when the destination name is already taken by a
   different node and both are callback exports declaring the same
   interface, add the new source under the same name instead of failing.
   Re-exporting a merged name carries every source along. (2)
   `resolve_callback_import`: for a callback-interface import with a
-  literal `src_name`, match every export of `src_comp` itself under that
-  name, meaning its own exports by declared callback name plus every
-  re-exported source under it. There is no search below `src_comp`. Zero
-  matches give an empty collection, not an unresolved import. Regex
-  `src_name` is unchanged. Adds the declared-name field that 5.1b sets.
+  plain (unqualified) `src_name`, match every export of `src_comp`
+  itself under that name, meaning its own exports by declared callback
+  name plus every re-exported source under it. There is no search below
+  `src_comp`. Zero matches give an empty collection, not an unresolved
+  import; an explicit `/`-qualified path keeps the ordinary rule (zero
+  matches stays unresolved). Regex `src_name` is unchanged. Adds the
+  declared-name field that 5.1b sets.
   Owner decisions 2026-11-24 (tentative until real-world experience);
   design.md decision 21, "Same-named Handlers merge through re-export".
+  Status: done. `reexport_add_or_merge`/`callback_exports_mergeable`
+  (`GraphBuilder_ConnectionResolution_smod.F90`) implement the merge;
+  `find_export_port_node_ids` (`GraphBuilder.F90`, public for
+  cross-submodule use) collects every node under a port name, used by
+  both `reexport_one`'s source lookup (carries every merged source along)
+  and `resolve_callback_import`'s merged-name candidate check.
+  `resolve_callback_import` ORs the pre-existing exact-qualified-name
+  match with two literal-only cases: `src_comp`'s own export by declared
+  callback name (`VariableSpec%callback_declared_name`/
+  `get_callback_declared_name`, unset by anything yet - 5.1b sets it),
+  and any export whose real NodeId is registered under a port named
+  `src_name` in `src_comp`'s own export-port table. No descendant search
+  by bare name. `check_one`/`connection_pt_pair_resolves`
+  (`GraphBuilder_ConnectionResolution_smod.F90`) share one predicate,
+  `callback_zero_match_is_empty`, that treats a plain (unqualified)
+  `src_name` as resolved to an empty collection only when there are zero
+  matches *and* zero rejected candidates; a rejected candidate (wrong
+  interface, or declared but non-conforming) or an explicit
+  `/`-qualified path with zero matches stays unresolved.
 - [ ] 5.1e Match-count option on a callback import: require `>= 0`
   (default), `>= 1`, or `== 1` matching Handler States, checked when the
   collection is resolved (covers both an empty template and a

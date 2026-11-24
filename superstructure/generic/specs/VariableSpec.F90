@@ -208,6 +208,17 @@ module mapl_VariableSpec_mod
       type(CallbackInterfaceId) :: callback_interface_id
 
       !=====================
+      ! Callback declared name
+      !=====================
+      ! A Handler export's name for plain-name connection matching,
+      ! independent of its short_name (e.g. a template-expanded export's
+      ! instance-qualified short_name vs. the callback name it declares).
+      ! Default unallocated; get_callback_declared_name falls back to
+      ! short_name. Set via plain field assignment only, no
+      ! make_VariableSpec keyword, same as `state_item_variant`.
+      character(:), allocatable :: callback_declared_name
+
+      !=====================
       ! Composite state variant
       !=====================
       ! Tags a composite declaration (itemType == MAPL_STATEITEM_STATE,
@@ -298,6 +309,8 @@ module mapl_VariableSpec_mod
       procedure :: has_member
       procedure :: get_member
       procedure :: get_member_names
+
+      procedure :: get_callback_declared_name
    end type VariableSpec
 
    interface
@@ -1098,6 +1111,19 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_member
+
+   ! The name a plain-name callback connection matches against this
+   ! export: callback_declared_name when set, short_name otherwise.
+   function get_callback_declared_name(this) result(name)
+      class(VariableSpec), intent(in) :: this
+      character(:), allocatable :: name
+
+      if (allocated(this%callback_declared_name)) then
+         name = this%callback_declared_name
+      else
+         name = this%short_name
+      end if
+   end function get_callback_declared_name
 
    function get_member_names(this) result(names)
       class(VariableSpec), target, intent(in) :: this
