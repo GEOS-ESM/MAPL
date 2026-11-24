@@ -241,6 +241,7 @@ rejects unused arguments SHALL do so in its own code.
 
 #### Scenario: Invoker rejects an unused argument itself (MF9)
 - **WHEN** a `turbulent_mixing` member has `bottom_boundary:
-  neumann_homogeneous` and binds `surface_upward_flux`
+  neumann_homogeneous` (which does not use `dry_deposition_velocity`)
+  and still binds `dry_deposition_velocity`
 - **THEN** the framework accepts the State, and the test Invoker fails
   before its first method execution with its own message
