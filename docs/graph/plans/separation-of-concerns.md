@@ -2641,6 +2641,106 @@ wildcard), and a parity row if anything differs.
   wildcard and literal patterns that differ only in case do not connect, with
   two exact-case controls. ESSENTIAL 72/72 on NAG and gfortran (combined tree).
 
+### Phase G - `select type` antipattern cleanup (owner, 2026-11-24)
+
+Source: a two-stage survey of the full non-build source tree,
+`~/.opencode/plan/select-type-antipattern-assessment.md` (haiku-tier
+cataloging + opus-tier clustering/ranking, ~330 occurrences). Premise:
+`select type` used to discover a polymorphic value's concrete type to
+decide behavior is usually a missing virtual/deferred method; `class(*)`
+type-erasure boundaries (NetCDF/ESMF/C interop) and same-type binary
+methods (no Fortran multiple dispatch) are the genuine exceptions and
+are left alone (assessment §3). Read the assessment's clusters (§2) for
+the full pattern/alternative/blast-radius for each task below; this
+plan only carries the task split and scheduling.
+
+Parallel-safety follows the existing main-line-files rule (see
+"Working with the owner" above): a task touching only
+`superstructure/generic/graph/` and/or `GraphBuilder*.F90` is main-line
+and serializes with whatever B/C/D-phase task is active there; every
+other task below touches none of those files and may run in a worktree
+alongside main-line work now, without waiting for a lull.
+
+Landing target (owner, 2026-11-24): every Phase G task lands as its own
+PR directly onto `develop`, not merged into `feature/#5286-graph-phase-6`
+first. Several of these (G3, G4, G6) change public API shape and may
+need an owner decision on breaking backward compatibility for client
+code (GEOSgcm, GEOSadas, ...), independent of the graph-phase-6
+feature's own merge timing. Worktrees for these tasks branch from and
+target `develop`, not the feature branch.
+
+- `G1-Connection` (assessment §2.3; main-line, graph-layer files):
+  `Connection` subtype logic parked in `GraphBuilder_ConnectionResolution_smod.F90`/
+  `GraphBuilder_ImportExportPropagation_smod.F90` instead of on
+  `Connection` itself (`effective_source_name`, the Simple/Match/Reexport
+  filters). Cheapest main-line item; coordinate with whatever B/C/D task
+  currently owns those files before starting.
+  - **Status:** not started
+- `G2-ProfilerMeter` (assessment §2.4; parallel-safe, `mp_utils/profiler/`):
+  lift the statistics interface (`get_min_cycle`, `get_max_cycle`,
+  `get_mean_cycle`, `get_num_cycles`, `get_standard_deviation`,
+  `get_relative_deviation`) onto `AbstractMeter`; `DistributedProfiler%reduce`
+  becomes a virtual method with a no-op default. Removes several silent
+  `print*,'error handling here'` default branches. Self-contained
+  library, no public-interface impact.
+  - **Status:** not started
+- `G3-GeomFactory` (assessment §2.2; parallel-safe but touches public
+  geometry API, `infrastructure/geom/`, `infrastructure/vertical/`):
+  add deferred `make_geom`/`make_file_metadata`/`make_gridded_dims`/
+  `make_variable_attributes` to `GeomSpec` (and `make_grid()` to
+  `VerticalGridSpec`), bodies mostly re-homed from existing `typesafe_*`
+  helpers; drop `supports_spec`. Check for out-of-tree geometry-type
+  authors before committing (owner decision needed first, since this
+  changes public API shape).
+  - **Status:** not started
+- `G4-GraphNodeInterface` (assessment §2.1; main-line, graph-layer
+  files; highest payoff): `GraphNode` has no useful interface, so ~43
+  sites across ~15 files downcast to `StateItemNode`. Two parts per the
+  assessment's Group A/B split:
+  - `G4a`: Group A, real missing virtual methods (`GraphExport`'s
+    `kind_label`; `ComponentGraph`'s `is_producer()`/`role()`;
+    `DemandDrivenUpdate`'s `finish_update` as a deferred method with an
+    empty `BaseGraphNode` default; `advance_revision`/`get_revision` as
+    base-class defaults).
+  - `G4b`: Group B, typed accessors (e.g.
+    `graph%get_state_item_node(id, rc)` returning `type(StateItemNode),
+    pointer`, cast and `_RC` failure centralized once) replacing the
+    remaining ~40 copies of the cast; reconciles the inconsistent
+    `class default` policy (assert vs. skip vs. caller's problem) along
+    the way. Land one file (or related group) at a time, same staging
+    discipline as D1. Separate per-node-kind stores (the assessment's
+    option ii) are not in scope here; revisit only if G4b's accessor
+    approach proves insufficient.
+  - **Status:** not started
+- `G5-PfioServers` (assessment §2.5; defer): mixed-message-queue
+  type-filtering duplicated across `BaseServer`/`MultiCommServer`/
+  `MultiGroupServer` (real issue is the duplication, not the construct);
+  one genuine single-dispatch fix inside it (`BaseServer%get_dmessage`
+  picking Done vs. Dummy reply by socket type). High risk (MPI/RDMA
+  paths, thin test cover, mostly `PERFORMANCE`-labeled). Do only
+  bundled with other planned pfio work, not standalone.
+  - **Status:** not started (deferred)
+- `G6-OneOffs` (assessment §2.6; parallel-safe, scattered small fixes,
+  D3-style accumulating batch): `GenericCoupler.F90`'s
+  `mapl_CouplerAddConsumer` wrong dummy-argument type; `ChildSpec%dump`'s
+  cast to `DsoSetServices` (use `UserSetServices`'s existing
+  `write_formatted`); `FileMetadata.F90`'s `is_coordinate_variable` (add
+  virtual `Variable%is_coordinate()`); `VerticalGridAspect/make_transform.F90`'s
+  cast to `ModelVerticalGrid` (optional `coupler` output on the base
+  `get_coordinate_field`; note in passing, not yet filed: the field is
+  currently computed twice there); one typed `ITEM_SHAPE` accessor
+  shared by `GeometryCharacteristic`, `VerticalGridAspect` and
+  `StateItemDescriptor`. Check each site's file against the main-line
+  rule above before batching (most are legacy `specs/`/`pfio/`, not
+  graph-layer).
+  - **Status:** not started
+
+Not scheduled (assessment's own recommendation): §2.7 (Aspects layer
+binary methods) — legacy counterpart of `StateItemCharacteristic`, being
+replaced anyway, any investment belongs on the characteristic side
+instead; everything in assessment §3 (genuine type-erasure/binary-method
+uses) is left alone, not a task.
+
 Author = writes the task and leaves it uncommitted. Reviewer = the
 read-only `reviewer` subagent (`.opencode/agents/reviewer.md`):
 `/review-task <label> [tier|provider/model] [focus]` (default tier opus).
@@ -2789,6 +2889,13 @@ it may author D1/A4/B5 with sonnet review.
 | E2-TeamWalkthrough | opus | sonnet | after the develop merge; slide deck for the owner's team; scope questions first |
 | E3-ESMFDestroy | sonnet | sonnet | after the develop merge on GitHub; new ESMF release; destroy breaks only scenario shards |
 | rebase-case-sensitive | sonnet | sonnet | right after the next develop rebase/merge (PR #5501) |
+| G1-Connection | sonnet | sonnet | main-line; coordinate with active B/C/D graph-layer task |
+| G2-ProfilerMeter | sonnet | sonnet | self-contained library, no public-interface impact |
+| G3-GeomFactory | sonnet | opus | public geometry API shape change; owner decision on out-of-tree authors first |
+| G4a-GraphNodeInterface | opus | sonnet | design-bearing; real missing virtual methods |
+| G4b-GraphNodeInterface | sonnet | opus | main-line; mechanical once G4a lands, land one file/group at a time like D1 |
+| G5-PfioServers | sonnet | opus | defer; bundle with other planned pfio work only |
+| G6-OneOffs | sonnet | sonnet | scattered small fixes, D3-style batch; check each site against main-line rule |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1-diagnosis,
