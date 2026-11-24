@@ -1,0 +1,35 @@
+module test_MinCycleColumn
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use funit
+   use mapl_Profiler_mod
+   use GFTL_UnlimitedVector
+
+contains
+
+   @test
+   subroutine test_simple()
+      type(MeterNode), target :: node
+      class(AbstractMeter), pointer :: t
+      type(MinCycleColumn) :: c
+      type(UnlimitedVector), target :: v
+      class(*), pointer :: q
+      real(kind=REAL64) :: actual
+
+      node = MeterNode('top', AdvancedMeter(MpiTimerGauge()))
+      t => node%get_meter()
+      call t%add_cycle(5.0d0)
+      call t%add_cycle(1.0d0)
+      call t%add_cycle(3.0d0)
+
+      v = c%get_rows(node)
+      q => v%at(1)
+      select type (q)
+      type is (real(kind=REAL64))
+         actual = q
+      end select
+
+      @assertEqual(1.0d0, actual)
+
+   end subroutine test_simple
+
+end module test_MinCycleColumn

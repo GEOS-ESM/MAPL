@@ -4,6 +4,7 @@ set (TEST_SRCS
   test_AdvancedMeter.pf
   test_NameColumn.pf
   test_ExclusiveColumn.pf
+  test_MinCycleColumn.pf
   test_PercentageColumn.pf
   test_TimeProfiler.pf
   test_ProfileReporter.pf
