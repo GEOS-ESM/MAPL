@@ -3,6 +3,7 @@ set(MODULE_DIRECTORY "${esma_include}/callback_test_gridcomp.tests")
 set (test_srcs
   Test_ConfigurableCallbackHandler.pf
   Test_MockTracerOwners.pf
+  Test_TurbulentMixingStep.pf
   )
 
 # Stage the shipped GEOS registration file so

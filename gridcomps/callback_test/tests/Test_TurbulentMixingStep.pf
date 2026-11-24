@@ -1,0 +1,240 @@
+! Tests for mapl_TurbulentMixingStep_mod%run_turbulent_mixing_step: the
+! per-time-step dispatch on one realized turbulent_mixing callback
+! ESMF_State, built the way Test_MockTracerOwners.pf does
+! (build_configurable_handler against the real, shipped
+! callback_interfaces_geos.yaml) - no graph, no ESMF_GridComp, no
+! collection iterator.
+!
+! Every dispatch test uses the same 2-layer column (mass 1, kappa 1 for
+! mix_like heat) and the same starting profile [3, 0] that
+! Test_ImplicitColumnDiffusion.pf uses in its own two-layer exact case,
+! so the expected result after one unit time step can be hand-checked
+! using the A matrix documented there rather than re-deriving the
+! solver here.
+!
+! build_configurable_handler builds one real ESMF_Field per declared
+! argument of the interface, including an unsupplied optional one such
+! as dry_deposition_velocity (so the handler conforms by construction);
+! a scenario that needs it genuinely absent strips that member with
+! ESMF_StateRemove after the handler is built, since a real Handler
+! would simply not have wired it up.
+module Test_TurbulentMixingStep
+   use mapl_ConfigurableCallbackHandler_mod, only: build_configurable_handler
+   use mapl_CallbackRegistrationLoader_mod, only: load_callback_registration_file
+   use mapl_CallbackInterfaceRegistry_mod, only: reset_callback_registry_for_testing
+   use mapl_CallbackAttributeAccess_mod, only: record_callback_interface_name
+   use mapl_TurbulentMixingStep_mod, only: run_turbulent_mixing_step
+   use mapl_TurbulentMixingConstants_mod, only: TURBULENT_MIXING_ARGUMENT_DRY_DEPOSITION_VELOCITY
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use ESMF, only: ESMF_State, ESMF_StateGet, ESMF_StateRemove, ESMF_Field, ESMF_FieldGet
+   use ESMF, only: ESMF_MAXSTR, ESMF_KIND_R8
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use funit
+   implicit none
+
+   character(*), parameter :: NL = new_line('a')
+   character(*), parameter :: GEOS_INTERFACES_FILE = 'callback_interfaces_geos.yaml'
+   real(REAL64), parameter :: TOL = 1.0e-10_REAL64
+
+contains
+
+   ! Registers the real, shipped turbulent_mixing interface (not a
+   ! hand-written test fixture) into a freshly reset registry.
+   subroutine load_geos_interfaces()
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call load_callback_registration_file(GEOS_INTERFACES_FILE, found, rc=status)
+      @assertEqual(0, status, 'load_callback_registration_file failed')
+      @assertTrue(found, GEOS_INTERFACES_FILE // ' must be found')
+   end subroutine load_geos_interfaces
+
+   ! A 4x3x2 owner, mixed_quantity = [3, 0] down every column, air_mass =
+   ! 1 everywhere, mix_like heat, the given bottom_boundary, and (when
+   ! with_dry_deposition_velocity) dry_deposition_velocity = 5.0
+   ! everywhere (chosen with mapl_TurbulentMixingStep_mod's air density
+   ! test constant, 1.2, to give a whole-number robin coefficient).
+   function handler_cfg(bottom_boundary, with_dry_deposition_velocity) result(text)
+      character(*), intent(in) :: bottom_boundary
+      logical, intent(in) :: with_dry_deposition_velocity
+      character(:), allocatable :: text
+
+      text = 'interface: turbulent_mixing' // NL // &
+           'geometry:' // NL // &
+           '  esmf_geom: {class: latlon, im_world: 4, jm_world: 3, pole: PC, ' // &
+           'dateline: DC, nx: 1, ny: 1}' // NL // &
+           '  vertical_grid: {num_levels: 2}' // NL // &
+           'supply:' // NL // &
+           '  mixed_quantity: {profile: [3.0, 0.0]}' // NL // &
+           '  air_mass: {constant: 1.0}' // NL
+      if (with_dry_deposition_velocity) then
+         text = text // '  dry_deposition_velocity: {constant: 5.0}' // NL
+      end if
+      text = text // &
+           'member_attributes:' // NL // &
+           '  mixed_quantity:' // NL // &
+           '    mix_like: heat' // NL // &
+           '    bottom_boundary: ' // bottom_boundary // NL
+   end function handler_cfg
+
+   ! Builds the owner above and records the interface name on cb_state
+   ! (run_turbulent_mixing_step, through MAPL_CallbackGetAttribute, needs
+   ! it; build_configurable_handler itself does not record it, the same
+   ! way a real REALIZE phase would).
+   subroutine build_fixture(handler_name, bottom_boundary, with_dry_deposition_velocity, cb_state)
+      character(*), intent(in) :: handler_name
+      character(*), intent(in) :: bottom_boundary
+      logical, intent(in) :: with_dry_deposition_velocity
+      type(ESMF_State), intent(out) :: cb_state
+
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name
+      integer :: status
+
+      call load_geos_interfaces()
+
+      hconfig = ESMF_HConfigCreate(content=handler_cfg(bottom_boundary, with_dry_deposition_velocity), &
+           rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, handler_name, interface_name, cb_state, mock_state, &
+           non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed for ' // handler_name)
+
+      if (.not. with_dry_deposition_velocity) then
+         call ESMF_StateRemove(cb_state, [TURBULENT_MIXING_ARGUMENT_DRY_DEPOSITION_VELOCITY], rc=status)
+         @assertEqual(0, status, 'failed to strip the unbound dry_deposition_velocity member')
+      end if
+
+      call record_callback_interface_name(cb_state, interface_name, rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine build_fixture
+
+   ! The mixed_quantity column at the first horizontal cell (every cell
+   ! carries the same profile, so any one cell checks the whole field).
+   function mixed_quantity_column(cb_state) result(column)
+      type(ESMF_State), intent(in) :: cb_state
+      real(REAL64) :: column(2)
+
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), pointer :: ptr3d(:,:,:)
+      integer :: status
+
+      call ESMF_StateGet(cb_state, itemName='mixed_quantity', field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=ptr3d, rc=status)
+      @assertEqual(0, status)
+      column = real(ptr3d(1,1,:), REAL64)
+   end function mixed_quantity_column
+
+   !-----------------------------------------------------------------
+   ! dispatch: one scenario per bottom_boundary value
+   !-----------------------------------------------------------------
+
+   ! neumann_homogeneous: A = [[2,-1],[-1,2]], phi_old = [3,0] maps to
+   ! [2,1] exactly (the two-layer case in Test_ImplicitColumnDiffusion.pf),
+   ! no extra argument, realized flux 0.
+   @test
+   subroutine test_neumann_homogeneous_dispatches()
+      type(ESMF_State) :: cb_state
+      real(REAL64), allocatable :: realized_flux(:)
+      integer :: status
+
+      call build_fixture('owner_nh', 'neumann_homogeneous', .false., cb_state)
+      call run_turbulent_mixing_step(cb_state, 1.0_REAL64, realized_flux=realized_flux, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual([2.0_REAL64, 1.0_REAL64], mixed_quantity_column(cb_state), tolerance=TOL)
+      ! one entry per column, 4x3 columns
+      @assertEqual(12, size(realized_flux))
+      @assertEqual(0.0_REAL64, realized_flux(1), tolerance=TOL)
+   end subroutine test_neumann_homogeneous_dispatches
+
+   ! neumann with surface_upward_flux = 3: rhs becomes [3,3], and since
+   ! A * [3,3] = [3,3] the step is exact: phi stays [3,3], realized flux
+   ! equals the supplied surface_upward_flux.
+   @test
+   subroutine test_neumann_dispatches_with_surface_flux()
+      type(ESMF_State) :: cb_state
+      real(REAL64), allocatable :: realized_flux(:)
+      integer :: status
+
+      call build_fixture('owner_neumann', 'neumann', .false., cb_state)
+      call run_turbulent_mixing_step(cb_state, 1.0_REAL64, realized_flux=realized_flux, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual([3.0_REAL64, 3.0_REAL64], mixed_quantity_column(cb_state), tolerance=TOL)
+      @assertEqual(3.0_REAL64, realized_flux(1), tolerance=TOL)
+   end subroutine test_neumann_dispatches_with_surface_flux
+
+   ! robin, the expected non-MF9 case: dry_deposition_velocity = 5.0,
+   ! air density 1.2 gives robin_coefficient = 6.0, A = [[2,-1],[-1,8]],
+   ! phi_old = [3,0] maps to [1.6, 0.2]; realized flux is
+   ! -robin_coefficient * phi_new(bottom) = -1.2.
+   @test
+   subroutine test_robin_with_dry_deposition_velocity_succeeds()
+      type(ESMF_State) :: cb_state
+      real(REAL64), allocatable :: realized_flux(:)
+      integer :: status
+
+      call build_fixture('owner_robin', 'robin', .true., cb_state)
+      call run_turbulent_mixing_step(cb_state, 1.0_REAL64, realized_flux=realized_flux, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual([1.6_REAL64, 0.2_REAL64], mixed_quantity_column(cb_state), tolerance=TOL)
+      @assertEqual(-1.2_REAL64, realized_flux(1), tolerance=TOL)
+   end subroutine test_robin_with_dry_deposition_velocity_succeeds
+
+   ! dirichlet with surface_value = 2: bottom row is pinned to 2, the
+   ! top row solves 2*phi(1) - phi(2) = phi_old(1) = 3, giving
+   ! phi = [2.5, 2]; realized flux is sum(mass*(phi_new-phi_old))/dt
+   ! = (2.5-3) + (2-0) = 1.5.
+   @test
+   subroutine test_dirichlet_dispatches_with_surface_value()
+      type(ESMF_State) :: cb_state
+      real(REAL64), allocatable :: realized_flux(:)
+      integer :: status
+
+      call build_fixture('owner_dirichlet', 'dirichlet', .false., cb_state)
+      call run_turbulent_mixing_step(cb_state, 1.0_REAL64, realized_flux=realized_flux, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual([2.5_REAL64, 2.0_REAL64], mixed_quantity_column(cb_state), tolerance=TOL)
+      @assertEqual(1.5_REAL64, realized_flux(1), tolerance=TOL)
+   end subroutine test_dirichlet_dispatches_with_surface_value
+
+   !-----------------------------------------------------------------
+   ! MF9: the framework does not check argument use, so an Invoker must
+   !-----------------------------------------------------------------
+
+   ! bottom_boundary neumann_homogeneous with dry_deposition_velocity
+   ! bound anyway: run_turbulent_mixing_step must fail before the solver
+   ! runs, naming the unused argument and the bottom_boundary value, and
+   ! must not have touched mixed_quantity.
+   @test
+   subroutine test_mf9_unused_dry_deposition_velocity_fails()
+      type(ESMF_State) :: cb_state
+      real(REAL64) :: before(2)
+      integer :: status
+
+      call build_fixture('owner_mf9', 'neumann_homogeneous', .true., cb_state)
+      before = mixed_quantity_column(cb_state)
+
+      call run_turbulent_mixing_step(cb_state, 1.0_REAL64, rc=status)
+      @assertExceptionRaised( &
+           "run_turbulent_mixing_step: dry_deposition_velocity is bound but bottom_boundary is " // &
+           "'neumann_homogeneous', not robin; it would go unused")
+      @assertTrue(status /= 0)
+
+      @assertEqual(before, mixed_quantity_column(cb_state), tolerance=TOL)
+   end subroutine test_mf9_unused_dry_deposition_velocity_fails
+
+end module Test_TurbulentMixingStep

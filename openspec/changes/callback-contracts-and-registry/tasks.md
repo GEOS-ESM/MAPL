@@ -254,19 +254,20 @@
   2026-11-24 (design.md decision 22): `bottom_boundary`'s `allowed:`
   widens to all four conditions (`neumann_homogeneous`, `neumann`,
   `robin`, `dirichlet`); no new interface argument added.
-- [ ] 9.2 `TurbulentMixingTestInvoker`. M9 (column-solver positivity, all
-  four conditions) is already fully covered by
-  `Test_ImplicitColumnDiffusion.pf`; this task's own new scope is the
-  per-`mix_like`-class operator dispatch using the delivered `air_mass`,
-  `neumann`/`dirichlet`'s constants as TestInvoker-internal (design.md
-  decision 22), realized flux as an Invoker-owned diagnostic (no
-  interface-level contract for it), and the unused-argument check (MF9).
-  The dispatch/MF9 logic and its standalone unit tests (against
-  hand-built `ESMF_State`s, 9.3's pattern) can be authored now, in
-  parallel with 5.3; only the production `ESMF_GridComp` wrapper
-  (`SetServices`/`Run`, `provides:`/`receives:`, a real collection
-  iterator loop) is blocked on 5.2b/5.3/5.4 and should land as a
-  stub/TODO until those exist.
+- [x] 9.2a `mapl_TurbulentMixingStep_mod`
+  (`gridcomps/callback_test/TurbulentMixingStep.F90`): per-`mix_like`-class
+  operator dispatch using the delivered `air_mass`, `neumann`/`dirichlet`'s
+  constants as TestInvoker-internal (design.md decision 22), realized flux
+  as an Invoker-owned diagnostic (no interface-level contract for it), and
+  the unused-argument check (MF9), with its own unit tests
+  (`Test_TurbulentMixingStep.pf`, against `build_configurable_handler`-built
+  `ESMF_State`s, 9.3's pattern). M9 (column-solver positivity, all four
+  conditions) is already fully covered by `Test_ImplicitColumnDiffusion.pf`
+  and not retested here.
+- [ ] 9.2b `TurbulentMixingTestInvoker` production `ESMF_GridComp` wrapper:
+  `SetServices`/`Run`, `provides:`/`receives:` wiring, and a real collection
+  iterator loop calling 9.2a's `run_turbulent_mixing_step` per Handler.
+  Blocked on 5.2b/5.3/5.4.
 - [x] 9.3 Mock tracer owners on the three owner geometries.
 - [ ] 9.4 Test matrix M1, M3-M9 and MF1-MF9 (M2 is 6.3).
 

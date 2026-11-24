@@ -28,7 +28,9 @@ module mapl_TurbulentMixingConstants_mod
    public :: TURBULENT_MIXING_MIX_LIKE_MOMENTUM
 
    public :: TURBULENT_MIXING_BOTTOM_BOUNDARY_NEUMANN_HOMOGENEOUS
+   public :: TURBULENT_MIXING_BOTTOM_BOUNDARY_NEUMANN
    public :: TURBULENT_MIXING_BOTTOM_BOUNDARY_ROBIN
+   public :: TURBULENT_MIXING_BOTTOM_BOUNDARY_DIRICHLET
 
    character(*), parameter :: TURBULENT_MIXING_INTERFACE_NAME = &
         'turbulent_mixing'
@@ -61,7 +63,11 @@ module mapl_TurbulentMixingConstants_mod
    character(*), parameter :: &
         TURBULENT_MIXING_BOTTOM_BOUNDARY_NEUMANN_HOMOGENEOUS = &
         'neumann_homogeneous'
+   character(*), parameter :: TURBULENT_MIXING_BOTTOM_BOUNDARY_NEUMANN = &
+        'neumann'
    character(*), parameter :: TURBULENT_MIXING_BOTTOM_BOUNDARY_ROBIN = &
         'robin'
+   character(*), parameter :: TURBULENT_MIXING_BOTTOM_BOUNDARY_DIRICHLET = &
+        'dirichlet'
 
 end module mapl_TurbulentMixingConstants_mod
