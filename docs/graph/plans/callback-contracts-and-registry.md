@@ -362,10 +362,9 @@ its interface; undeclared matches keep today's skip-and-report.
 See "Critical path" above. Not a GitHub-volunteer task (too much
 in-flight design context), but author/reviewer subagents build it once
 design questions are settled with the owner.
-- **Status:** not started. Design groundwork partly done (owner/meta
-  working notes, folded into design.md decisions 11, 19, 12-amended);
-  open design items are listed in decision 12's amendment and are
-  restart priority #1.
+- **Status:** 5.0, 5.1a, 5.2a done (tasks.md); 5.1d in review; 5.1b,
+  5.1e, 5.2b, 5.2c, 5.3, 5.4 not started. Design: decisions 11, 12, 19,
+  20, 21.
 
 **CB5-LazyCheck.** Hook the realized-State check into execution and
 add the explicit collection check.

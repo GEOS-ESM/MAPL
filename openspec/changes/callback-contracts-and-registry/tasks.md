@@ -114,7 +114,11 @@
   generated short name `<declared>_<matched item>` and records its
   declared name, so a connection or re-export naming the declared name
   takes every expansion (design.md decision 21, "Same-named Handlers
-  merge through re-export").
+  merge through re-export"). This task owns re-export-by-declared-name:
+  `reexport_one` currently matches a source only by its export-port
+  name, so re-exporting a template's declared name will not yet pick up
+  its expansions (each expansion's own generated short name is a
+  separate port) until this task wires that lookup.
 - [ ] 5.1d Re-export merge and plain-name callback match. (1)
   `reexport_one`: when the destination name is already taken by a
   different node and both are callback exports declaring the same

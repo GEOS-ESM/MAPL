@@ -584,7 +584,18 @@ Decision 12).**
     times), not an unresolved import. This is consistent with the
     owner's answer for an empty template (2026-11-23: a thinned GEOS may
     run with no tracers). A later option on the callback import requires
-    a match count (`>= 0` default, `>= 1`, `== 1`): task 5.1e.
+    a match count (`>= 0` default, `>= 1`, `== 1`): task 5.1e. A
+    candidate that exists but is rejected (declares a different
+    interface, fails conformance, or an explicit path that resolves to
+    nothing) is not "no Handler"; it stays unresolved with its reason,
+    the same as any other failed connection.
+  - *Known limitation.* An ordinary (non-callback) connection to a name
+    that re-export has merged under several sources is not itself a
+    merge target: today's resolution picks one of the merged nodes.
+    Acceptable because merging only triggers when both sources declare
+    the same `callback_interface_id`, so a non-callback import
+    connecting to such a name is not an intended use; revisit if one
+    turns up.
   - Rejected: a bare-name search at any depth under `src_comp` (breaks
     legacy lookup and bypasses re-export as the visibility control).
     Also rejected: automatic merging of same-named callback exports on
