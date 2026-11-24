@@ -362,8 +362,8 @@ its interface; undeclared matches keep today's skip-and-report.
 See "Critical path" above. Not a GitHub-volunteer task (too much
 in-flight design context), but author/reviewer subagents build it once
 design questions are settled with the owner.
-- **Status:** 5.0, 5.1a, 5.2a done (tasks.md); 5.1d in review; 5.1b,
-  5.1e, 5.2b, 5.2c, 5.3, 5.4 not started. Design: decisions 11, 12, 19,
+- **Status:** 5.0, 5.1a, 5.1d, 5.2a done (tasks.md); 5.2b in review;
+  5.1b, 5.1e, 5.2c, 5.3, 5.4 not started. Design: decisions 11, 12, 19,
   20, 21.
 
 **CB5-LazyCheck.** Hook the realized-State check into execution and
@@ -395,7 +395,12 @@ F1-F12.
   on the Invoker's own grid, a coarser non-nested grid and a finer
   nested grid (design decision 18), construction and conformance only
   (`check_callback_state_conformance`), no Invoker execution; -TestInvoker
-  and -Matrix not started. `mapl_ImplicitColumnDiffusion_mod` lives in
+  split: 9.2a done (tasks.md, `Plan-Task: CB9-Execute-9.2a`): standalone
+  `mapl_TurbulentMixingStep_mod` dispatch over `ImplicitColumnDiffusion`
+  plus the MF9 unused-argument check, all four `bottom_boundary`
+  conditions now shipped (design decision 22); 9.2b (the production
+  `ESMF_GridComp` wrapper) and -Matrix not started, 9.2b blocked on
+  CB5-Execute 5.2b/5.3/5.4. `mapl_ImplicitColumnDiffusion_mod` lives in
   `superstructure/generic/tests/ImplicitColumnDiffusion.F90`, part of the
   test-only `MAPL.generic.test_common` library (owner decision: it is
   test infrastructure for this slice, not a MAPL physics deliverable, and
