@@ -537,44 +537,63 @@ Decision 12).**
   user-configured callbacks eventually, as ordinary state items have
   (tracked as a later task). The priority now is minimal working code.
 
-- **Same-named Handlers merge under one plain connection name (owner
-  decisions 2026-11-24, tasks 5.1b and 5.1d).** Callbacks are treated as
-  collections of nearly identical callback States on both the Handler
-  and the Invoker side. Exports propagate up the tree path-qualified
-  (`DU/MIXING_CB`, `SS/MIXING_CB`) and never merge, so without this rule
-  an ancestor needs a regex to collect several Handlers.
-  - *Plain-name match.* When the destination is a callback-interface
-    import and the connection's `src_name` contains no regex
-    metacharacters, `resolve_callback_import` matches every export at
-    any depth under `src_comp` whose **declared callback name** equals
-    `src_name`. Example:
+- **Same-named Handlers merge through re-export (owner decisions
+  2026-11-24, tasks 5.1b and 5.1d; tentative until there is real-world
+  experience).** Callbacks are treated as collections of nearly
+  identical callback States on both the Handler and the Invoker side.
+  Re-export stays the one control over what is visible at each level of
+  the hierarchy (owner): a bare name in a connection always means an
+  export of `src_comp` itself, as in legacy. Descendants' exports are
+  reached only path-qualified or through a re-export. There is no
+  subtree search by bare name. This replaces an earlier same-day version
+  of this bullet that matched a bare name at any depth under `src_comp`,
+  which the owner rejected because it breaks legacy name lookup.
+  - *Re-export merge.* A `ReexportConnection` whose destination name is
+    already taken by a different node is an error today ("Re-export
+    destination already exists"). If both the existing and the new
+    source are callback exports that declare the same
+    `callback_interface:`, the re-export instead adds the new source
+    under the same name, so the name stands for several Handlers.
+    Otherwise it is still the existing error. Re-exporting an
+    already-merged name one level further carries every source along.
+    Example, in GOCART.yaml:
+    `{src_comp: DU, src_name: MIXING_CB, src_intent: export, dst_comp: <self>, dst_name: MIXING_CB, dst_intent: export}`,
+    plus the same with `src_comp: SS`. PHYS.yaml then connects with
     `{src_comp: GOCART, src_name: MIXING_CB, dst_comp: TURB, dst_name: MIXING}`
-    collects every tracer State of DU and SS. A regex `src_name` keeps
-    the existing full-path match (`<path>/<short_name>`). Nodes are not
-    merged, and export propagation, states and the Invoker collection
-    fill (5.2a, members keyed by qualified name) do not change.
+    and TURB's collection holds the States of both DU and SS.
+  - *Plain-name callback match.* For a callback-interface import and a
+    `src_name` with no regex metacharacters, the matches are every
+    export of `src_comp` itself under that name. That includes every
+    re-exported source merged under it, and every template expansion
+    declared under it (below). A regex `src_name` keeps the existing
+    full-path match over the descendant namespace. The Invoker
+    collection fill (5.2a, members keyed by qualified name) does not
+    change.
   - *Declared name.* For an ordinary callback export it is its own
     short name. For a `template: true` expansion (5.1b) it is the name
     the template was declared under. Each expansion gets a generated,
     unique short name, `<declared>_<matched item>` (for example
     `MIXING_CB_DU001`), because one `ESMF_State` cannot hold two items of
-    the same name. Users never write generated names.
-  - *Opt-in by declaration.* The plain-name match collects only exports
-    that declare the expected `callback_interface:`. An undeclared
-    export whose members happen to conform is reachable only by an
-    explicit path or regex, as before.
+    the same name. Users never write generated names. A connection or a
+    re-export naming `MIXING_CB` on DU takes all of DU's expansions.
+  - *Opt-in by declaration.* Merging several sources under one name
+    requires each to declare the same `callback_interface:`. An
+    undeclared export keeps today's exact-name behavior.
   - *Empty is allowed.* A plain-name callback connection that matches no
     Handler resolves to an empty collection (the Invoker loops zero
-    times), not an unresolved import. This matches the owner's answer for
-    an empty template (2026-11-23: a thinned GEOS may run with no
-    tracers). A later option on the callback import requires a match
-    count (`>= 0` default, `>= 1`, `== 1`), task 5.1e.
-  - Rejected: making the templated declaration one collection-valued
-    export item (needs a new item class and rewrites 5.2a's fill, and
-    still needs a regex with two Handler components). Also rejected:
-    the generated suffix names plus a regex at the ancestor
-    (`'.*/MIXING_CB_.*'`), which works but puts the generated-name
-    convention into every ancestor's YAML.
+    times), not an unresolved import. This is consistent with the
+    owner's answer for an empty template (2026-11-23: a thinned GEOS may
+    run with no tracers). A later option on the callback import requires
+    a match count (`>= 0` default, `>= 1`, `== 1`): task 5.1e.
+  - Rejected: a bare-name search at any depth under `src_comp` (breaks
+    legacy lookup and bypasses re-export as the visibility control).
+    Also rejected: automatic merging of same-named callback exports on
+    propagation (service-like, but exports would no longer need a
+    re-export). Also rejected: one collection-valued export item per
+    templated declaration (a new item class, and 5.2a's fill rewritten).
+    Also rejected: generated suffix names plus a regex at the ancestor
+    (`'.*/MIXING_CB_.*'`), which puts the naming convention into every
+    ancestor's YAML.
 
 ## Risks / Trade-offs
 
