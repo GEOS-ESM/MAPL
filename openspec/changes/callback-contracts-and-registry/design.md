@@ -537,6 +537,45 @@ Decision 12).**
   user-configured callbacks eventually, as ordinary state items have
   (tracked as a later task). The priority now is minimal working code.
 
+- **Same-named Handlers merge under one plain connection name (owner
+  decisions 2026-11-24, tasks 5.1b and 5.1d).** Callbacks are treated as
+  collections of nearly identical callback States on both the Handler
+  and the Invoker side. Exports propagate up the tree path-qualified
+  (`DU/MIXING_CB`, `SS/MIXING_CB`) and never merge, so without this rule
+  an ancestor needs a regex to collect several Handlers.
+  - *Plain-name match.* When the destination is a callback-interface
+    import and the connection's `src_name` contains no regex
+    metacharacters, `resolve_callback_import` matches every export at
+    any depth under `src_comp` whose **declared callback name** equals
+    `src_name`. Example:
+    `{src_comp: GOCART, src_name: MIXING_CB, dst_comp: TURB, dst_name: MIXING}`
+    collects every tracer State of DU and SS. A regex `src_name` keeps
+    the existing full-path match (`<path>/<short_name>`). Nodes are not
+    merged, and export propagation, states and the Invoker collection
+    fill (5.2a, members keyed by qualified name) do not change.
+  - *Declared name.* For an ordinary callback export it is its own
+    short name. For a `template: true` expansion (5.1b) it is the name
+    the template was declared under. Each expansion gets a generated,
+    unique short name, `<declared>_<matched item>` (for example
+    `MIXING_CB_DU001`), because one `ESMF_State` cannot hold two items of
+    the same name. Users never write generated names.
+  - *Opt-in by declaration.* The plain-name match collects only exports
+    that declare the expected `callback_interface:`. An undeclared
+    export whose members happen to conform is reachable only by an
+    explicit path or regex, as before.
+  - *Empty is allowed.* A plain-name callback connection that matches no
+    Handler resolves to an empty collection (the Invoker loops zero
+    times), not an unresolved import. This matches the owner's answer for
+    an empty template (2026-11-23: a thinned GEOS may run with no
+    tracers). A later option on the callback import requires a match
+    count (`>= 0` default, `>= 1`, `== 1`), task 5.1e.
+  - Rejected: making the templated declaration one collection-valued
+    export item (needs a new item class and rewrites 5.2a's fill, and
+    still needs a regex with two Handler components). Also rejected:
+    the generated suffix names plus a regex at the ancestor
+    (`'.*/MIXING_CB_.*'`), which works but puts the generated-name
+    convention into every ancestor's YAML.
+
 ## Risks / Trade-offs
 
 - [Execution is unbuilt and large] → It is split out as the owner track.

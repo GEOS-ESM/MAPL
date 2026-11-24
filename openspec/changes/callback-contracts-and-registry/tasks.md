@@ -107,7 +107,28 @@
   nested composite members). Split out from 5.1 (owner 2026-11-23) after
   cumulative review found it unimplemented; landing 5.1 without it is
   additive since nothing downstream needs it. Depends on 5.1. Design:
-  design.md decision 21 (alias/template YAML).
+  design.md decision 21 (alias/template YAML). Owner 2026-11-23/24:
+  zero matches is allowed (no State, no error); a literal alias with
+  `template: true` is allowed (one State); every other (non-template)
+  member is copied into each expanded State; each expansion gets a
+  generated short name `<declared>_<matched item>` and records its
+  declared name for 5.1d's plain-name match (design.md decision 21,
+  "Same-named Handlers merge under one plain connection name").
+- [ ] 5.1d Plain-name callback match: in `resolve_callback_import`, a
+  `src_name` without regex metacharacters, on a callback-interface
+  import, matches every export at any depth under `src_comp` that
+  declares the expected interface and whose declared callback name
+  (own short name, or a template's declared name) equals it. Undeclared
+  look-alikes are not collected by this path. Zero matches resolve to an
+  empty collection, not an unresolved import. Regex `src_name` behavior
+  is unchanged. Owner decisions 2026-11-24; design.md decision 21
+  (same section). Independent of 5.1b (5.1b supplies the declared name
+  for expansions).
+- [ ] 5.1e Match-count option on a callback import: require `>= 0`
+  (default), `>= 1`, or `== 1` matching Handler States, checked when the
+  collection is resolved (covers both an empty template and a
+  plain-name match). Backlog (owner 2026-11-24: keep both the must-match
+  and the only-one cases in the backlog). Depends on 5.1d.
 - [x] 5.1a A `members:` YAML entry can declare a vertical grid/stagger
   (`dims:`/`vertical_dim_spec:`/`vertical_grid:`), matching what an
   ordinary top-level item's YAML can already express. Design: design.md
