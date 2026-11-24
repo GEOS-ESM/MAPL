@@ -520,6 +520,23 @@ Decision 12).**
   for a different purpose (resolving the attribute/call-scalar schema),
   unaffected by this amendment.
 
+- **How an Invoker names its own argument providers (owner decision
+  2026-11-23, task 5.2b): YAML keys on the callback IMPORT entry.**
+  `build_callback_method_binding` needs, per callback argument, which of
+  the Invoker's own items supplies its value before a Handler runs
+  ("get", `provider_get_ids`) and which receives it afterwards ("put",
+  `provider_put_ids`). The Invoker's callback IMPORT entry gains two
+  optional maps from argument name to the Invoker's own item short name:
+  `provides: {<argument>: <item>}` for get and
+  `receives: {<argument>: <item>}` for put. This keeps the whole contract
+  declarative in YAML, matching the Handler side's `members:`. The
+  rejected alternatives were matching an argument to a same-named Invoker
+  item by convention (a rename silently breaks the wiring) and a
+  Fortran-only registration call (new API plus a must-run-before-advertise
+  ordering rule). The owner expects a Fortran API binding for most or all
+  user-configured callbacks eventually, as ordinary state items have
+  (tracked as a later task). The priority now is minimal working code.
+
 ## Risks / Trade-offs
 
 - [Execution is unbuilt and large] → It is split out as the owner track.

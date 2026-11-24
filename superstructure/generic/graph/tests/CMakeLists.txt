@@ -42,6 +42,7 @@ set(test_srcs
   Test_ArgumentSpec.pf
   Test_GridCompMethodInvocation.pf
   Test_StateMethodInvocation.pf
+  Test_EsmfStateMethodInvoker.pf
   Test_MethodGraphNode.pf
   Test_MethodInvocation.pf
   Test_GraphExport.pf

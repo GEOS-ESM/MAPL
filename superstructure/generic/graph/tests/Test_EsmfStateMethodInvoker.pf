@@ -1,0 +1,158 @@
+! Spec: spec/12-methods-and-drivers.md, spec/15-callbacks.md.
+! Concrete StateMethodInvoker backed by a real ESMF_State with an
+! ESMF_MethodAdd-attached method (via mapl_StateAddMethod_mod, the same
+! entry point a real Handler's SetServices uses), unlike
+! Test_StateMethodInvocation.pf's mock-only StateMethodInvoker doubles.
+module Test_EsmfStateMethodInvoker
+   use mapl_EsmfStateMethodInvoker_mod, only: EsmfStateMethodInvoker
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_StateAddMethod_mod, only: StateAddMethod
+   use ESMF, only: ESMF_State, ESMF_StateCreate
+   use funit
+   implicit none
+
+   ! Exercised through mapl_StateAddMethod_mod's I_CallBackMethod
+   ! interface (infrastructure/esmf/ESMF_Interfaces.F90), the exact shape
+   ! ESMF_MethodExecute invokes.
+   integer, target :: g_call_count = 0
+   integer :: g_user_rc = 0
+
+contains
+
+   subroutine recording_method(state, rc)
+      type(ESMF_State) :: state
+      integer, intent(out) :: rc
+
+      g_call_count = g_call_count + 1
+      rc = g_user_rc
+   end subroutine recording_method
+
+   @before
+   subroutine set_up()
+      g_call_count = 0
+      g_user_rc = 0
+   end subroutine set_up
+
+   ! Builds one StateItemNode whose payload is a real ESMF_State with
+   ! 'do_it' attached, registers it in graph, and returns its NodeId.
+   subroutine build_state_node(graph, node_id, rc)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(out) :: node_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_State) :: state
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemNode) :: node
+
+      state = ESMF_StateCreate(rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(state, 'do_it', recording_method, rc=status)
+      @assertEqual(0, status)
+      call payload%set(state, rc=status)
+      @assertEqual(0, status)
+
+      node_id = graph%next_node_id(rc=status)
+      @assertEqual(0, status)
+      node = StateItemNode(node_id, payload, revision)
+      call graph%register_node(node, rc=status)
+      @assertEqual(0, status)
+
+      if (present(rc)) rc = status
+   end subroutine build_state_node
+
+   @test
+   subroutine test_invoke_method_runs_the_attached_method()
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: state_id
+      type(EsmfStateMethodInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      allocate(graph)
+      graph = ComponentGraph()
+      call build_state_node(graph, state_id, rc=status)
+      @assertEqual(0, status)
+
+      invoker = EsmfStateMethodInvoker(graph)
+      @assertEqual(0, g_call_count)
+
+      call invoker%invoke_method(state_id, 'do_it', arguments, bindings, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, g_call_count)
+
+      ! Invocable again on request, not a once-only latch.
+      call invoker%invoke_method(state_id, 'do_it', arguments, bindings, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, g_call_count)
+   end subroutine test_invoke_method_runs_the_attached_method
+
+   @test
+   subroutine test_invoke_method_propagates_a_failing_user_rc()
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: state_id
+      type(EsmfStateMethodInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      allocate(graph)
+      graph = ComponentGraph()
+      call build_state_node(graph, state_id, rc=status)
+      @assertEqual(0, status)
+
+      invoker = EsmfStateMethodInvoker(graph)
+      g_user_rc = 1
+      call invoker%invoke_method(state_id, 'do_it', arguments, bindings, rc=status)
+      @assertTrue(status /= 0)
+      @assertEqual(1, g_call_count)
+   end subroutine test_invoke_method_propagates_a_failing_user_rc
+
+   @test
+   subroutine test_invoke_method_fails_for_a_method_name_never_attached()
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: state_id
+      type(EsmfStateMethodInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      allocate(graph)
+      graph = ComponentGraph()
+      call build_state_node(graph, state_id, rc=status)
+      @assertEqual(0, status)
+
+      invoker = EsmfStateMethodInvoker(graph)
+      call invoker%invoke_method(state_id, 'never_attached', arguments, bindings, rc=status)
+      @assertTrue(status /= 0)
+      @assertEqual(0, g_call_count)
+   end subroutine test_invoke_method_fails_for_a_method_name_never_attached
+
+   @test
+   subroutine test_invoke_method_fails_for_an_unknown_node_id()
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: never_registered
+      type(EsmfStateMethodInvoker) :: invoker
+      type(ArgumentSpecMap) :: arguments
+      type(StateItemMemberMap) :: bindings
+      integer :: status
+
+      allocate(graph)
+      graph = ComponentGraph()
+      never_registered = graph%next_node_id(rc=status)
+      @assertEqual(0, status)
+
+      invoker = EsmfStateMethodInvoker(graph)
+      call invoker%invoke_method(never_registered, 'do_it', arguments, bindings, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_invoke_method_fails_for_an_unknown_node_id
+
+end module Test_EsmfStateMethodInvoker

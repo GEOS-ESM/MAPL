@@ -44,6 +44,11 @@ module Test_GraphBuilder_CallbackRealization
         mapl_VerticalGrid, mapl_VerticalGridManager, mapl_get_vertical_grid_manager
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_MultiState_mod, only: MultiState
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ConnectionPt_mod, only: ConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
    use ESMF_TestMethod_mod
    use esmf
@@ -1976,6 +1981,439 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
       _UNUSED_DUMMY(this)
    end subroutine test_realize_callback_states_yaml_members_dims_z
+
+   ! -- graphbuilder_fill_callback_collections (Invoker-side IMPORT) ------
+   !
+   ! Builds a parent component with two children: HANDLER (exports a 'cb'
+   ! callback composite, one 'arg1' FIELD member, declaring interface_id)
+   ! and INVOKER (imports 'cb', declaring the same interface_id, no
+   ! members - members: is Handler-EXPORT-only, so a callback IMPORT keeps
+   ! the default FIELD declared_item_type). Wires them with a real
+   ! MatchConnection and runs gb%resolve_connections, so the
+   ! 'CALLBACK_COLLECTION:' reuse entry gb%fill_callback_collections reads
+   ! is populated by production connection-resolution code
+   ! (resolve_callback_destination), not hand-built. Stops right after
+   ! resolve_connections: gb%allocate_internals/gb%realize_callback_states
+   ! on handler_meta are left to each test, since not every test needs the
+   ! matched member's own Field actually materialized.
+   subroutine build_invoker_fixture(service_name, geom, parent_meta, handler_meta, invoker_meta, &
+        interface_id, rc)
+      character(*), intent(in) :: service_name
+      type(ESMF_Geom), intent(in) :: geom
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: handler_meta
+      type(OuterMetaComponent), pointer, intent(out) :: invoker_meta
+      type(CallbackInterfaceId), intent(out) :: interface_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: handler_driver, invoker_driver
+      type(ESMF_GridComp) :: handler_gc, invoker_gc
+      type(ComponentSpec), pointer :: handler_spec, invoker_spec, parent_spec
+      type(CallbackInterface) :: iface
+      type(VariableSpec) :: cb_export, arg_member, cb_import
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphBuilder) :: gb
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface(service_name, iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('parent_' // service_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('HANDLER', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      handler_driver = parent_meta%get_child('HANDLER', _RC)
+      handler_gc = handler_driver%get_gridcomp()
+      handler_meta => get_outer_meta(handler_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      handler_spec => handler_meta%get_component_spec()
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+      arg_member = make_var(ESMF_STATEINTENT_EXPORT, 'arg1')
+      arg_member%itemType = MAPL_STATEITEM_FIELD
+      arg_member%geom = geom
+      call cb_export%declare_member('arg1', arg_member, rc=status)
+      @assertEqual(0, status)
+      call handler_spec%add_var_spec(cb_export)
+
+      invoker_spec => invoker_meta%get_component_spec()
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'cb')
+      cb_import%callback_interface_id = interface_id
+      call invoker_spec%add_var_spec(cb_import)
+
+      call gb%advertise(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(invoker_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(parent_meta, status)
+      @assertEqual(0, status)
+
+      conn = MatchConnection( &
+           ConnectionPt('HANDLER', VirtualConnectionPt(state_intent='export', short_name='cb')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='cb')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unresolved%size())
+
+      _RETURN(_SUCCESS)
+   end subroutine build_invoker_fixture
+
+   ! The matched Handler's own composite ESMF_State ends up, by alias,
+   ! inside the collection (keyed by its qualified_name 'cb', since the
+   ! connection names HANDLER directly - no intervening path prefix), and
+   ! the collection itself ends up, by alias, inside the Invoker's own
+   ! import_state under the import's short_name ('cb').
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fill_callback_collections_wires_matched_member(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: handler_export_state, invoker_import_state
+      type(ESMF_State) :: collection_state, member_state
+      type(ESMF_Field) :: arg_field
+      type(ESMF_StateItem_Flag) :: item_kind
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 420, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_invoker_fixture('svc-5-2-wires', geom, parent_meta, handler_meta, invoker_meta, &
+           interface_id, _RC)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+
+      invoker_import_state = ESMF_StateCreate(name='invoker_import', rc=status)
+      @assertEqual(0, status)
+      call gb%fill_callback_collections(invoker_meta, invoker_import_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(invoker_import_state, 'cb', itemType=item_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item_kind == ESMF_STATEITEM_STATE)
+      call ESMF_StateGet(invoker_import_state, 'cb', collection_state, rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(collection_state, 'cb', itemType=item_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item_kind == ESMF_STATEITEM_STATE)
+      call ESMF_StateGet(collection_state, 'cb', member_state, rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(member_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_fill_callback_collections_wires_matched_member
+
+   ! A same-named stale Field (added here by hand - populate_one excludes
+   ! callback imports, so no current call site produces this) must not
+   ! survive gb%fill_callback_collections: ESMF_StateAddReplace does not
+   ! change an existing record's reported item kind, so the FIELD->STATE
+   ! swap needs fill_callback_collection's remove-then-add, exercised
+   ! here as a safety net.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fill_callback_collections_replaces_stale_empty_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: handler_export_state, invoker_import_state
+      type(ESMF_Field) :: stale_field
+      type(ESMF_StateItem_Flag) :: item_kind
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 421, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_invoker_fixture('svc-5-2-replace', geom, parent_meta, handler_meta, invoker_meta, &
+           interface_id, _RC)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+
+      invoker_import_state = ESMF_StateCreate(name='invoker_import', rc=status)
+      @assertEqual(0, status)
+      stale_field = ESMF_FieldEmptyCreate(name='cb', rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateAdd(invoker_import_state, [stale_field], rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(invoker_import_state, 'cb', itemType=item_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item_kind == ESMF_STATEITEM_FIELD)
+
+      call gb%fill_callback_collections(invoker_meta, invoker_import_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(invoker_import_state, 'cb', itemType=item_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item_kind == ESMF_STATEITEM_STATE)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_fill_callback_collections_replaces_stale_empty_field
+
+   ! A second gb%fill_callback_collections call into the same target_state
+   ! must not duplicate either the collection entry or its member entry.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fill_callback_collections_idempotent_second_pass(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: handler_export_state, invoker_import_state
+      type(ESMF_State) :: collection_state
+      integer :: import_item_count, collection_item_count
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 422, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_invoker_fixture('svc-5-2-idempotent', geom, parent_meta, handler_meta, invoker_meta, &
+           interface_id, _RC)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+
+      invoker_import_state = ESMF_StateCreate(name='invoker_import', rc=status)
+      @assertEqual(0, status)
+
+      call gb%fill_callback_collections(invoker_meta, invoker_import_state, status)
+      @assertEqual(0, status)
+      call gb%fill_callback_collections(invoker_meta, invoker_import_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(invoker_import_state, itemCount=import_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, import_item_count)
+
+      call ESMF_StateGet(invoker_import_state, 'cb', collection_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(collection_state, itemCount=collection_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, collection_item_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_fill_callback_collections_idempotent_second_pass
+
+   ! An IMPORT declaring a callback interface but never matched by any
+   ! connection (no 'CALLBACK_COLLECTION:' reuse entry exists for it - an
+   ! unmet import, reported elsewhere) is left alone by
+   ! gb%fill_callback_collections, not treated as an error.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fill_callback_collections_skips_unmet_import(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(VariableSpec) :: cb_import
+      type(ESMF_State) :: import_state
+      type(ESMF_StateItem_Flag) :: item_kind
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-5-2-unmet', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_fill_unmet', gc, meta, _RC)
+      spec => meta%get_component_spec()
+
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'cb')
+      cb_import%callback_interface_id = interface_id
+      call spec%add_var_spec(cb_import)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      call gb%fill_callback_collections(meta, import_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(import_state, itemName='cb', itemType=item_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item_kind == ESMF_STATEITEM_NOTFOUND)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_fill_callback_collections_skips_unmet_import
+
+   ! The real routing regression test for the Invoker's IMPORT side,
+   ! paralleling test_initialize_realize_accepted_reaches_both_export_states
+   ! above: drives the actual OuterMetaComponent%initialize_accept_transfer
+   ! and %initialize_realize_accepted (not a direct gb%fill_callback_collections
+   ! call) through two full ACCEPT_TRANSFER/REALIZE_ACCEPTED rounds
+   ! (GenericPhases.F90's GENERIC_INIT_PHASE_SEQUENCE repeats both).
+   ! Does NOT regress populate_one's callback-import exclusion
+   ! (GraphBuilder_StatePopulation_smod.F90): confirmed by reverting that
+   ! exclusion that ESMF_StateAddReplace already no-ops a same-named FIELD
+   ! added over an existing STATE record, leaving itemType, itemCount, and
+   ! the member all intact, so no ESMF-visible probe here can tell the
+   ! exclusion's presence from its absence. The exclusion still matters:
+   ! without it, populate_one's fallback allocates a throwaway created
+   ! Field for this import on every ACCEPT_TRANSFER pass only to have
+   ! ESMF_StateAddReplace silently discard it, and that discard is
+   ! undocumented ESMF behavior this code should not depend on.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accept_transfer_does_not_clobber_invoker_collection(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: handler_export_state
+      type(ESMF_State) :: outer_import, outer_export
+      type(ESMF_StateItem_Flag) :: cb_kind
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0
+      type(ESMF_TimeInterval) :: dt
+      type(GriddedComponentDriver) :: invoker_driver
+      type(MultiState) :: invoker_user_states
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 423, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_invoker_fixture('svc-5-2-no-clobber', geom, parent_meta, handler_meta, invoker_meta, &
+           interface_id, _RC)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+
+      outer_import = ESMF_StateCreate(name='invoker_outer_import', rc=status)
+      @assertEqual(0, status)
+      outer_export = ESMF_StateCreate(name='invoker_outer_export', rc=status)
+      @assertEqual(0, status)
+      call ESMF_TimeSet(t0, timeString="2000-01-01T00:00:00", rc=status)
+      @assertEqual(0, status)
+      call ESMF_TimeIntervalSet(dt, h=1, rc=status)
+      @assertEqual(0, status)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, rc=status)
+      @assertEqual(0, status)
+
+      ! Round 1: ACCEPT_TRANSFER (nothing has filled the collection yet),
+      ! then REALIZE_ACCEPTED (fills the real collection STATE into both
+      ! the user and outer importStates).
+      call invoker_meta%initialize_accept_transfer(outer_import, outer_export, clock, rc=status)
+      @assertEqual(0, status)
+      call invoker_meta%initialize_realize_accepted(outer_import, outer_export, clock, rc=status)
+      @assertEqual(0, status)
+
+      invoker_driver = invoker_meta%get_user_gc_driver()
+      invoker_user_states = invoker_driver%get_states()
+      call ESMF_StateGet(invoker_user_states%importState, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+
+      call ESMF_StateGet(outer_import, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+
+      ! Round 2: a second ACCEPT_TRANSFER must leave the user importState's
+      ! collection STATE alone.
+      call invoker_meta%initialize_accept_transfer(outer_import, outer_export, clock, rc=status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(invoker_user_states%importState, 'cb', itemType=cb_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(cb_kind == ESMF_STATEITEM_STATE)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_accept_transfer_does_not_clobber_invoker_collection
 
    @before
    subroutine reset_graph_gates(this)

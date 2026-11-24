@@ -32,6 +32,7 @@ contains
 
       user_states = this%user_gc_driver%get_states()
       call gb%realize_callback_states(this, user_states%exportState, _RC)
+      call gb%fill_callback_collections(this, user_states%importState, _RC)
 
       if (.not. graph_populates_user_states()) then
          tmp_states = MultiState(importState=user_states%importState)
@@ -40,7 +41,12 @@ contains
 
       outer_states = MultiState(importState=importState, exportState=exportState)
       if (graph_populates_user_states()) then
+         ! fill_callback_collections runs after run_populate_outer_hook,
+         ! though populate_one already excludes callback imports from its
+         ! own walk; the remove-then-add in fill_callback_collection is a
+         ! safety net, not load-bearing on this order.
          call gb%run_populate_outer_hook(this, outer_states)
+         call gb%fill_callback_collections(this, outer_states%importState, _RC)
       else
          call this%registry%add_to_states(outer_states, mode='outer', _RC)
       end if

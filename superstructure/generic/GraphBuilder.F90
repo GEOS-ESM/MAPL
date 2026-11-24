@@ -140,6 +140,7 @@ module mapl_GraphBuilder_mod
    public :: graphbuilder_run_reexport_hook
    public :: graphbuilder_allocate_internals
    public :: graphbuilder_realize_callback_states
+   public :: graphbuilder_fill_callback_collections
 
    ! Stateless by design: every bound procedure still takes the
    ! OuterMetaComponent it operates on. All bindings are NOPASS, e.g.
@@ -172,6 +173,11 @@ module mapl_GraphBuilder_mod
       ! REALIZE_ACCEPTED (where legacy allocates them).
       procedure, nopass :: allocate_internals => graphbuilder_allocate_internals
       procedure, nopass :: realize_callback_states => graphbuilder_realize_callback_states
+      ! Fills each callback-interface IMPORT's matched collection with a
+      ! named alias of every matched Handler's own composite ESMF_State,
+      ! then aliases the collection into import_state. The IMPORT-side
+      ! analog of realize_callback_states.
+      procedure, nopass :: fill_callback_collections => graphbuilder_fill_callback_collections
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
       ! Resolves an EXPRESSION item's named variable references against
@@ -367,6 +373,11 @@ module mapl_GraphBuilder_mod
       type(ESMF_State), intent(inout) :: export_state
       integer, optional, intent(out) :: rc
    end subroutine graphbuilder_realize_callback_states
+   module subroutine graphbuilder_fill_callback_collections(this, import_state, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ESMF_State), intent(inout) :: import_state
+      integer, optional, intent(out) :: rc
+   end subroutine graphbuilder_fill_callback_collections
    module subroutine for_each_matching_import(dst_graph, dst_pt, op, rc)
       type(ComponentGraph), target, intent(in) :: dst_graph
       type(ConnectionPt), intent(in) :: dst_pt

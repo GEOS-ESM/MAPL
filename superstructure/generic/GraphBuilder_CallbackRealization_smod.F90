@@ -11,7 +11,7 @@
 ! A nested composite member recurses the same fill-then-insert shape.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackRealization_smod
-   use esmf, only: ESMF_StateAddReplace
+   use esmf, only: ESMF_StateAddReplace, ESMF_StateAdd, ESMF_StateRemove
    use esmf, only: ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
         ESMF_STATEITEM_STATE, ESMF_STATEITEM_NOTFOUND
    use mapl_CallbackAttributeAccess_mod, only: record_callback_interface_name
@@ -223,5 +223,123 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine realize_callback_member
+
+   ! Walks the IMPORT var_specs owned by this component for one declaring
+   ! an expected callback interface (resolve_one_pair uses the same gate;
+   ! such an import keeps the default FIELD declared_item_type - "members:"
+   ! is Handler-EXPORT-only, so there is no itemType to filter on here) and
+   ! fills the matched collection (resolve_callback_destination populates a
+   ! "CALLBACK_COLLECTION:<import NodeId>" reuse entry) into import_state.
+   ! An import with no reuse entry (no connection ever resolved it - an
+   ! unmet import, reported elsewhere) is left alone.
+   module subroutine graphbuilder_fill_callback_collections(this, import_state, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ESMF_State), intent(inout) :: import_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(NodeId), pointer :: id_ptr
+      character(:), allocatable :: collection_key
+      type(NodeId), pointer :: collection_id
+
+      _RETURN_UNLESS(graph_populates_user_states())
+
+      graph => this%get_component_graph()
+      spec => this%get_component_spec()
+      associate (e => spec%var_specs%ftn_end())
+         iter = spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
+            if (.not. var_spec%callback_interface_id%is_valid()) cycle
+            id_ptr => graph%get_resource_index( &
+                 item_key(var_spec%state_intent, var_spec%short_name))
+            if (.not. associated(id_ptr)) cycle
+            collection_key = 'CALLBACK_COLLECTION:' // id_ptr%to_string()
+            collection_id => graph%get_reuse_entry(collection_key, _RC)
+            if (.not. associated(collection_id)) cycle
+            call fill_callback_collection(graph, collection_id, var_spec%short_name, import_state, _RC)
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_fill_callback_collections
+
+   ! ESMF_StateAddReplace keeps an existing record's item kind, so swapping
+   ! a callback import's own created FIELD for the collection STATE needs
+   ! a remove then an add.
+   subroutine fill_callback_collection(graph, collection_id, short_name, target_state, rc)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: collection_id
+      character(*), intent(in) :: short_name
+      type(ESMF_State), intent(inout) :: target_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(GraphNode), pointer :: generic_node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_State) :: collection_state, member_state, named_member, named_collection
+      type(StateItemMemberMap), pointer :: members
+      type(StateItemMemberMapIterator) :: iter
+      type(StringVector) :: member_names
+      integer :: i
+      type(NodeId), pointer :: member_id
+      class(GraphNode), pointer :: member_node
+      type(GraphStateItem), pointer :: member_payload
+      character(:), allocatable :: msg
+
+      generic_node => graph%get_node(collection_id)
+      msg = 'GraphBuilder: fill_callback_collection - collection NodeId not found: ' // short_name
+      _ASSERT(associated(generic_node), msg)
+      select type (generic_node)
+      class is (StateItemNode)
+         payload => generic_node%get_payload_ptr()
+      class default
+         _FAIL('GraphBuilder: fill_callback_collection - collection node is not a StateItemNode: ' // short_name)
+      end select
+
+      collection_state = payload%get_state(_RC)
+      members => payload%state_members_ptr()
+
+      ! Collect names first: the loop below only reads, but matches the
+      ! established idiom already used by realize_callback_state for
+      ! walking this map, rather than holding a live iterator across
+      ! intervening error-handling calls.
+      member_names = StringVector()
+      iter = members%ftn_begin()
+      do while (iter /= members%ftn_end())
+         call iter%next()
+         call member_names%push_back(iter%first())
+      end do
+
+      do i = 1, member_names%size()
+         member_id => members%at(member_names%of(i))
+         msg = 'GraphBuilder: fill_callback_collection - matched member not found: ' // member_names%of(i)
+         _ASSERT(associated(member_id), msg)
+         member_node => graph%get_node(member_id)
+         msg = 'GraphBuilder: fill_callback_collection - matched member NodeId not found: ' // member_names%of(i)
+         _ASSERT(associated(member_node), msg)
+         select type (member_node)
+         class is (StateItemNode)
+            member_payload => member_node%get_payload_ptr()
+         class default
+            _FAIL('GraphBuilder: fill_callback_collection - matched member is not a StateItemNode: ' // member_names%of(i))
+         end select
+         member_state = member_payload%get_state(_RC)
+         named_member = MAPL_NamedAlias(member_state, name=member_names%of(i), _RC)
+         call ESMF_StateAddReplace(collection_state, [named_member], _RC)
+      end do
+
+      named_collection = MAPL_NamedAlias(collection_state, name=short_name, _RC)
+      call ESMF_StateRemove(target_state, [short_name], relaxedFlag=.true., _RC)
+      call ESMF_StateAdd(target_state, [named_collection], _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine fill_callback_collection
 
 end submodule GraphBuilder_CallbackRealization_smod

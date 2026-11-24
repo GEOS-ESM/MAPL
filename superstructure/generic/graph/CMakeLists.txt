@@ -34,6 +34,7 @@ target_sources(MAPL.generic PRIVATE
   GridCompMethodInvocation.F90
   GridCompDriverPhaseInvoker.F90
   StateMethodInvocation.F90
+  EsmfStateMethodInvoker.F90
   MethodGraphNode.F90
   MethodInvocation.F90
 

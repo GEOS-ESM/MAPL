@@ -253,11 +253,35 @@ contains
       type(GraphStateItem) :: alias_handle
       logical :: owns, created_only
       character(:), allocatable :: inner_name
+      class(GraphNode), pointer :: import_node
+      type(CallbackInterfaceId) :: import_callback_interface_id
 
       if (.not. associated(id_ptr)) then
          _RETURN(_SUCCESS)
       end if
       item_id = id_ptr
+
+      ! A callback IMPORT's collection is filled exclusively by
+      ! fill_callback_collections. Its own node never has a materialized
+      ! FIELD/FIELDBUNDLE predecessor (the matched Handler's node is a
+      ! STATE, which find_materialized_predecessor below does not
+      ! recognize), so leaving this walk free to run would fall back to
+      ! this import's own created Field and overwrite the real collection
+      ! STATE on a later pass.
+      if (state_intent == ESMF_STATEINTENT_IMPORT) then
+         import_node => graph%get_node(item_id)
+         if (associated(import_node)) then
+            select type (import_node)
+            class is (StateItemNode)
+               ! NAG rejects `f()%method()` on a function result; use a
+               ! local temporary.
+               import_callback_interface_id = import_node%get_callback_interface_id()
+               if (import_callback_interface_id%is_valid()) then
+                  _RETURN(_SUCCESS)
+               end if
+            end select
+         end if
+      end if
 
       owns = graph_populates_user_states()
       if (state_intent == ESMF_STATEINTENT_INTERNAL .and. .not. owns) then

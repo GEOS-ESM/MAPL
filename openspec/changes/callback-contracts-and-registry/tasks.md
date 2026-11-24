@@ -126,10 +126,21 @@
   rejecting `dims: z` outright: no in-tree YAML uses `members:` yet, and
   the gap only ever errs toward over-accepting a conforming-looking
   shape, never toward rejecting something valid. Depends on 5.1a.
-- [ ] 5.2 Fill the Invoker's collection State with each matched callback
-  State, then `ESMF_MethodExecute`-backed `StateMethodInvoker`; production
-  calls to `build_callback_state_binding` /
-  `build_callback_method_binding` for every collection member.
+- [x] 5.2a Fill the Invoker's collection State with each matched Handler's
+  callback State (`fill_callback_collections`); `ESMF_MethodExecute`-backed
+  `EsmfStateMethodInvoker`; `ESMF_StateAddReplace` stale-item-kind fix
+  (remove-then-add). Depends on 5.1.
+- [ ] 5.2b Production `build_callback_state_binding`/
+  `build_callback_method_binding` calls for every collection member. Owner
+  decision 2026-11-23: the Invoker declares its argument providers with
+  YAML keys on its callback IMPORT entry, `provides: {<argument>: <own
+  item>}` for `get` and `receives: {<argument>: <own item>}` for `put`;
+  minimal working code first. Depends on 5.2a. Design: design.md
+  decision 21 ("How an Invoker names its own argument providers").
+- [ ] 5.2c Fortran API counterpart to the YAML callback declarations
+  (Handler `members:`, Invoker `provides:`/`receives:`), as ordinary
+  state items have one (owner 2026-11-23: wanted eventually for most or
+  all user-configured callbacks; not a priority now). Depends on 5.2b.
 - [ ] 5.3 Invoker API: an iterator over one collection's bound Handlers
   (advance, done, current) -- not count-and-index; qualified-name access
   and detailed error behavior (loud `_FAIL` vs. a `found` out-argument)
