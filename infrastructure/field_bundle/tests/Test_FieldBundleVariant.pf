@@ -41,9 +41,9 @@ contains
       call ESMF_FieldBundleDestroy(bundle, _RC)
    end subroutine test_bundle_get_geom_on_plain_bundle
 
-   ! Regression: an error from get_geom must reach the caller.  A bundle
-   ! with a LocStream geom has has_geom recorded in its Info but a geomtype
-   ! get_geom does not support.
+   ! Regression: an error from get_unowned_geom must reach the caller.  A
+   ! bundle with a LocStream geom has has_geom recorded in its Info but a
+   ! geomtype get_unowned_geom does not support.
    @test
    subroutine test_bundle_get_geom_failure_propagates()
       type(ESMF_FieldBundle) :: bundle
@@ -61,7 +61,7 @@ contains
       call MAPL_FieldBundleInfoSetInternal(info, has_geom=.true., _RC)
 
       call MAPL_FieldBundleGet(bundle, geom=geom, rc=status)
-      @assertExceptionRaised('unsupported geomtype; needs simple extension')
+      @assertExceptionRaised('get_unowned_geom: unsupported geomtype')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 

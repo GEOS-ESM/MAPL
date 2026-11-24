@@ -40,6 +40,7 @@ the routine (for example `GeomManager/get_mapl_geom_from_spec.F90`).
 | `GeomUtilities.F90` | `mapl_GeomUtilities_mod` | `GeomSetId`, `GeomGetId`, `SameGeom`; the id is stored in the `ESMF_Geom` info under key `mapl/geom/id` |
 | `MaplGeom.F90`, `MaplGeom/` | `mapl_MaplGeom_mod` | Cached record: spec, `ESMF_Geom`, factory, id, file metadata, gridded dimensions, variable attributes, vector bases (`get_basis`) |
 | `GeomManager.F90`, `GeomManager/` | `mapl_GeomManager_mod` | Singleton registry and cache (section 5) |
+| `UnownedGeom.F90` | `mapl_UnownedGeom_mod` | `get_unowned_geom`: for a geom that may be owned by an `ESMF_FieldBundle`, return the `GeomManager` geom with the same id and an exactly matching grid, else a new wrapper around the same Grid/Mesh |
 | `GeomFactoryVector.F90`, `GeomSpecVector.F90`, `IntegerMaplGeomMap.F90` | gFTL containers used by the manager | |
 | `CoordinateAxis.F90`, `CoordinateAxis/` | `mapl_CoordinateAxis_mod` | `CoordinateAxis` (centers, corners, extent, tolerance, periodicity), `get_dim_name`, `get_coordinates`, `AxisRanges` |
 | `LatLon/` | `LonAxis`, `LatAxis`, `LatLonDecomposition`, `LatLonGeomSpec`, `LatLonGeomFactory` | Regular latitude-longitude grids |
