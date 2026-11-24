@@ -537,6 +537,29 @@ Decision 12).**
   user-configured callbacks eventually, as ordinary state items have
   (tracked as a later task). The priority now is minimal working code.
 
+- **Put-direction (`receives:`) data movement is a known gap, accepted
+  for now (owner decision 2026-11-24, task 5.2b).** Production binding
+  (above) wires `get`/`provides:` argument data movement end to end: get
+  edges join the hierarchy's one forward network, so
+  `ComponentGraph%update()` already pulls them before a bound method
+  runs. `put`/`receives:` arguments are not: `advance_callback_put_arguments`
+  only advances a put argument's `NodeRevision`, and `update()` never
+  walks a put network, so an OUT/INOUT argument's `receives:` item never
+  receives the value a bound method wrote. This is a general property of
+  write-back `DependencyNetwork`s (the ordinary INOUT-borrower return
+  network has the same gap), not specific to callbacks. Fixing it needs
+  either a put-network execution path or redesigning `receives:` items to
+  share `NodeId`s with the Handler member instead of an edge (`provides:`
+  already works and needs no such change); deferred as out of scope for
+  5.2b. The fix belongs to task 6.5 (`CB6-WireDeltaBack`), which already
+  plans to reuse the existing pull mechanics rather than add a new
+  executor (Decision 19): wiring `SnapshotTransform`/
+  `WeightedDeltaBackTransform`/`ConservativeColumnFillTransform` into the
+  put path should make a downstream `update()` find them as the
+  forward-network producer, closing the gap without new network-walking
+  code. 6.5 depends on all of CB5-Execute (5.1b, 5.1e, 5.2b, 5.2c, 5.3,
+  5.4) plus the already-done transform tasks 6.1-6.4.
+
 - **Same-named Handlers merge through re-export (owner decisions
   2026-11-24, tasks 5.1b and 5.1d; tentative until there is real-world
   experience).** Callbacks are treated as collections of nearly
