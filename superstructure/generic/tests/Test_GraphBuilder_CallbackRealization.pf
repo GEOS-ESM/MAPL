@@ -38,7 +38,10 @@ module Test_GraphBuilder_CallbackRealization
    use mapl_FieldCreate_mod, only: FieldsAreAliased
    use mapl_InfoUtilities_mod, only: MAPL_InfoHasCallbackInterface, MAPL_InfoGetCallbackInterface
    use mapl_geom_api, only: mapl_SameGeom
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, &
+        VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, operator(==)
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec, &
+        mapl_VerticalGrid, mapl_VerticalGridManager, mapl_get_vertical_grid_manager
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_MultiState_mod, only: MultiState
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
@@ -1375,6 +1378,604 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_initialize_realize_accepted_reaches_both_export_states
+
+   ! `vertical_dim_spec: center`/`edge` on a members: YAML entry gives the
+   ! member a real (SPECIFIED) stagger immediately; its vertical grid
+   ! (level count) stays DEFERRED, the same way an ordinary top-level
+   ! item's does, until the Handler's own component vertical grid fills it
+   ! in at GEOM_B (gb%run_geometry_hook), giving a real 3D Field with the
+   ! stagger's own level count.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_yaml_members_vertical_stagger(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: vgrid
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: center_field, edge_field
+      type(VerticalStaggerLoc) :: got_stagger
+      integer :: got_levels, got_rank
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 420, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('center_member', MAPL_VARIANT_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('edge_member', MAPL_VARIANT_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-vertical-stagger', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_vstagger', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      ! MAPL_FieldGet's num_levels resolves vert_staggerloc against the
+      ! item's stored vgrid id by looking it up in the process-wide
+      ! VerticalGridManager, so the component's vertical grid must come
+      ! from the manager (not a bare mapl_BasicVerticalGrid%set_id()).
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
+      vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=3), _RC)
+      call meta%set_vertical_grid(vgrid, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {callback_interface: svc-yaml-vertical-stagger, members: {' // &
+           'center_member: {vertical_dim_spec: center}, ' // &
+           'edge_member: {vertical_dim_spec: edge}}}' // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(cb_state, 'center_member', center_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(center_field, vert_staggerloc=got_stagger, num_levels=got_levels, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_stagger == VERTICAL_STAGGER_CENTER)
+      @assertEqual(3, got_levels)
+      call ESMF_FieldGet(center_field, rank=got_rank, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, got_rank)
+
+      call ESMF_StateGet(cb_state, 'edge_member', edge_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(edge_field, vert_staggerloc=got_stagger, num_levels=got_levels, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_stagger == VERTICAL_STAGGER_EDGE)
+      @assertEqual(4, got_levels)
+      call ESMF_FieldGet(edge_field, rank=got_rank, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, got_rank)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_yaml_members_vertical_stagger
+
+   ! `vertical_grid:` on a members: YAML entry names a vertical grid of the
+   ! member's own (parse_callback_members -> the same parse_vertical_grid
+   ! a top-level item's "geometry: {vertical_grid: ...}" uses), independent
+   ! of the Handler's own component vertical grid: the realized Field's
+   ! level count comes from the member's own named grid (5), not the
+   ! component's (3).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_yaml_members_own_vertical_grid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: comp_vgrid
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(VerticalStaggerLoc) :: got_stagger
+      integer :: got_levels
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 421, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-own-vgrid', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_own_vgrid', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      ! Component's vertical grid must come from the manager so
+      ! MAPL_FieldGet's num_levels lookup (by stored id) succeeds; see
+      ! the comment in test_realize_callback_states_yaml_members_vertical_stagger.
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
+      comp_vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=3), _RC)
+      call meta%set_vertical_grid(comp_vgrid, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {callback_interface: svc-yaml-own-vgrid, members: {' // &
+           'arg1: {vertical_dim_spec: center, vertical_grid: {num_levels: 5}}}}' // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, vert_staggerloc=got_stagger, num_levels=got_levels, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_stagger == VERTICAL_STAGGER_CENTER)
+      @assertEqual(5, got_levels)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_yaml_members_own_vertical_grid
+
+   ! A members: YAML entry with no vertical_dim_spec/vertical_grid of its
+   ! own, on a Handler component with no vertical grid of its own either,
+   ! resolves to a plain 2D Field (NONE stagger).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_yaml_members_stay_2d(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(VerticalStaggerLoc) :: got_stagger
+      integer :: got_rank
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 422, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-stay-2d', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_stay_2d', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {callback_interface: svc-yaml-stay-2d, members: {arg1: {}}}' // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, vert_staggerloc=got_stagger, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_stagger%is_none())
+      call ESMF_FieldGet(arg_field, rank=got_rank, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, got_rank)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_yaml_members_stay_2d
+
+   ! A members: YAML entry with no vertical_dim_spec/vertical_grid of its
+   ! own stays NONE/2D even when the Handler's own component DOES have a
+   ! vertical grid: a member has no realized field of its own for a
+   ! harvest pass to read a stagger back from, so an omitted
+   ! vertical_dim_spec must default explicitly rather than reach the
+   ! component's vertical grid the way a top-level item's DEFERRED
+   ! stagger would.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_members_stays_2d_with_component_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: comp_vgrid
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(VerticalStaggerLoc) :: got_stagger
+      integer :: got_rank
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 423, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-2d-with-vgrid', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_2d_with_vgrid', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
+      comp_vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=3), _RC)
+      call meta%set_vertical_grid(comp_vgrid, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {callback_interface: svc-yaml-2d-with-vgrid, members: {arg1: {}}}' // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, vert_staggerloc=got_stagger, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_stagger%is_none())
+      call ESMF_FieldGet(arg_field, rank=got_rank, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, got_rank)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_members_stays_2d_with_component_vgrid
+
+   ! `vertical_grid:` on a members: YAML entry with no vertical_dim_spec
+   ! of its own defaults the member's stagger to CENTER (the DEFERRED
+   ! status a top-level item would get here is never resolved for a
+   ! member -- see test_realize_callback_members_stays_2d_with_component_vgrid).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_members_vertical_grid_defaults_center(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(VerticalStaggerLoc) :: got_stagger
+      integer :: got_levels
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 424, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-vgrid-defaults-center', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_vgrid_defaults_center', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {callback_interface: svc-yaml-vgrid-defaults-center, members: {' // &
+           'arg1: {vertical_grid: {num_levels: 5}}}}' // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, vert_staggerloc=got_stagger, num_levels=got_levels, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_stagger == VERTICAL_STAGGER_CENTER)
+      @assertEqual(5, got_levels)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_members_vertical_grid_defaults_center
+
+   ! `dims: z` on a members: YAML entry sets no horizontal dims, the same
+   ! way it does on a top-level item: combined with an explicit
+   ! vertical_dim_spec, the realized Field is rank 1 (vertical only).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_realize_callback_states_yaml_members_dims_z(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: cb_export
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      class(mapl_VerticalGrid), pointer :: comp_vgrid
+      type(ESMF_State) :: export_state, cb_state
+      type(ESMF_Field) :: arg_field
+      type(VerticalStaggerLoc) :: got_stagger
+      integer :: got_levels, got_rank
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 425, rc=status)
+      @assertEqual(0, status)
+
+      ! The interface argument itself declares dims the only way
+      ! CallbackArgumentSpec accepts ('xyz' or 'xy'); the member's own
+      ! "dims: z" (checked below) controls the realized Field's actual
+      ! horizontal shape and is independent of this declaration.
+      call iface%declare_argument('arg1', MAPL_VARIANT_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('svc-yaml-dims-z', iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call make_outer_meta('comp_cb_yaml_dims_z', gc, meta, _RC)
+      call meta%set_geom(geom, _RC)
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
+      comp_vgrid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=4), _RC)
+      call meta%set_vertical_grid(comp_vgrid, _RC)
+      spec => meta%get_component_spec()
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {callback_interface: svc-yaml-dims-z, members: {' // &
+           'arg1: {dims: z, vertical_dim_spec: center}}}' // &
+           '}}}', rc=status)
+      @assertEqual(0, status)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         call iter%next()
+         cb_export => iter%of()
+      end associate
+
+      call spec%add_var_spec(cb_export)
+
+      call gb%advertise(meta, status)
+      @assertEqual(0, status)
+      call gb%run_geometry_hook(meta)
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'arg1', arg_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(arg_field, vert_staggerloc=got_stagger, num_levels=got_levels, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_stagger == VERTICAL_STAGGER_CENTER)
+      @assertEqual(4, got_levels)
+      call ESMF_FieldGet(arg_field, rank=got_rank, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, got_rank)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_realize_callback_states_yaml_members_dims_z
 
    @before
    subroutine reset_graph_gates(this)

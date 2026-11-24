@@ -457,20 +457,24 @@ Decision 12).**
   interface argument is a FieldBundle, rather than letting the mismatch
   surface later at conformance-check time.** Real FieldBundle-via-YAML
   support is an undesigned follow-up, not part of this change.
-  **Known limitation, tracked as required follow-up, not optional
-  polish (owner 2026-11-23: 3D support is important, must be on the
-  roadmap):** a plain `members:` entry is 2D only (vertical stagger
-  hard-defaulted to none). Scoped 2026-11-23: no new resolution
-  mechanism is needed -- a member leaf is already a real, registered
-  `StateItemNode` that goes through the same `make_characteristics` and
-  GEOM_B `resolve_deferred`/`harvest_deferred` passes a flat top-level
-  item does (that is already how a member gets its horizontal geometry
-  today); the fix is parser-level (accept
-  `dims:`/`vertical_stagger:`/`vertical_grid:` on a `members:` entry,
-  drop the hard `NONE` override), with `vertical_stagger: mirror`
-  explicitly rejected on a member since it is never part of the
-  IMPORT/EXPORT connection-resolution graph and has no partner to mirror
-  from. See tasks.md 5.1a.
+  **5.1a (3D members, resolved):** a `members:` entry accepts
+  `dims:`/`vertical_dim_spec:`/`vertical_grid:` (the top-level item's own
+  key names; `vertical_grid:` is a direct sibling key on the member, not
+  nested under `geometry:`, since a member has no `esmf_geom:` of its
+  own), parsed with the same helpers a top-level item uses. `mirror` is
+  rejected on `dims:`/`vertical_dim_spec:` since a member is never part
+  of the IMPORT/EXPORT connection-resolution graph and has no partner to
+  mirror from; `vertical_grid_mirror` is rejected by the generic
+  unsupported-key error rather than a dedicated check, since it is not in
+  a member's known-key list. A member has no realized field of its own
+  for a harvest pass to read a stagger back from, so an omitted
+  `vertical_dim_spec:` cannot use the DEFERRED status a top-level item
+  would get here; it defaults explicitly to NONE, or to CENTER when the
+  entry names its own `vertical_grid:`. `vertical_dim_spec: none`
+  combined with an explicit `vertical_grid:` on the same entry is a
+  parse-time error (a 2D field cannot also carry a vertical grid). See
+  tasks.md 5.1a. A member's own `dims:` is invisible to the
+  conformance-check dims helper, tracked as tasks.md 5.1c.
 - **Invoker API shape for 5.3: an iterator, not count-and-index.**
   `MAPL_CallbackCollectionGet` and friends present an iterator over the
   bound Handlers for one collection (canonical pattern: advance, check

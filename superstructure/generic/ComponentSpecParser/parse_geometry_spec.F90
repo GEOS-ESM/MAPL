@@ -95,14 +95,17 @@ contains
       end if
 
       if (has_vertical_grid) then
-         call parse_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, _RC)
+         call parse_vertical_grid(vertical_grid_cfg, registry, vertical_grid, _RC)
       end if
       geometry_spec = GeometrySpec(geom_spec=geom_spec, vertical_grid=vertical_grid)
 
       _RETURN(_SUCCESS)
    end function parse_geometry_spec
 
-    subroutine parse_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, rc)
+    ! Exposed on the parent module's interface, not private to this
+    ! submodule, so another submodule can parse a vertical_grid: the same
+    ! way this one does.
+    module subroutine parse_vertical_grid(vertical_grid_cfg, registry, vertical_grid, rc)
       type(ESMF_HConfig), intent(in) :: vertical_grid_cfg
       type(StateRegistry), target, intent(in) :: registry
       class(VerticalGrid), allocatable, intent(out) :: vertical_grid
@@ -127,6 +130,6 @@ contains
       vertical_grid = vgrid
 
       _RETURN(_SUCCESS)
-   end subroutine parse_vertical_grid_
+   end subroutine parse_vertical_grid
 
 end submodule parse_geometry_spec_smod

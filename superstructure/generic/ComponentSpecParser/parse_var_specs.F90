@@ -322,21 +322,21 @@ contains
       end subroutine to_units_or_placeholder
 
       ! `members:` (Handler callback-State EXPORT only, gated by the caller):
-      ! a map of member name -> optional {alias:, units:} map, the same two
-      ! keys VariableSpec%declare_member's own member argument takes
-      ! (callback_member_alias, callback_unit_placeholder/units via
-      ! to_units_or_placeholder's shared shape). Any other key in an entry
-      ! is rejected immediately (e.g. vertical_dim_spec, typekind, nested
-      ! members, template: true), rather than failing later with a
-      ! confusing downstream error: a YAML member is 2D only (vertical
-      ! stagger hard-defaulted to NONE), since a composite member is
-      ! realized directly from its own characteristics
-      ! (CompositeStateMaterialization.F90's materialize_member), not
-      ! through the connection-resolution graph that lets a flat top-level
-      ! item defer and later mirror its vertical grid. A member name that
-      ! matches a declared interface argument must answer a FIELD-kind
-      ! argument; a FieldBundle-kind argument is rejected here rather than
-      ! deferred to conformance-check. One declare_member call per entry.
+      ! a map of member name -> optional map of alias:, units:, dims:,
+      ! vertical_dim_spec:, vertical_grid:. alias/units are the two keys
+      ! VariableSpec%declare_member's own member argument takes; dims/
+      ! vertical_dim_spec/vertical_grid are parsed with the same helpers a
+      ! top-level item uses. Any other key is rejected immediately rather
+      ! than failing later with a confusing downstream error. A member is
+      ! realized directly from its own characteristics, never through the
+      ! IMPORT/EXPORT connection-resolution graph, so there is no partner
+      ! for it to mirror from ("mirror" is rejected on both dims and
+      ! vertical_dim_spec) and no realized field a harvest pass could ever
+      ! read a DEFERRED stagger back from: an entry with no vertical_dim_spec
+      ! defaults explicitly to NONE, or to CENTER when it names its own
+      ! vertical_grid, rather than falling through to DEFERRED. A member
+      ! name that matches a declared interface argument must answer a
+      ! FIELD-kind argument. One declare_member call per entry.
       subroutine parse_callback_members(var_spec, attributes, rc)
          type(VariableSpec), intent(inout) :: var_spec
          type(ESMF_HConfig), intent(in) :: attributes
@@ -344,6 +344,7 @@ contains
 
          integer :: status
          type(ESMF_HConfig) :: members_cfg, member_cfg
+         type(ESMF_HConfig) :: member_vertical_grid_cfg
          type(ESMF_HConfigIter) :: iter, b, e
          type(ESMF_HConfigIter) :: key_iter, key_b, key_e
          character(:), allocatable :: member_name
@@ -351,11 +352,16 @@ contains
          character(:), allocatable :: member_units
          character(:), allocatable :: member_placeholder
          character(:), allocatable :: key_name
+         character(:), allocatable :: dims_str
          logical :: has_alias, has_units, is_known_key, is_map
+         logical :: has_dims, has_vertical_dim_spec, has_member_vertical_grid
          character(:), allocatable :: msg
          type(CallbackInterface) :: iface
          type(CallbackArgumentSpec) :: arg_spec
          type(VariableSpec) :: member_var_spec
+         type(VerticalStaggerLoc) :: member_vertical_stagger
+         type(HorizontalDimsSpec) :: member_horizontal_dims_spec
+         class(VerticalGrid), allocatable :: member_vertical_grid
 
          iface = get_callback_interface(var_spec%callback_interface_id, _RC)
 
@@ -378,10 +384,13 @@ contains
             key_iter = key_b
             do while (ESMF_HConfigIterLoop(key_iter, key_b, key_e))
                key_name = ESMF_HConfigAsStringMapKey(key_iter, _RC)
-               is_known_key = (key_name == KEY_CALLBACK_MEMBER_ALIAS) .or. (key_name == KEY_CALLBACK_MEMBER_UNITS)
+               is_known_key = (key_name == KEY_CALLBACK_MEMBER_ALIAS) .or. (key_name == KEY_CALLBACK_MEMBER_UNITS) &
+                    .or. (key_name == KEY_DIMS) .or. (key_name == KEY_VERTICAL_STAGGER) &
+                    .or. (key_name == COMPONENT_VERTICAL_GRID_SECTION)
                msg = '"' // KEY_CALLBACK_MEMBERS // '" entry "' // member_name // '" has unsupported key "' // &
-                    key_name // '": a YAML member is 2D only and supports only "' // KEY_CALLBACK_MEMBER_ALIAS // &
-                    '" and "' // KEY_CALLBACK_MEMBER_UNITS // '"'
+                    key_name // '": a YAML member supports only "' // KEY_CALLBACK_MEMBER_ALIAS // '", "' // &
+                    KEY_CALLBACK_MEMBER_UNITS // '", "' // KEY_DIMS // '", "' // KEY_VERTICAL_STAGGER // &
+                    '", and "' // COMPONENT_VERTICAL_GRID_SECTION // '"'
                _ASSERT(is_known_key, msg)
             end do
 
@@ -402,8 +411,63 @@ contains
             if (allocated(member_placeholder)) deallocate(member_placeholder)
             call to_units_or_placeholder(member_units, member_placeholder, member_cfg, has_units, _RC)
 
+            member_horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+            has_dims = ESMF_HConfigIsDefined(member_cfg, keyString=KEY_DIMS, _RC)
+            if (has_dims) then
+               dims_str = ESMF_HConfigAsString(member_cfg, keyString=KEY_DIMS, _RC)
+               dims_str = ESMF_UtilStringLowerCase(dims_str)
+               msg = '"' // KEY_CALLBACK_MEMBERS // '" entry "' // member_name // '" cannot use "' // KEY_DIMS // &
+                    ': mirror": a member is never part of the IMPORT/EXPORT connection-resolution graph, ' // &
+                    'so there is no partner to mirror from'
+               _ASSERT(dims_str /= 'mirror', msg)
+               select case (dims_str)
+               case ('z')
+                  member_horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+               end select
+            end if
+
+            has_vertical_dim_spec = ESMF_HConfigIsDefined(member_cfg, keyString=KEY_VERTICAL_STAGGER, _RC)
+            member_vertical_stagger = to_VerticalStaggerLoc(member_cfg, _RC)
+            msg = '"' // KEY_CALLBACK_MEMBERS // '" entry "' // member_name // '" cannot use "' // &
+                 KEY_VERTICAL_STAGGER // ': mirror": a member is never part of the IMPORT/EXPORT ' // &
+                 'connection-resolution graph, so there is no partner to mirror from'
+            _ASSERT(.not. member_vertical_stagger%is_mirror(), msg)
+
+            if (allocated(member_vertical_grid)) deallocate(member_vertical_grid)
+            has_member_vertical_grid = ESMF_HConfigIsDefined(member_cfg, keyString=COMPONENT_VERTICAL_GRID_SECTION, _RC)
+            if (has_member_vertical_grid) then
+               member_vertical_grid_cfg = ESMF_HConfigCreateAt(member_cfg, keyString=COMPONENT_VERTICAL_GRID_SECTION, _RC)
+               call parse_vertical_grid(member_vertical_grid_cfg, registry, member_vertical_grid, _RC)
+               call ESMF_HConfigDestroy(member_vertical_grid_cfg, _RC)
+            end if
+
+            ! A 2D field (NONE) carrying a vertical_grid is inconsistent:
+            ! the realized field stays 2D (the vertical characteristic's
+            ! own builder drops a vertical_grid whenever the stagger is
+            ! NONE) but the conformance-check dims helper would still
+            ! report 'xyz' for it, since it checks vertical_grid before
+            ! stagger.
+            msg = '"' // KEY_CALLBACK_MEMBERS // '" entry "' // member_name // '" cannot combine "' // &
+                 KEY_VERTICAL_STAGGER // ': none" with "' // COMPONENT_VERTICAL_GRID_SECTION // &
+                 '": a 2D field cannot also carry a vertical grid'
+            _ASSERT(.not. (has_vertical_dim_spec .and. member_vertical_stagger%is_none() .and. has_member_vertical_grid), msg)
+
+            ! An omitted vertical_dim_spec on a top-level item defers to a
+            ! realized field a harvest pass reads back from; a member has
+            ! no such field, so it cannot use DEFERRED and instead defaults
+            ! explicitly here: NONE with no vertical_grid, or CENTER when
+            ! it names its own vertical_grid.
+            if (.not. has_vertical_dim_spec) then
+               if (has_member_vertical_grid) then
+                  member_vertical_stagger = VERTICAL_STAGGER_CENTER
+               else
+                  member_vertical_stagger = VERTICAL_STAGGER_NONE
+               end if
+            end if
+
             member_var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name=member_name, &
-                 itemtype=MAPL_STATEITEM_FIELD, vertical_stagger=VERTICAL_STAGGER_NONE, &
+                 itemtype=MAPL_STATEITEM_FIELD, vertical_stagger=member_vertical_stagger, &
+                 vertical_grid=member_vertical_grid, horizontal_dims_spec=member_horizontal_dims_spec, &
                  units=member_units, _RC)
             if (has_alias) member_var_spec%callback_member_alias = member_alias
             if (allocated(member_placeholder)) member_var_spec%callback_unit_placeholder = member_placeholder

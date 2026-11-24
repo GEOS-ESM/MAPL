@@ -108,26 +108,24 @@
   cumulative review found it unimplemented; landing 5.1 without it is
   additive since nothing downstream needs it. Depends on 5.1. Design:
   design.md decision 21 (alias/template YAML).
-- [ ] 5.1a A plain `members:` YAML entry (5.1) can only declare a 2D
-  field today (vertical stagger hard-defaulted to none); give it a way
-  to declare a vertical grid/stagger, matching what an ordinary
-  top-level item's YAML can already express. Owner priority: important,
-  not optional -- GEOS physics callback arguments are routinely 3D. A
-  member leaf is already a real, registered `StateItemNode` that goes
-  through the same `make_characteristics` and GEOM_B
-  `resolve_deferred`/`harvest_deferred` passes a flat top-level item
-  does (confirmed: that is already how a member gets its horizontal
-  geometry today), so no new resolution mechanism is needed: accept
-  `dims:`/`vertical_stagger:`/`vertical_grid:` on a `members:` entry
-  with the same parsing a top-level item uses
-  (`to_VerticalStaggerLoc`/`parse_geometry_spec` in
-  `parse_var_specs.F90`), and drop the hard `vertical_stagger: NONE`
-  override on `member_var_spec`. Explicitly reject
-  `vertical_stagger: mirror` on a member (clear error, not silent
-  no-op): a composite member is never part of the IMPORT/EXPORT
-  connection-resolution graph, so there is no partner to mirror from.
-  Design: `~/.opencode/plan/cb5-design-notes.md` ("5.1a scoping").
-  Depends on 5.1.
+- [x] 5.1a A `members:` YAML entry can declare a vertical grid/stagger
+  (`dims:`/`vertical_dim_spec:`/`vertical_grid:`), matching what an
+  ordinary top-level item's YAML can already express. Design: design.md
+  decision 21 ("Minimal YAML syntax for declaring a Handler's
+  callback-State members", 5.1a sub-bullet). Depends on 5.1.
+- [ ] 5.1c `member_dims` (the callback-conformance dims helper in
+  `GraphBuilder_CallbackWiring_smod.F90`) ignores a member's own
+  `HorizontalDimsSpec`/`dims:` key entirely and reports `'xyz'` for any
+  member with vertical info (stagger CENTER/EDGE or a vertical_grid),
+  so a real rank-3 `xyz` member and a rank-1 `dims: z` + stagger member
+  (5.1a's side effect, not otherwise restricted) are indistinguishable
+  to the conformance check. Fixing this needs `CallbackArgumentSpec` to
+  gain a `z`-only (or equivalent vertical-only) argument-dims
+  vocabulary it does not have today (today only `'xyz'`/`'xy'` are
+  legal); real design work, out of scope for 5.1a. Deferred rather than
+  rejecting `dims: z` outright: no in-tree YAML uses `members:` yet, and
+  the gap only ever errs toward over-accepting a conforming-looking
+  shape, never toward rejecting something valid. Depends on 5.1a.
 - [ ] 5.2 Fill the Invoker's collection State with each matched callback
   State, then `ESMF_MethodExecute`-backed `StateMethodInvoker`; production
   calls to `build_callback_state_binding` /

@@ -18,6 +18,7 @@ module mapl_ComponentSpecParser_mod
    use mapl_ReexportConnection_mod
    use mapl_ConnectionVector_mod
    use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_UngriddedDims_mod
    use mapl_UngriddedDim_mod
    use mapl_GeometrySpec_mod
@@ -40,6 +41,7 @@ module mapl_ComponentSpecParser_mod
    public :: parse_child
    public :: parse_SetServices
    public :: parse_geometry_spec
+   public :: parse_vertical_grid
    public :: parse_timespec
    public :: to_itemtype
    public :: parse_var_specs
@@ -99,6 +101,13 @@ module mapl_ComponentSpecParser_mod
          character(*), intent(in) :: component_name
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
+
+      module subroutine parse_vertical_grid(vertical_grid_cfg, registry, vertical_grid, rc)
+         type(ESMF_HConfig), intent(in) :: vertical_grid_cfg
+         type(StateRegistry), target, intent(in) :: registry
+         class(VerticalGrid), allocatable, intent(out) :: vertical_grid
+         integer, optional, intent(out) :: rc
+      end subroutine parse_vertical_grid
 
       module function parse_var_specs(hconfig, registry, component_name, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs

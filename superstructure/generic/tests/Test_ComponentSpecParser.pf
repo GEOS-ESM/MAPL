@@ -527,7 +527,8 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_rejects_members_without_callback_interface
 
-   ! A `members:` entry carries only `alias`/`units` (parse_var_specs.F90's
+   ! A `members:` entry carries only `alias`/`units`/`dims`/
+   ! `vertical_dim_spec`/`vertical_grid` (parse_var_specs.F90's
    ! parse_callback_members); any other key is a hard parse error.
    @test
    subroutine test_parse_var_specs_rejects_unsupported_member_key()
@@ -547,7 +548,7 @@ contains
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
       @assertExceptionRaised('"members" entry "arg1" has unsupported key "typekind": a YAML member ' // &
-           'is 2D only and supports only "alias" and "units"')
+           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"')
       ! parse_callback_members's own call site and parse_var_specs's own
       ! call site each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
@@ -557,6 +558,137 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
       call reset_callback_registry_for_testing()
    end subroutine test_parse_var_specs_rejects_unsupported_member_key
+
+   ! A `members:` entry is never part of the IMPORT/EXPORT
+   ! connection-resolution graph a flat top-level item can be, so
+   ! "vertical_dim_spec: mirror" has no partner to mirror from and is a
+   ! hard parse error (parse_var_specs.F90's parse_callback_members).
+   @test
+   subroutine test_parse_var_specs_rejects_member_vertical_stagger_mirror()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_members_vertical_mirror', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_vertical_mirror, ' // &
+           'members: {arg1: {vertical_dim_spec: mirror}}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members" entry "arg1" cannot use "vertical_dim_spec: mirror": a member ' // &
+           'is never part of the IMPORT/EXPORT connection-resolution graph, so there is no partner ' // &
+           'to mirror from')
+      ! parse_callback_members's own call site and parse_var_specs's own
+      ! call site each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_member_vertical_stagger_mirror
+
+   ! Same reasoning as the vertical_dim_spec case, for "dims: mirror" on
+   ! a member.
+   @test
+   subroutine test_parse_var_specs_rejects_member_dims_mirror()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_members_dims_mirror', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_dims_mirror, ' // &
+           'members: {arg1: {dims: mirror}}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members" entry "arg1" cannot use "dims: mirror": a member is never ' // &
+           'part of the IMPORT/EXPORT connection-resolution graph, so there is no partner to mirror from')
+      ! parse_callback_members's own call site and parse_var_specs's own
+      ! call site each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_member_dims_mirror
+
+   ! "vertical_grid_mirror" (the top-level mirror-request key) is not in a
+   ! member's known-key list, so it is rejected by the same generic
+   ! unsupported-key error as any other unrecognized key.
+   @test
+   subroutine test_parse_var_specs_rejects_member_vertical_grid_mirror_key()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_members_vgrid_mirror_key', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_vgrid_mirror_key, ' // &
+           'members: {arg1: {vertical_grid_mirror: true}}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members" entry "arg1" has unsupported key "vertical_grid_mirror": a YAML member ' // &
+           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"')
+      ! parse_callback_members's own call site and parse_var_specs's own
+      ! call site each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_member_vertical_grid_mirror_key
+
+   ! "vertical_dim_spec: none" together with "vertical_grid:" on one
+   ! member entry is a hard parse error: the realized field would stay 2D
+   ! (make_vertical_grid_characteristic drops a vertical_grid whenever the
+   ! stagger is NONE) while the conformance-check dims helper would still
+   ! report the member as 'xyz' (it checks vertical_grid before stagger).
+   @test
+   subroutine test_parse_var_specs_rejects_member_none_with_vertical_grid()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_members_none_with_vgrid', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_members_none_with_vgrid, ' // &
+           'members: {arg1: {vertical_dim_spec: none, vertical_grid: {num_levels: 5}}}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"members" entry "arg1" cannot combine "vertical_dim_spec: none" with ' // &
+           '"vertical_grid": a 2D field cannot also carry a vertical grid')
+      ! parse_callback_members's own call site and parse_var_specs's own
+      ! call site each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_member_none_with_vertical_grid
 
    ! A `members:` entry whose name matches a declared interface argument
    ! must answer a FIELD-kind argument; a FieldBundle-kind argument is a

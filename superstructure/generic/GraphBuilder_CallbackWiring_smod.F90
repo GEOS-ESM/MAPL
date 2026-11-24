@@ -273,13 +273,16 @@ contains
    ! vertical_stagger - parse_var_specs sets this from the YAML
    ! 'vertical_dim_spec' key (CENTER/EDGE/NONE/MIRROR), not a resolved
    ! StateItemDescriptor characteristic (no graph node exists for the
-   ! member yet at this point). A directly-set vertical_grid (rare
-   ! override case; parse_var_specs never sets one on a plain member)
-   ! takes precedence when present. MIRROR defers the real vertical grid
-   ! to another item, and an absent or explicit-INVALID stagger means the
-   ! declaration never said - either way dims cannot be determined yet,
-   ! so dims returns unset and determinable is false rather than
-   ! guessing 'xy'.
+   ! member yet at this point). A directly-set vertical_grid takes
+   ! precedence when present: parse_callback_members sets one from a
+   ! member's own 'vertical_grid:' key, and a top-level item can carry one
+   ! the same way. MIRROR defers the real vertical grid to another item
+   ! and an unallocated stagger means the declaration never said - either
+   ! way dims cannot be determined yet, so dims returns unset and
+   ! determinable is false rather than guessing 'xy'. Neither case is
+   ! reachable for a member (parse_callback_members always sets an
+   ! explicit NONE/CENTER/given value, never MIRROR or unallocated); only
+   ! a top-level item whose YAML omitted vertical_dim_spec reaches them.
    function member_dims(member, dims) result(determinable)
       type(VariableSpec), intent(in) :: member
       character(:), allocatable, intent(out) :: dims
@@ -298,8 +301,10 @@ contains
            member%vertical_stagger == VERTICAL_STAGGER_EDGE) then
          dims = 'xyz'
       else
-         ! Explicit VERTICAL_STAGGER_INVALID: parse_var_specs's default
-         ! when the YAML key is absent.
+         ! Explicit VERTICAL_STAGGER_INVALID: a top-level item's default
+         ! when its YAML omits vertical_dim_spec, deferred to a later
+         ! harvest pass. Not reachable for a member (parse_callback_members
+         ! never leaves a member's stagger INVALID).
          determinable = .false.
       end if
    end function member_dims
