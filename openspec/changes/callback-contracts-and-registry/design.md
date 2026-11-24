@@ -595,6 +595,29 @@ Decision 12).**
     (`'.*/MIXING_CB_.*'`), which puts the naming convention into every
     ancestor's YAML.
 
+**22. `turbulent_mixing`'s `bottom_boundary` carries all four conditions
+the column solver implements (owner decision 2026-11-24, found by a 9.2
+preflight, amending the 9.1 artifact).** The column solver
+(`ImplicitColumnDiffusion`) implements `neumann_homogeneous`, `neumann`,
+`robin` and `dirichlet`; the GEOS registration file shipped under 9.1
+declared only `allowed: [neumann_homogeneous, robin]`, which cannot
+satisfy the already-landed spec scenario M3 (requires a `neumann`
+result). `allowed:` widens to all four. Neither `neumann`'s flux value
+nor `dirichlet`'s pin value becomes a new interface argument, attribute
+or call_scalar: both are supplied as TestInvoker-internal constants, one
+set per mixing class, the same way M3/M4/M9's own test scenarios already
+pick fixed numbers (flux, `robin`'s r, dt, kappa) rather than sourcing
+them from a Handler. `robin`'s coefficient keeps coming from the
+existing `dry_deposition_velocity` argument (`rules:` unchanged);
+converting it to Robin's linear-term coefficient needs a reference air
+density no argument supplies, so the TestInvoker uses a fixed test
+constant (ρ = 1.2 kg/m³, M9's own test value), not a physical input.
+*Rejected:* keeping the 2-value list and rewriting M3 (would discard an
+already-landed scenario); widening to three and dropping `dirichlet`
+from production (matches the plan note's weakest reading but leaves no
+path from a real registered member to the solver's fourth, already-built
+and already-unit-tested condition).
+
 ## Risks / Trade-offs
 
 - [Execution is unbuilt and large] → It is split out as the owner track.
