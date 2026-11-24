@@ -14,6 +14,8 @@ module mapl_StateItemNode_mod
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
+   use mapl_CallbackMethodBindingMap_mod, only: CallbackMethodBindingMap
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -47,6 +49,11 @@ module mapl_StateItemNode_mod
       type(ESMF_StateIntent_Flag) :: state_intent = ESMF_STATEINTENT_INVALID
       logical :: is_inout_borrower_ = .false.
       type(CallbackInterfaceId) :: callback_interface_id
+      ! A callback collection node only (materialize_callback_collection):
+      ! every CallbackMethodBinding built for its matched members, keyed by
+      ! callback_method_binding_key(member qualified name, method name) -
+      ! see GraphBuilder_CallbackWiring_smod.F90. Empty on every other node.
+      type(CallbackMethodBindingMap) :: callback_method_bindings
    contains
       procedure :: get_payload => stateitemnode_get_payload
       procedure :: get_payload_ptr => stateitemnode_get_payload_ptr
@@ -64,6 +71,8 @@ module mapl_StateItemNode_mod
       procedure :: set_is_inout_borrower => stateitemnode_set_is_inout_borrower
       procedure :: get_callback_interface_id => stateitemnode_get_callback_interface_id
       procedure :: set_callback_interface_id => stateitemnode_set_callback_interface_id
+      procedure :: add_callback_method_binding => stateitemnode_add_callback_method_binding
+      procedure :: get_callback_method_binding => stateitemnode_get_callback_method_binding
    end type StateItemNode
 
    interface StateItemNode
@@ -166,6 +175,33 @@ contains
 
       this%callback_interface_id = callback_interface_id
    end subroutine stateitemnode_set_callback_interface_id
+
+   ! Rejects rebinding an already-present key, same no-silent-replace
+   ! convention as CallbackStateBinding%bind_argument.
+   subroutine stateitemnode_add_callback_method_binding(this, key, binding, rc)
+      class(StateItemNode), intent(inout) :: this
+      character(*), intent(in) :: key
+      type(CallbackMethodBinding), intent(in) :: binding
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: msg
+
+      msg = 'StateItemNode: add_callback_method_binding - key is already bound: ' // key
+      _ASSERT(this%callback_method_bindings%count(key) == 0, msg)
+
+      call this%callback_method_bindings%insert(key, binding)
+
+      _RETURN(_SUCCESS)
+   end subroutine stateitemnode_add_callback_method_binding
+
+   ! Null when key was never bound.
+   function stateitemnode_get_callback_method_binding(this, key) result(binding)
+      class(StateItemNode), target, intent(in) :: this
+      character(*), intent(in) :: key
+      type(CallbackMethodBinding), pointer :: binding
+
+      binding => this%callback_method_bindings%at(key)
+   end function stateitemnode_get_callback_method_binding
 
    function stateitemnode_get_payload(this) result(payload)
       class(StateItemNode), intent(in) :: this

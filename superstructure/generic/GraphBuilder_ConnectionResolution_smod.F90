@@ -2377,12 +2377,19 @@ contains
    ! wildcard match + interface conformance (resolve_callback_import),
    ! materialization (materialize_callback_collection), wiring to the
    ! advertised destination import via an ordinary add_dependency edge, and
-   ! per-match CallbackStateBinding construction
-   ! (build_callback_state_binding). Idempotent: a hierarchy-wide reuse
-   ! key derived from the import's NodeId is checked first (as
-   ! find_or_build_extension_chain's chain_key is), so a repeat
+   ! per-match CallbackStateBinding/CallbackMethodBinding construction
+   ! (build_callback_provider_maps, build_callback_bindings_for_match).
+   ! This runs at CONNECT, not REALIZE_ACCEPTED: everything the binding
+   ! builders need (each match's already-materialized state members, read
+   ! from GraphStateItem%state_members(), never re-derived from a
+   ! VariableSpec) is available right after ADVERTISE, and
+   ! Test_GraphBuilder_CallbackWiring.pf already exercises
+   ! build_callback_state_binding/build_callback_method_binding
+   ! successfully with no REALIZE_ACCEPTED step. Idempotent: a
+   ! hierarchy-wide reuse key derived from the import's NodeId is checked
+   ! first (as find_or_build_extension_chain's chain_key is), so a repeat
    ! resolve_connections() call, from any declaring component, does not
-   ! duplicate collection members.
+   ! duplicate collection members or bindings.
    subroutine resolve_callback_destination(this, src_pt, dst_pt, dst_short_name, expected_interface_id, rejected, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
@@ -2400,6 +2407,10 @@ contains
       type(QualifiedExportEntry), allocatable :: matches(:)
       type(NodeId) :: collection_id
       type(DependencyNetworkId) :: net_id
+      type(CallbackInterface) :: iface
+      type(StateItemMemberMap) :: provider_get_ids, provider_put_ids
+      class(GraphNode), pointer :: generic_node
+      integer :: i
 
       graph => this%get_component_graph()
 
@@ -2419,6 +2430,26 @@ contains
 
       net_id = graph%get_forward_network_id(_RC)
       call graph%add_dependency(net_id, collection_id, import_id, _RC)
+
+      iface = get_callback_interface(expected_interface_id, _RC)
+      call build_callback_provider_maps(this, dst_pt%component_name, dst_short_name, &
+           provider_get_ids, provider_put_ids, _RC)
+
+      generic_node => graph%get_node(collection_id)
+      _ASSERT(associated(generic_node), 'GraphBuilder: resolve_callback_destination - collection node not found')
+      select type (generic_node)
+      class is (StateItemNode)
+         ! Binds immediately on this CONNECT-phase visit: a matched member
+         ! or provider item with a DEFERRED characteristic, or a
+         ! MIRRORED/adopted descriptor, fails here rather than waiting for
+         ! a later resolution pass.
+         do i = 1, size(matches)
+            call build_callback_bindings_for_match(this, src_pt%component_name, matches(i), &
+                 expected_interface_id, iface, dst_short_name, provider_get_ids, provider_put_ids, generic_node, _RC)
+         end do
+      class default
+         _FAIL('GraphBuilder: resolve_callback_destination - collection node is not a StateItemNode')
+      end select
 
       _RETURN(_SUCCESS)
    end subroutine resolve_callback_destination

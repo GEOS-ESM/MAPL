@@ -50,12 +50,67 @@ module Test_GraphBuilder_CallbackRealization
    use mapl_MatchConnection_mod, only: MatchConnection
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT
+   use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
+   use mapl_StateAddMethod_mod, only: StateAddMethod
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_NodeRevision_mod, only: NodeRevision, operator(/=)
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use ESMF_TestMethod_mod
    use esmf
    use pfunit
    implicit none(type, external)
 
+   ! Exercised through mapl_StateAddMethod_mod's I_CallBackMethod interface
+   ! (infrastructure/esmf/ESMF_Interfaces.F90), the exact shape
+   ! ESMF_MethodExecute invokes - see Test_EsmfStateMethodInvoker.pf's own
+   ! precedent for a module-level recording flag.
+   logical :: g_cb_put_called = .false.
+   logical :: g_cb_get_called = .false.
+
 contains
+
+   ! Attached to the Handler's own 'cb' composite State under label 'put'
+   ! (MAPL_ACCESS_IN argument access, the `provides:` direction): the real
+   ! data movement for this direction happens before invoke(), in
+   ! pull_callback_get_arguments, so this body only records that it ran.
+   subroutine cb_put_method(state, rc)
+      type(ESMF_State) :: state
+      integer, intent(out) :: rc
+
+      g_cb_put_called = .true.
+      rc = 0
+      _UNUSED_DUMMY(state)
+   end subroutine cb_put_method
+
+   ! Attached under label 'get' (MAPL_ACCESS_OUT argument access, the
+   ! `receives:` direction): writes a known literal into the composite's
+   ! own 'quantity' member Field, standing in for a Handler computing an
+   ! output - advance_callback_put_arguments only advances the Invoker's
+   ! receive-item NodeRevision afterward (bookkeeping), so no production
+   ! code path copies this literal into the Invoker's own item.
+   subroutine cb_get_method(state, rc)
+      type(ESMF_State) :: state
+      integer, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: fptr(:)
+      integer :: status
+
+      call ESMF_StateGet(state, 'quantity', field, rc=status)
+      if (status /= 0) then
+         rc = status
+         return
+      end if
+      call assign_fptr(field, fptr, rc=status)
+      if (status /= 0) then
+         rc = status
+         return
+      end if
+      fptr = 42.0
+      g_cb_get_called = .true.
+      rc = 0
+   end subroutine cb_get_method
 
    ! A declared composite's one FIELD member, never aliased, is a "new"
    ! member: ADVERTISE only attached its descriptor, and realization must
@@ -2533,12 +2588,600 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_accept_transfer_does_not_clobber_invoker_collection
 
+   ! -- resolve_callback_destination production binding --------------------
+   !
+   ! Builds a parent with HANDLER (exports 'cb', one 'quantity' FIELD
+   ! member, units 'm') and INVOKER (imports 'cb', declaring the
+   ! interface, plus two always-present INTERNAL items -
+   ! provide_item (units 'km') and receive_item (units 'm') - whose
+   ! VariableSpec carries `provides:`/`receives:` map entries only when
+   ! requested, so the missing-provider test can build a fixture that
+   ! declares receive_item but leaves 'quantity' with no get-side
+   ! provider. Wired by a real MatchConnection and run through
+   ! gb%resolve_connections, so resolve_callback_destination itself (not
+   ! a hand-built binding) builds and stores every CallbackMethodBinding
+   ! the tests below fetch and invoke. Stops right after
+   ! resolve_connections, mirroring build_invoker_fixture's own scope:
+   ! gb%allocate_internals/gb%realize_callback_states/StateAddMethod
+   ! attachment are each caller's own responsibility. rc is propagated
+   ! (not asserted here) so callers can exercise both the success path
+   ! and the missing-provider failure.
+   subroutine build_method_binding_fixture(service_name, geom, include_provides, include_receives, &
+        parent_meta, handler_meta, invoker_meta, interface_id, rc, missing_item, ambiguous_item)
+      character(*), intent(in) :: service_name
+      type(ESMF_Geom), intent(in) :: geom
+      logical, intent(in) :: include_provides
+      logical, intent(in) :: include_receives
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: handler_meta
+      type(OuterMetaComponent), pointer, intent(out) :: invoker_meta
+      type(CallbackInterfaceId), intent(out) :: interface_id
+      integer, optional, intent(out) :: rc
+      ! `provides:` names a nonexistent item (resolve_invoker_item_id's
+      ! "no such item" branch).
+      logical, optional, intent(in) :: missing_item
+      ! `provides:` names an item that exists under two different states
+      ! on the Invoker (resolve_invoker_item_id's "ambiguous" branch).
+      logical, optional, intent(in) :: ambiguous_item
+
+      integer :: status
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: handler_driver, invoker_driver
+      type(ESMF_GridComp) :: handler_gc, invoker_gc
+      type(ComponentSpec), pointer :: handler_spec, invoker_spec, parent_spec
+      type(CallbackInterface) :: iface
+      type(VariableSpec) :: cb_export, quantity_member, cb_import, provide_item, receive_item, dup_item
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      logical :: missing_item_, ambiguous_item_
+      character(:), allocatable :: provide_target_name
+
+      type(GraphBuilder) :: gb
+
+      missing_item_ = .false.
+      if (present(missing_item)) missing_item_ = missing_item
+      ambiguous_item_ = .false.
+      if (present(ambiguous_item)) ambiguous_item_ = ambiguous_item
+      provide_target_name = 'provide_item'
+      if (missing_item_) provide_target_name = 'nonexistent_item'
+
+      call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('put', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('put', 'quantity', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('get', 'quantity', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface(service_name, iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('parent_' // service_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('HANDLER', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      handler_driver = parent_meta%get_child('HANDLER', _RC)
+      handler_gc = handler_driver%get_gridcomp()
+      handler_meta => get_outer_meta(handler_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      handler_spec => handler_meta%get_component_spec()
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+      quantity_member = make_var(ESMF_STATEINTENT_EXPORT, 'quantity', units='m')
+      quantity_member%itemType = MAPL_STATEITEM_FIELD
+      quantity_member%geom = geom
+      call cb_export%declare_member('quantity', quantity_member, rc=status)
+      @assertEqual(0, status)
+      call handler_spec%add_var_spec(cb_export)
+
+      invoker_spec => invoker_meta%get_component_spec()
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'cb')
+      cb_import%callback_interface_id = interface_id
+      if (include_provides) call cb_import%callback_provides%insert('quantity', provide_target_name)
+      if (include_receives) call cb_import%callback_receives%insert('quantity', 'receive_item')
+      call invoker_spec%add_var_spec(cb_import)
+
+      provide_item = make_var(ESMF_STATEINTENT_INTERNAL, 'provide_item', units='km')
+      provide_item%itemType = MAPL_STATEITEM_FIELD
+      provide_item%geom = geom
+      call invoker_spec%add_var_spec(provide_item)
+
+      if (ambiguous_item_) then
+         dup_item = make_var(ESMF_STATEINTENT_EXPORT, 'provide_item', units='km')
+         dup_item%itemType = MAPL_STATEITEM_FIELD
+         dup_item%geom = geom
+         call invoker_spec%add_var_spec(dup_item)
+      end if
+
+      receive_item = make_var(ESMF_STATEINTENT_INTERNAL, 'receive_item', units='m')
+      receive_item%itemType = MAPL_STATEITEM_FIELD
+      receive_item%geom = geom
+      call invoker_spec%add_var_spec(receive_item)
+
+      call gb%advertise(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(invoker_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(parent_meta, status)
+      @assertEqual(0, status)
+
+      conn = MatchConnection( &
+           ConnectionPt('HANDLER', VirtualConnectionPt(state_intent='export', short_name='cb')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='cb')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      call set_materialize_extensions(.false.)
+
+      _RETURN(status)
+   end subroutine build_method_binding_fixture
+
+   ! Fetches the CallbackMethodBinding resolve_callback_destination
+   ! stored for (import_short_name, method_name) on the matched member's
+   ! collection node - same lookup scheme resolve_callback_destination
+   ! itself uses (CALLBACK_COLLECTION: reuse entry keyed by the import's
+   ! own NodeId, read from the parent graph since that is where the
+   ! collection and its reuse entry live). The binding key's other half is
+   ! the matched member's own qualified_name (the Handler's export
+   ! short_name, since the fixture's single match has no path prefix) -
+   ! reusing import_short_name for it here only works because this
+   ! fixture names both 'cb'; a fixture with differently-named
+   ! import/export would need a separate argument.
+   function fetch_method_binding(parent_meta, invoker_meta, import_short_name, method_name, rc) result(binding)
+      type(OuterMetaComponent), pointer, intent(in) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(in) :: invoker_meta
+      character(*), intent(in) :: import_short_name
+      character(*), intent(in) :: method_name
+      integer, optional, intent(out) :: rc
+      type(CallbackMethodBinding), pointer :: binding
+
+      integer :: status
+      type(ComponentGraph), pointer :: invoker_graph, parent_graph
+      type(NodeId), pointer :: import_id, collection_id
+      character(:), allocatable :: collection_key
+      class(GraphNode), pointer :: generic_node
+
+      binding => null()
+      invoker_graph => invoker_meta%get_component_graph()
+      parent_graph => parent_meta%get_component_graph()
+
+      import_id => invoker_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, import_short_name))
+      @assertTrue(associated(import_id))
+
+      collection_key = 'CALLBACK_COLLECTION:' // import_id%to_string()
+      collection_id => parent_graph%get_reuse_entry(collection_key, _RC)
+      @assertTrue(associated(collection_id))
+
+      generic_node => parent_graph%get_node(collection_id)
+      @assertTrue(associated(generic_node))
+      select type (generic_node)
+      class is (StateItemNode)
+         binding => generic_node%get_callback_method_binding( &
+              callback_method_binding_key(import_short_name, method_name))
+      class default
+         @assertTrue(.false., 'collection node is not a StateItemNode')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function fetch_method_binding
+
+   ! Reads an Invoker INTERNAL item's own real Field value, fetched
+   ! directly from the graph (gb%allocate_internals materializes a real
+   ! backing Field for an INTERNAL VariableSpec independent of any
+   ! ESMF_State population - see
+   ! test_realize_callback_states_alias_member_shares_internal_field's
+   ! own precedent above for this same lookup chain).
+   subroutine set_invoker_internal_value(invoker_meta, short_name, value, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: invoker_meta
+      character(*), intent(in) :: short_name
+      real(ESMF_KIND_R4), intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: invoker_graph
+      type(NodeId), pointer :: internal_id
+      class(GraphNode), pointer :: generic_node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: fptr(:)
+
+      invoker_graph => invoker_meta%get_component_graph()
+      internal_id => invoker_graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, short_name))
+      @assertTrue(associated(internal_id))
+      generic_node => invoker_graph%get_node(internal_id)
+      @assertTrue(associated(generic_node))
+      select type (generic_node)
+      class is (StateItemNode)
+         payload => generic_node%get_payload_ptr()
+      class default
+         @assertTrue(.false., short_name // ' is not a StateItemNode')
+      end select
+      field = payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(field, fptr, rc=status)
+      @assertEqual(0, status)
+      fptr = value
+
+      _RETURN(_SUCCESS)
+   end subroutine set_invoker_internal_value
+
+   real(ESMF_KIND_R4) function get_invoker_internal_value(invoker_meta, short_name, rc) result(value)
+      type(OuterMetaComponent), pointer, intent(in) :: invoker_meta
+      character(*), intent(in) :: short_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: invoker_graph
+      type(NodeId), pointer :: internal_id
+      class(GraphNode), pointer :: generic_node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: fptr(:)
+
+      invoker_graph => invoker_meta%get_component_graph()
+      internal_id => invoker_graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, short_name))
+      @assertTrue(associated(internal_id))
+      generic_node => invoker_graph%get_node(internal_id)
+      @assertTrue(associated(generic_node))
+      select type (generic_node)
+      class is (StateItemNode)
+         payload => generic_node%get_payload_ptr()
+      class default
+         @assertTrue(.false., short_name // ' is not a StateItemNode')
+      end select
+      field = payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(field, fptr, rc=status)
+      @assertEqual(0, status)
+      value = fptr(1)
+
+      _RETURN(_SUCCESS)
+   end function get_invoker_internal_value
+
+   ! End-to-end: the `provides:` direction (method 'put', MAPL_ACCESS_IN)
+   ! really moves data - the Invoker's own provide_item (units 'km', set
+   ! to 1.0) is pulled through the UnitsConverterTransform
+   ! wire_callback_argument's extension chain built into the Handler's
+   ! 'quantity' member (units 'm'), reaching 1000.0, before the attached
+   ! 'put' method body ever runs. Deliberately using a units mismatch
+   ! (rather than equal units) proves graph%update() actually executed a
+   ! real conversion, not merely an alias.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_resolve_callback_destination_converts_provides_value(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: handler_export_state, cb_state
+      type(ESMF_Field) :: quantity_field
+      real(ESMF_KIND_R4), pointer :: quantity_fptr(:)
+      type(CallbackMethodBinding), pointer :: binding
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 440, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_method_binding_fixture('svc-5-2b-provides', geom, .true., .true., &
+           parent_meta, handler_meta, invoker_meta, interface_id, status)
+      @assertEqual(0, status)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(invoker_meta, status)
+      @assertEqual(0, status)
+
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(handler_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'put', cb_put_method, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'get', cb_get_method, rc=status)
+      @assertEqual(0, status)
+
+      call set_invoker_internal_value(invoker_meta, 'provide_item', 1.0_ESMF_KIND_R4, status)
+      @assertEqual(0, status)
+
+      binding => fetch_method_binding(parent_meta, invoker_meta, 'cb', 'put', status)
+      @assertEqual(0, status)
+      @assertTrue(associated(binding))
+
+      call invoke_callback_method(parent_meta%get_component_graph(), binding, status)
+      @assertEqual(0, status)
+      @assertTrue(g_cb_put_called)
+
+      call ESMF_StateGet(cb_state, 'quantity', quantity_field, rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(quantity_field, quantity_fptr, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1000.0_ESMF_KIND_R4, quantity_fptr(1), tolerance=1.0e-4_ESMF_KIND_R4)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_destination_converts_provides_value
+
+   ! The `receives:` direction (method 'get', MAPL_ACCESS_OUT) has no
+   ! production code path that copies the Handler member's value into the
+   ! Invoker's receive_item (advance_callback_put_arguments only advances
+   ! receive_item's own NodeRevision) - a known gap (see
+   ! docs/graph/callbacks.md). This test asserts only what the
+   ! production path actually does: the attached 'get' method body runs
+   ! and writes into the Handler's own 'quantity' member Field, and
+   ! invoke_callback_method advances receive_item's NodeRevision -
+   ! deliberately NOT asserting receive_item's own Field value changed,
+   ! since nothing moves it there.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_resolve_callback_destination_advances_receive_revision(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: handler_export_state, cb_state
+      type(ESMF_Field) :: quantity_field
+      real(ESMF_KIND_R4), pointer :: quantity_fptr(:)
+      type(CallbackMethodBinding), pointer :: binding
+      type(ComponentGraph), pointer :: invoker_graph
+      type(NodeId), pointer :: receive_id
+      class(GraphNode), pointer :: generic_node
+      type(NodeRevision) :: revision_before, revision_after
+      integer :: status
+
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 441, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_method_binding_fixture('svc-5-2b-receives', geom, .true., .true., &
+           parent_meta, handler_meta, invoker_meta, interface_id, status)
+      @assertEqual(0, status)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(invoker_meta, status)
+      @assertEqual(0, status)
+
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(handler_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'put', cb_put_method, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'get', cb_get_method, rc=status)
+      @assertEqual(0, status)
+
+      call set_invoker_internal_value(invoker_meta, 'provide_item', 1.0_ESMF_KIND_R4, status)
+      @assertEqual(0, status)
+
+      invoker_graph => invoker_meta%get_component_graph()
+      receive_id => invoker_graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, 'receive_item'))
+      @assertTrue(associated(receive_id))
+      generic_node => invoker_graph%get_node(receive_id)
+      @assertTrue(associated(generic_node))
+      select type (generic_node)
+      class is (StateItemNode)
+         revision_before = generic_node%get_revision()
+      class default
+         @assertTrue(.false., 'receive_item is not a StateItemNode')
+      end select
+
+      binding => fetch_method_binding(parent_meta, invoker_meta, 'cb', 'get', status)
+      @assertEqual(0, status)
+      @assertTrue(associated(binding))
+
+      call invoke_callback_method(parent_meta%get_component_graph(), binding, status)
+      @assertEqual(0, status)
+      @assertTrue(g_cb_get_called)
+
+      call ESMF_StateGet(cb_state, 'quantity', quantity_field, rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(quantity_field, quantity_fptr, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(42.0_ESMF_KIND_R4, quantity_fptr(1), tolerance=1.0e-4_ESMF_KIND_R4)
+
+      select type (generic_node)
+      class is (StateItemNode)
+         revision_after = generic_node%get_revision()
+      class default
+         @assertTrue(.false., 'receive_item is not a StateItemNode')
+      end select
+      @assertTrue(revision_after /= revision_before)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_destination_advances_receive_revision
+
+   ! A required argument ('quantity') with no `provides:` entry fails at
+   ! build_callback_method_binding's own assert, not later: the methods
+   ! map iterates alphabetically, so 'get' (MAPL_ACCESS_OUT, needs only
+   ! the `receives:` entry, present here) binds fully first, then 'put'
+   ! (MAPL_ACCESS_IN, needs the missing `provides:` entry) fails
+   ! deterministically - the fixture's own resolve_connections call
+   ! returns that failure status, so this test never reaches
+   ! allocate_internals/realize_callback_states.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_resolve_callback_destination_missing_provider_fails(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 442, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_method_binding_fixture('svc-5-2b-missing', geom, .false., .true., &
+           parent_meta, handler_meta, invoker_meta, interface_id, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      @assertExceptionRaised('GraphBuilder: build_callback_method_binding - ' // &
+           'IMPORT "cb" method "put" has no "provides:" entry for argument: quantity')
+      ! build_callback_bindings_for_match, resolve_callback_destination,
+      ! resolve_one_pair, resolve_one, the for_each_matching_import
+      ! callback check, resolve_match_connection, and the resolve_connections
+      ! driving loop each pass the failure up (seven more status=1
+      ! levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_destination_missing_provider_fails
+
+   ! A `provides:` entry naming an item that does not exist anywhere on
+   ! the Invoker fails in resolve_invoker_item_id, naming the import,
+   ! argument and item.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_resolve_callback_destination_rejects_missing_item(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 443, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_method_binding_fixture('svc-5-2b-no-item', geom, .true., .true., &
+           parent_meta, handler_meta, invoker_meta, interface_id, status, missing_item=.true.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      @assertExceptionRaised('GraphBuilder: callback provider map - IMPORT "cb" argument "quantity" ' // &
+           'names item "nonexistent_item": no such item on this component (any state)')
+      ! build_callback_provider_maps, resolve_callback_destination,
+      ! resolve_one_pair, resolve_one, the for_each_matching_import
+      ! callback check, resolve_match_connection, and the resolve_connections
+      ! driving loop each pass the failure up (seven more status=1
+      ! levels) -- same depth as
+      ! test_resolve_callback_destination_missing_provider_fails, since
+      ! build_callback_provider_maps sits at the same nesting depth as
+      ! the build_callback_bindings_for_match match loop.
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_destination_rejects_missing_item
+
+   ! A `provides:` entry naming an item that exists under two different
+   ! states on the Invoker (here: INTERNAL and EXPORT, both named
+   ! 'provide_item') fails as ambiguous - the YAML gives only a short
+   ! name, with no state to disambiguate.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_resolve_callback_destination_rejects_ambiguous_item(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, handler_meta, invoker_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 444, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_method_binding_fixture('svc-5-2b-ambig-item', geom, .true., .true., &
+           parent_meta, handler_meta, invoker_meta, interface_id, status, ambiguous_item=.true.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      @assertExceptionRaised('GraphBuilder: callback provider map - IMPORT "cb" argument "quantity" ' // &
+           'names item "provide_item": ambiguous - item exists under more than one state')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_destination_rejects_ambiguous_item
+
    @before
    subroutine reset_graph_gates(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       call set_graph_owns_user_states(.false.)
+      g_cb_put_called = .false.
+      g_cb_get_called = .false.
       _UNUSED_DUMMY(this)
    end subroutine reset_graph_gates
 
@@ -2548,6 +3191,7 @@ contains
 
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       call set_graph_owns_user_states(.false.)
+      call set_materialize_extensions(.false.)
       call reset_callback_registry_for_testing()
       _UNUSED_DUMMY(this)
    end subroutine restore_graph_gates

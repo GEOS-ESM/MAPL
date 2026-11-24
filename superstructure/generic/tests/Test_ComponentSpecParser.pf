@@ -24,7 +24,8 @@ module Test_ComponentSpecParser
    ! Renamed on import: mapl_StateItem_mod's own MAPL_STATEITEM_FIELDBUNDLE
    ! (an ESMF_StateItem_Flag) already in scope is a different type than
    ! CallbackInterface%declare_argument's expected_kind argument.
-   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE, &
+        MAPL_VARIANT_FIELD => MAPL_STATEITEM_FIELD
    use mapl_ErrorHandling_mod
    use mapl_Connection_mod
    use mapl_ConnectionPt_mod
@@ -763,6 +764,139 @@ contains
 
       call reset_callback_registry_for_testing()
    end subroutine test_parse_var_specs_rejects_members_plus_expression_or_class
+
+   ! `provides:`/`receives:` on an Invoker
+   ! callback IMPORT: each resolves to a VariableSpec%callback_provides/
+   ! callback_receives entry (argument name -> this Invoker's own item
+   ! short name), readable back via StringStringMap%at. Item-name
+   ! validity against the Invoker's own items is GraphBuilder's job, not
+   ! the parser's - only the argument name is checked here, against the
+   ! declared interface.
+   @test
+   subroutine test_parse_var_specs_accepts_provides_and_receives()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      character(:), pointer :: item_name
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', _RC)
+      call register_callback_interface('toy_provides_receives', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'cb: {callback_interface: toy_provides_receives, ' // &
+           'provides: {quantity: provide_item}, receives: {quantity: receive_item}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, var_specs%size())
+
+      iter = var_specs%ftn_begin()
+      call iter%next()
+      var_spec => iter%of()
+      @assertEqual(1, var_spec%callback_provides%size())
+      item_name => var_spec%callback_provides%at('quantity')
+      @assertTrue(associated(item_name))
+      @assertEqual('provide_item', item_name)
+      @assertEqual(1, var_spec%callback_receives%size())
+      item_name => var_spec%callback_receives%at('quantity')
+      @assertTrue(associated(item_name))
+      @assertEqual('receive_item', item_name)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_accepts_provides_and_receives
+
+   ! `provides:` on an EXPORT (even one declaring `callback_interface:`,
+   ! the Handler role) is rejected: `provides:`/`receives:` are restricted
+   ! to an Invoker callback IMPORT.
+   @test
+   subroutine test_parse_var_specs_rejects_provides_not_on_import()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', _RC)
+      call register_callback_interface('toy_provides_export', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'cb: {typekind: R4, callback_interface: toy_provides_export, ' // &
+           'provides: {quantity: provide_item}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"provides" is only valid on an Invoker callback IMPORT ' // &
+           'declaring "callback_interface": cb')
+      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_provides_not_on_import
+
+   ! `receives:` on a plain IMPORT with no `callback_interface:` is the
+   ! same is_callback_import gate, hit from the other missing condition.
+   @test
+   subroutine test_parse_var_specs_rejects_receives_no_callback_interface()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'cb: {typekind: R4, receives: {quantity: receive_item}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"receives" is only valid on an Invoker callback IMPORT ' // &
+           'declaring "callback_interface": cb')
+      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_receives_no_callback_interface
+
+   ! An argument name `provides:`/`receives:` does not declare on the
+   ! interface is rejected by parse_callback_provider_map, not silently
+   ! accepted (the item-name side, by contrast, is left to GraphBuilder).
+   @test
+   subroutine test_parse_var_specs_rejects_provides_unknown_argument()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+      call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', _RC)
+      call register_callback_interface('toy_provides_unknown_arg', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'cb: {callback_interface: toy_provides_unknown_arg, ' // &
+           'receives: {bogus: receive_item}}' // &
+           '}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('"receives" entry names argument "bogus" ' // &
+           'not declared on interface "toy_provides_unknown_arg": cb')
+      ! parse_state_specs's own call site, then parse_var_specs's own call
+      ! site, each pass the failure up (two more _RC levels).
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_provides_unknown_argument
 
    ! vertical_alignment reaches the VariableSpec as written; omitted stays unallocated.
    @test

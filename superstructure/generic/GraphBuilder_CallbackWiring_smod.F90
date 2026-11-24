@@ -3,12 +3,15 @@
 ! Callback wiring: callback states, method nodes and their get/put networks.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
-   use esmf, only: ESMF_StateCreate
+   use esmf, only: ESMF_StateCreate, ESMF_STATEINTENT_INTERNAL
    use mapl_AccessSpec_mod, only: AccessSpec, MAPL_ACCESS_IN, MAPL_ACCESS_INOUT, MAPL_ACCESS_OUT, operator(==)
    use mapl_AccessSpecMap_mod, only: AccessSpecMap, AccessSpecMapIterator, operator(/=)
    use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
    use mapl_CallbackArgumentSpecMap_mod, only: CallbackArgumentSpecMap, CallbackArgumentSpecMapIterator, operator(/=)
    use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
+   use mapl_CallbackMethodSpecMap_mod, only: CallbackMethodSpecMap, CallbackMethodSpecMapIterator, operator(/=)
+   use mapl_EsmfStateMethodInvoker_mod, only: EsmfStateMethodInvoker
+   use gFTL2_StringStringMap, only: StringStringMap, StringStringMapIterator, operator(/=)
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_StateItemDescriptor_mod, only: resolve_characteristics
@@ -376,6 +379,9 @@ contains
       type(CallbackArgumentSpecMapIterator) :: iter
       character(:), allocatable :: argument_name
       type(NodeId), pointer :: member_node_id
+      type(CallbackMethodSpecMap), target :: methods
+      type(CallbackMethodSpecMapIterator) :: method_iter
+      character(:), allocatable :: method_name
 
       ! allocate(source=): see resolve_qualified_export_node_id.
       if (is_self(this, src_component_name)) then
@@ -424,6 +430,21 @@ contains
          call binding%bind_argument(argument_name, member_node_id, _RC)
       end do
 
+      ! Production binding: attach the ESMF-backed invoker to every method
+      ! the interface declares, so build_callback_method_binding (called
+      ! per method below) finds a method_attachment via
+      ! get_method_attachment. Tests that build a CallbackStateBinding
+      ! directly (not through this function) attach a mock invoker instead.
+      methods = expected_iface%get_methods()
+      method_iter = methods%ftn_begin()
+      do while (method_iter /= methods%ftn_end())
+         call method_iter%next()
+         if (allocated(method_name)) deallocate(method_name)
+         allocate(method_name, source=method_iter%first())
+         call binding%bind_method(method_name, status, invoker=EsmfStateMethodInvoker(owner_graph))
+         _VERIFY(status)
+      end do
+
       _RETURN(_SUCCESS)
    end function build_callback_state_binding
 
@@ -434,9 +455,10 @@ contains
    ! forward network (get) or the put network, by access mode, reusing
    ! resolve_characteristics/find_or_build_extension_chain as ordinary
    ! connection resolution does (wire_callback_argument).
-   module function build_callback_method_binding(this, iface, method_name, state_binding, &
+   module function build_callback_method_binding(this, import_short_name, iface, method_name, state_binding, &
         provider_get_ids, provider_put_ids, rc) result(binding)
       class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: import_short_name
       type(CallbackInterface), intent(in) :: iface
       character(*), intent(in) :: method_name
       type(CallbackStateBinding), target, intent(in) :: state_binding
@@ -460,6 +482,7 @@ contains
       type(MAPL_StateItem_Flag) :: expected_kind
       type(NodeId), pointer :: member_id
       type(NodeId), pointer :: provider_id
+      character(:), allocatable :: msg
 
       graph => this%get_component_graph()
 
@@ -507,7 +530,9 @@ contains
 
          if (access == MAPL_ACCESS_IN .or. access == MAPL_ACCESS_INOUT) then
             provider_id => provider_get_ids%at(argument_name)
-            _ASSERT(associated(provider_id), 'GraphBuilder: build_callback_method_binding - no get-side provider for argument: ' // argument_name)
+            msg = 'GraphBuilder: build_callback_method_binding - IMPORT "' // import_short_name // &
+                 '" method "' // method_name // '" has no "provides:" entry for argument: ' // argument_name
+            _ASSERT(associated(provider_id), msg)
             call wire_callback_argument(graph, forward_net_id, provider_id, member_id, _RC)
             ! Pulling the callback-side member reaches the provider and
             ! whatever produces it, plus any conversion wired between them.
@@ -516,7 +541,9 @@ contains
 
          if (access == MAPL_ACCESS_OUT .or. access == MAPL_ACCESS_INOUT) then
             provider_id => provider_put_ids%at(argument_name)
-            _ASSERT(associated(provider_id), 'GraphBuilder: build_callback_method_binding - no put-side provider for argument: ' // argument_name)
+            msg = 'GraphBuilder: build_callback_method_binding - IMPORT "' // import_short_name // &
+                 '" method "' // method_name // '" has no "receives:" entry for argument: ' // argument_name
+            _ASSERT(associated(provider_id), msg)
             call wire_callback_argument(graph, put_net_id, member_id, provider_id, _RC)
             call binding%bind_put_argument(argument_name, provider_id, _RC)
          end if
@@ -526,6 +553,172 @@ contains
 
       _RETURN(_SUCCESS)
    end function build_callback_method_binding
+
+   ! Resolves one of the Invoker's own items (the item an argument's
+   ! `provides:`/`receives:` entry names) to a NodeId, by short name, among
+   ! owner_graph's own IMPORT/EXPORT/INTERNAL items (item_key is
+   ! state-intent-qualified, so all three candidate keys are tried). Not
+   ! found, or found under more than one state, is an error naming the
+   ! import, the argument and the item, since the YAML gives no state -
+   ! only a short name - and ambiguity across states is not resolvable
+   ! here.
+   function resolve_invoker_item_id(owner_graph, import_short_name, argument_name, item_short_name, rc) result(node_id)
+      type(ComponentGraph), pointer, intent(in) :: owner_graph
+      character(*), intent(in) :: import_short_name
+      character(*), intent(in) :: argument_name
+      character(*), intent(in) :: item_short_name
+      integer, optional, intent(out) :: rc
+      type(NodeId) :: node_id
+
+      type(NodeId), pointer :: import_hit, export_hit, internal_hit
+      integer :: num_hits
+      character(:), allocatable :: context
+
+      import_hit => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, item_short_name))
+      export_hit => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, item_short_name))
+      internal_hit => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, item_short_name))
+
+      num_hits = count([associated(import_hit), associated(export_hit), associated(internal_hit)])
+
+      context = 'GraphBuilder: callback provider map - IMPORT "' // import_short_name // &
+           '" argument "' // argument_name // '" names item "' // item_short_name // '"'
+      _ASSERT(num_hits > 0, context // ': no such item on this component (any state)')
+      _ASSERT(num_hits == 1, context // ': ambiguous - item exists under more than one state')
+
+      if (associated(import_hit)) then
+         node_id = import_hit
+      else if (associated(export_hit)) then
+         node_id = export_hit
+      else
+         node_id = internal_hit
+      end if
+
+      _RETURN(_SUCCESS)
+   end function resolve_invoker_item_id
+
+   ! Builds the Invoker IMPORT's provider maps:
+   ! argument -> NodeId of the Invoker's own item that supplies a get (IN/
+   ! INOUT, from the YAML `provides:` map, VariableSpec%callback_provides)
+   ! or receives a put (OUT/INOUT, from `receives:`,
+   ! VariableSpec%callback_receives). Built once per Invoker IMPORT, not
+   ! per matched Handler member - build_callback_method_binding's
+   ! provider_get_ids/provider_put_ids arguments are shared across every
+   ! match. An argument absent from both YAML maps simply has no entry
+   ! here; build_callback_method_binding's own asserts catch a
+   ! required-but-unsupplied argument at bind time.
+   module subroutine build_callback_provider_maps(this, comp_name, import_short_name, &
+        provider_get_ids, provider_put_ids, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: comp_name
+      character(*), intent(in) :: import_short_name
+      type(StateItemMemberMap), intent(out) :: provider_get_ids
+      type(StateItemMemberMap), intent(out) :: provider_put_ids
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: owner_meta
+      type(ComponentGraph), pointer :: owner_graph
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpec), pointer :: import_spec
+      type(StringStringMapIterator) :: map_iter
+      character(:), allocatable :: argument_name
+      character(:), allocatable :: item_short_name
+      type(NodeId) :: provider_id
+
+      owner_meta => resolve_qualified_component(this, comp_name, _RC)
+      owner_graph => owner_meta%get_component_graph()
+      comp_spec => owner_meta%get_component_spec()
+
+      nullify(import_spec)
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
+            if (var_spec%short_name /= import_short_name) cycle
+            import_spec => var_spec
+            exit
+         end do
+      end associate
+      _ASSERT(associated(import_spec), 'GraphBuilder: build_callback_provider_maps - IMPORT not found: ' // import_short_name)
+
+      associate (e => import_spec%callback_provides%ftn_end())
+         map_iter = import_spec%callback_provides%ftn_begin()
+         do while (map_iter /= e)
+            call map_iter%next()
+            if (allocated(argument_name)) deallocate(argument_name)
+            allocate(argument_name, source=map_iter%first())
+            if (allocated(item_short_name)) deallocate(item_short_name)
+            allocate(item_short_name, source=map_iter%second())
+            provider_id = resolve_invoker_item_id(owner_graph, import_short_name, argument_name, item_short_name, _RC)
+            call provider_get_ids%insert(argument_name, provider_id)
+         end do
+      end associate
+
+      associate (e => import_spec%callback_receives%ftn_end())
+         map_iter = import_spec%callback_receives%ftn_begin()
+         do while (map_iter /= e)
+            call map_iter%next()
+            if (allocated(argument_name)) deallocate(argument_name)
+            allocate(argument_name, source=map_iter%first())
+            if (allocated(item_short_name)) deallocate(item_short_name)
+            allocate(item_short_name, source=map_iter%second())
+            provider_id = resolve_invoker_item_id(owner_graph, import_short_name, argument_name, item_short_name, _RC)
+            call provider_put_ids%insert(argument_name, provider_id)
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine build_callback_provider_maps
+
+   ! Builds and stores every (matched member, declared method) binding for
+   ! one callback collection: a CallbackStateBinding (shared by every
+   ! method on the same member, since arguments/method attachments do not
+   ! vary by method), then one CallbackMethodBinding per method the
+   ! interface declares, stored on collection_node under
+   ! callback_method_binding_key(entry%qualified_name, method_name), for an
+   ! Invoker to look up a matched member's bound methods later.
+   module subroutine build_callback_bindings_for_match(this, src_component_name, entry, &
+        expected_interface_id, iface, import_short_name, provider_get_ids, provider_put_ids, collection_node, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: src_component_name
+      type(QualifiedExportEntry), intent(in) :: entry
+      type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(CallbackInterface), intent(in) :: iface
+      character(*), intent(in) :: import_short_name
+      type(StateItemMemberMap), intent(in) :: provider_get_ids
+      type(StateItemMemberMap), intent(in) :: provider_put_ids
+      class(StateItemNode), intent(inout) :: collection_node
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(CallbackStateBinding) :: state_binding
+      type(CallbackMethodSpecMap), target :: methods
+      type(CallbackMethodSpecMapIterator) :: method_iter
+      character(:), allocatable :: method_name
+      type(CallbackMethodBinding) :: method_binding
+
+      state_binding = build_callback_state_binding(this, src_component_name, entry, &
+           expected_interface_id, iface, _RC)
+
+      methods = iface%get_methods()
+      method_iter = methods%ftn_begin()
+      do while (method_iter /= methods%ftn_end())
+         call method_iter%next()
+         if (allocated(method_name)) deallocate(method_name)
+         allocate(method_name, source=method_iter%first())
+
+         method_binding = build_callback_method_binding(this, import_short_name, iface, method_name, state_binding, &
+              provider_get_ids, provider_put_ids, _RC)
+         call collection_node%add_callback_method_binding( &
+              callback_method_binding_key(entry%qualified_name, method_name), method_binding, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine build_callback_bindings_for_match
 
    ! Wires one argument's data-flow edge into network_id, comparing the real
    ! descriptors of source_id/target_id (both ordinary StateItemNodes - the

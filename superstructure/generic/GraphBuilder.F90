@@ -129,6 +129,9 @@ module mapl_GraphBuilder_mod
    public :: materialize_callback_collection
    public :: build_callback_state_binding
    public :: build_callback_method_binding
+   public :: build_callback_provider_maps
+   public :: build_callback_bindings_for_match
+   public :: callback_method_binding_key
    public :: invoke_callback_method
 
    ! Shared multi-level qualified-path resolution, used by callback and
@@ -663,9 +666,10 @@ module mapl_GraphBuilder_mod
       type(CallbackStateBinding) :: binding
 
    end function build_callback_state_binding
-   module function build_callback_method_binding(this, iface, method_name, state_binding, &
+   module function build_callback_method_binding(this, import_short_name, iface, method_name, state_binding, &
         provider_get_ids, provider_put_ids, rc) result(binding)
       class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: import_short_name
       type(CallbackInterface), intent(in) :: iface
       character(*), intent(in) :: method_name
       type(CallbackStateBinding), target, intent(in) :: state_binding
@@ -675,6 +679,30 @@ module mapl_GraphBuilder_mod
       type(CallbackMethodBinding) :: binding
 
    end function build_callback_method_binding
+   module subroutine build_callback_provider_maps(this, comp_name, import_short_name, &
+        provider_get_ids, provider_put_ids, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: comp_name
+      character(*), intent(in) :: import_short_name
+      type(StateItemMemberMap), intent(out) :: provider_get_ids
+      type(StateItemMemberMap), intent(out) :: provider_put_ids
+      integer, optional, intent(out) :: rc
+
+   end subroutine build_callback_provider_maps
+   module subroutine build_callback_bindings_for_match(this, src_component_name, entry, &
+        expected_interface_id, iface, import_short_name, provider_get_ids, provider_put_ids, collection_node, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: src_component_name
+      type(QualifiedExportEntry), intent(in) :: entry
+      type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(CallbackInterface), intent(in) :: iface
+      character(*), intent(in) :: import_short_name
+      type(StateItemMemberMap), intent(in) :: provider_get_ids
+      type(StateItemMemberMap), intent(in) :: provider_put_ids
+      class(StateItemNode), intent(inout) :: collection_node
+      integer, optional, intent(out) :: rc
+
+   end subroutine build_callback_bindings_for_match
    module subroutine wire_callback_argument(graph, network_id, source_id, target_id, rc)
       type(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
@@ -779,6 +807,19 @@ contains
          key = INTERNAL_ITEM_KEY_PREFIX // short_name
       end if
    end function item_key
+
+   ! Compound key for a callback collection node's CallbackMethodBindingMap
+   ! (StateItemNode%add_callback_method_binding/get_callback_method_binding):
+   ! one CallbackMethodBinding per (matched member, declared method) pair,
+   ! member identified by its qualified name (unique within one collection,
+   ! see materialize_callback_collection), rather than a map-of-maps.
+   function callback_method_binding_key(member_qualified_name, method_name) result(key)
+      character(*), intent(in) :: member_qualified_name
+      character(*), intent(in) :: method_name
+      character(:), allocatable :: key
+
+      key = member_qualified_name // '::' // method_name
+   end function callback_method_binding_key
 
    logical function is_self(this, comp_name) result(self_ref)
       class(OuterMetaComponent), intent(in) :: this

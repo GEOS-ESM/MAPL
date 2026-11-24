@@ -130,6 +130,7 @@ target_sources(MAPL.generic PRIVATE
   containers/CallbackMethodAttachmentMap.F90
   callback/CallbackStateBinding.F90
   callback/CallbackMethodBinding.F90
+  containers/CallbackMethodBindingMap.F90
   callback/CallbackContractViolation.F90
   callback/CallbackContractReport.F90
   callback/CallbackStateConformance.F90

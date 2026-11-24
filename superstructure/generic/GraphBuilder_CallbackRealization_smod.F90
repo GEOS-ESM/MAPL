@@ -19,6 +19,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackRealization_smod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMapIterator, operator(/=)
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -147,16 +148,15 @@ contains
    end subroutine realize_callback_state
 
    ! Realizes one composite member and inserts it into composite_state
-   ! under member_name. A member whose payload is still NOTFOUND (a new,
-   ! non-alias leaf: ADVERTISE only attached its descriptor) gets its
-   ! Field/FieldBundle created and completed now, by the same routine
-   ! advertise_one's flat items and ordinary exports use
-   ! (materialize_field_extension), reading the descriptor CompositeState
-   ! Materialization and GEOM_A/B already completed. An alias member (its
-   ! node IS the aliased INTERNAL item's own node) is already a complete
-   ! Field/FieldBundle by now (graphbuilder_allocate_internals runs just
-   ! before this). A nested composite member (payload kind STATE)
-   ! recurses rather than being treated as a leaf.
+   ! under member_name. A member with a forward-network predecessor (its
+   ! argument is get-side/IN-or-INOUT in some bound method) is aliased to
+   ! that predecessor's already-materialized Field/FieldBundle, so a
+   ! units-converting extension chain's output actually reaches the member
+   ! the user code sees; otherwise a new Field/FieldBundle is created here
+   ! (deferred from ADVERTISE), or, for an alias member, reused from the
+   ! already-materialized INTERNAL item it aliases. A nested composite
+   ! member (payload kind STATE) recurses rather than being treated as a
+   ! leaf.
    recursive subroutine realize_callback_member(graph, member_id, member_name, composite_state, rc)
       type(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: member_id
@@ -174,6 +174,10 @@ contains
       type(ESMF_Field) :: field, field_alias
       type(ESMF_FieldBundle) :: bundle, bundle_alias
       character(:), allocatable :: msg
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: forward_net_id
+      type(NodeId) :: predecessor_id
+      logical :: has_predecessor
 
       generic_node => graph%get_node(member_id)
       msg = 'GraphBuilder: realize_callback_member - NodeId not found for member: ' // member_name
@@ -204,15 +208,27 @@ contains
            '" has an incomplete characteristic at REALIZE_ACCEPTED'
       _ASSERT(size(incomplete) == 0, msg)
 
-      call materialize_field_extension(graph, member_id, name=member_name, with_members=.true., _RC)
-      kind_flag = payload%itemType(_RC)
+      forward_net_id = graph%get_forward_network_id(_RC)
+      net => graph%get_network(forward_net_id)
+      has_predecessor = .false.
+      if (.not. is_alias_member) then
+         predecessor_id = find_materialized_predecessor(graph, net, member_id, has_predecessor)
+      end if
+
+      if (has_predecessor) then
+         call get_item_if_materialized(graph, predecessor_id, field, bundle, kind_flag, has_predecessor, _RC)
+      end if
+      if (.not. has_predecessor) then
+         call materialize_field_extension(graph, member_id, name=member_name, with_members=.true., _RC)
+         kind_flag = payload%itemType(_RC)
+         if (kind_flag == ESMF_STATEITEM_FIELD) field = payload%get_field(_RC)
+         if (kind_flag == ESMF_STATEITEM_FIELDBUNDLE) bundle = payload%get_field_bundle(_RC)
+      end if
 
       if (kind_flag == ESMF_STATEITEM_FIELDBUNDLE) then
-         bundle = payload%get_field_bundle(_RC)
          bundle_alias = MAPL_NamedAlias(bundle, name=member_name, _RC)
          call ESMF_StateAddReplace(composite_state, [bundle_alias], _RC)
       else if (kind_flag == ESMF_STATEITEM_FIELD) then
-         field = payload%get_field(_RC)
          field_alias = MAPL_NamedAlias(field, name=member_name, _RC)
          call ESMF_StateAddReplace(composite_state, [field_alias], _RC)
       else

@@ -11,6 +11,7 @@ submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    ! with the ESMF_StateItem_Flag constant of the same name already in
    ! scope from mapl_StateItem_mod (see StateItemFlag.F90's own header).
    use mapl_StateItemFlag_mod, only: CALLBACK_ARGUMENT_FIELD_KIND => MAPL_STATEITEM_FIELD, operator(==)
+   use gFTL2_StringStringMap, only: StringStringMap
    implicit none(type,external)
 
    character(*), parameter :: KEY_DIMS = 'dims'
@@ -21,6 +22,8 @@ submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    character(*), parameter :: KEY_CALLBACK_MEMBER_ALIAS = 'alias'
    character(*), parameter :: KEY_CALLBACK_MEMBER_UNITS = 'units'
    character(*), parameter :: KEY_CALLBACK_MEMBERS = 'members'
+   character(*), parameter :: KEY_CALLBACK_PROVIDES = 'provides'
+   character(*), parameter :: KEY_CALLBACK_RECEIVES = 'receives'
 
 contains
 
@@ -81,6 +84,9 @@ contains
          logical :: has_callback_member_alias
          logical :: has_callback_members
          logical :: is_callback_state_export
+         logical :: has_callback_provides
+         logical :: has_callback_receives
+         logical :: is_callback_import
          type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
@@ -202,6 +208,20 @@ contains
                  'declaring "' // KEY_CALLBACK_INTERFACE // '": ' // short_name
             _ASSERT(.not. has_callback_members .or. is_callback_state_export, msg)
 
+            ! `provides:`/`receives:` (Invoker callback IMPORT only, gated
+            ! here; argument-name validity against the declared interface is
+            ! checked once var_spec%callback_interface_id is resolved, in
+            ! parse_callback_provider_map).
+            has_callback_provides = ESMF_HConfigIsDefined(attributes, keyString=KEY_CALLBACK_PROVIDES, _RC)
+            has_callback_receives = ESMF_HConfigIsDefined(attributes, keyString=KEY_CALLBACK_RECEIVES, _RC)
+            is_callback_import = has_callback_interface .and. (state_intent == COMPONENT_IMPORT_STATE_SECTION)
+            msg = '"' // KEY_CALLBACK_PROVIDES // '" is only valid on an Invoker callback IMPORT ' // &
+                 'declaring "' // KEY_CALLBACK_INTERFACE // '": ' // short_name
+            _ASSERT(.not. has_callback_provides .or. is_callback_import, msg)
+            msg = '"' // KEY_CALLBACK_RECEIVES // '" is only valid on an Invoker callback IMPORT ' // &
+                 'declaring "' // KEY_CALLBACK_INTERFACE // '": ' // short_name
+            _ASSERT(.not. has_callback_receives .or. is_callback_import, msg)
+
             itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
@@ -244,6 +264,12 @@ contains
                  callback_interface=callback_interface, _RC)
 
             if (has_callback_members) call parse_callback_members(var_spec, attributes, _RC)
+            if (has_callback_provides) then
+               call parse_callback_provider_map(var_spec, attributes, KEY_CALLBACK_PROVIDES, callback_interface, var_spec%callback_provides, _RC)
+            end if
+            if (has_callback_receives) then
+               call parse_callback_provider_map(var_spec, attributes, KEY_CALLBACK_RECEIVES, callback_interface, var_spec%callback_receives, _RC)
+            end if
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
@@ -481,6 +507,56 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine parse_callback_members
+
+      ! `provides:`/`receives:` (Invoker callback IMPORT only, gated by the
+      ! caller): a map of interface argument name -> this Invoker's own
+      ! item short name. Each key must name an argument the interface
+      ! actually declares; the item name itself is resolved later, against
+      ! the Invoker's own items, by GraphBuilder (any name is accepted
+      ! here, the same "parser checks what it can see, GraphBuilder checks
+      ! the rest" split as callback_interface's own registry lookup).
+      subroutine parse_callback_provider_map(var_spec, attributes, key, callback_interface_name, target_map, rc)
+         type(VariableSpec), intent(in) :: var_spec
+         type(ESMF_HConfig), intent(in) :: attributes
+         character(*), intent(in) :: key
+         character(*), intent(in) :: callback_interface_name
+         type(StringStringMap), intent(out) :: target_map
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: is_map
+         type(ESMF_HConfig) :: subcfg
+         type(ESMF_HConfigIter) :: iter, b, e
+         character(:), allocatable :: argument_name
+         character(:), allocatable :: item_name
+         character(:), allocatable :: msg
+         type(CallbackInterface) :: iface
+
+         subcfg = ESMF_HConfigCreateAt(attributes, keyString=key, _RC)
+         is_map = ESMF_HConfigIsMap(subcfg, _RC)
+         msg = '"' // key // '" must be a map of argument name -> item short name: ' // var_spec%short_name
+         _ASSERT(is_map, msg)
+
+         iface = get_callback_interface(var_spec%callback_interface_id, _RC)
+
+         b = ESMF_HConfigIterBegin(subcfg, _RC)
+         e = ESMF_HConfigIterEnd(subcfg, _RC)
+         iter = b
+         do while (ESMF_HConfigIterLoop(iter, b, e))
+            argument_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+            item_name = ESMF_HConfigAsStringMapVal(iter, _RC)
+
+            msg = '"' // key // '" entry names argument "' // argument_name // &
+                 '" not declared on interface "' // callback_interface_name // '": ' // var_spec%short_name
+            _ASSERT(iface%is_argument(argument_name), msg)
+
+            call target_map%insert(argument_name, item_name)
+         end do
+
+         call ESMF_HConfigDestroy(subcfg, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine parse_callback_provider_map
 
       ! non_negative: {fill: column}. Unallocated when the key is absent. The
       ! map must hold exactly one key, fill, with a scalar value.

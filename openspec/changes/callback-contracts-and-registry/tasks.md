@@ -180,13 +180,31 @@
   callback State (`fill_callback_collections`); `ESMF_MethodExecute`-backed
   `EsmfStateMethodInvoker`; `ESMF_StateAddReplace` stale-item-kind fix
   (remove-then-add). Depends on 5.1.
-- [ ] 5.2b Production `build_callback_state_binding`/
+- [x] 5.2b Production `build_callback_state_binding`/
   `build_callback_method_binding` calls for every collection member. Owner
   decision 2026-11-23: the Invoker declares its argument providers with
   YAML keys on its callback IMPORT entry, `provides: {<argument>: <own
   item>}` for `get` and `receives: {<argument>: <own item>}` for `put`;
   minimal working code first. Depends on 5.2a. Design: design.md
   decision 21 ("How an Invoker names its own argument providers").
+  - **Status:** done (commit trailer `Plan-Task: CB5-Execute-5.2b`). Wired
+    at CONNECT inside `resolve_callback_destination`; bindings stored in
+    a new `CallbackMethodBindingMap` field on the collection's own
+    `StateItemNode`, keyed by `callback_method_binding_key(member
+    qualified name, method name)`, for 5.3 to read. Known gap reported,
+    not fixed: no mechanism moves data in the OUT/`receives:` direction
+    (put networks are never pulled by `ComponentGraph%update()`).
+    Proposed design.md addition (decision 21): "Production binding wires
+    `get`/`provides:` argument data movement end to end (forward network
+    + extension chain), but `put`/`receives:` argument values are not
+    pulled anywhere in the graph yet -- `ComponentGraph%update()` walks
+    only the hierarchy's one forward network. Fixing this needs either a
+    put-network execution path (e.g. a `graph%update_network(network_id)`
+    entry point) or redesigning `receives:` items to share NodeIds with
+    the Handler member instead of an edge (`provides:` already moves
+    data end to end and needs no such change); deferred as out of scope
+    for 5.2b (priority: minimal working code)." NAG ESSENTIAL 74/74 and
+    gfortran ESSENTIAL 74/74 both green.
 - [ ] 5.2c Fortran API counterpart to the YAML callback declarations
   (Handler `members:`, Invoker `provides:`/`receives:`), as ordinary
   state items have one (owner 2026-11-23: wanted eventually for most or

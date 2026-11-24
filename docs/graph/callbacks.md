@@ -147,6 +147,82 @@ by both
 `check_one`/`connection_pt_pair_resolves`
 (`GraphBuilder_ConnectionResolution_smod.F90`).
 
+## Invoker provider declarations and production binding
+
+An Invoker's own callback IMPORT (the one declaring
+`callback_interface:`) may carry two optional YAML maps, parsed into
+`VariableSpec%callback_provides`/`callback_receives`
+(`VariableSpec.F90`, `StringStringMap` of interface argument name →
+the Invoker's own item short name):
+
+- `provides: {<argument>: <own item>}` — the Invoker's own item that
+  feeds an IN/INOUT argument (`MAPL_ACCESS_IN`/`MAPL_ACCESS_INOUT`) on a
+  bound method.
+- `receives: {<argument>: <own item>}` — the Invoker's own item that an
+  OUT/INOUT argument (`MAPL_ACCESS_OUT`/`MAPL_ACCESS_INOUT`) writes
+  into.
+
+`parse_callback_provider_map` (`ComponentSpecParser/parse_var_specs.F90`)
+rejects either key anywhere except an IMPORT declaring
+`callback_interface:`, and rejects an argument name the named
+interface does not declare; it does not check that the named item
+exists — that is resolved later, against the Invoker's own
+`ComponentGraph`.
+
+`resolve_callback_destination` (`GraphBuilder_ConnectionResolution_smod.F90`,
+CONNECT phase, same pass as ordinary connection resolution) is the
+production call site for `build_callback_state_binding`/
+`build_callback_method_binding`, run once per match against the
+Invoker's wildcard collection. `build_callback_provider_maps` resolves
+each `provides:`/`receives:` entry's item name to a `NodeId` among the
+Invoker's own items (`resolve_invoker_item_id`, trying IMPORT, EXPORT,
+then INTERNAL by short name) once per Invoker IMPORT, and
+`build_callback_bindings_for_match` builds one `CallbackStateBinding`
+plus one `CallbackMethodBinding` per interface method for every matched
+member, binding every method the interface declares (not just the ones
+a particular `provides:`/`receives:` map happens to cover — a method
+whose required argument has no provider fails
+`build_callback_method_binding` with a named error, rather than binding
+a partial method).
+
+The resulting bindings are stored in a new `CallbackMethodBindingMap`
+(`graph/containers/CallbackMethodBindingMap.F90`) field,
+`callback_method_bindings`, on the collection's own `StateItemNode`
+(not on each member, and not on the `CallbackStateBinding`'s own
+`NodeId`), keyed by
+`callback_method_binding_key(member_qualified_name, method_name)` —
+compound string key, same keying style as `GraphBuilder.F90`'s
+`item_key()`. This is where an Invoker's own method-invocation code is
+expected to look up a matched member's bound methods.
+
+A Handler member wired as a `get`-direction destination this way needs
+its own realized Field, at REALIZE_ACCEPTED, to actually *be* the
+extension chain's output rather than an independent Field of its own:
+`realize_callback_member` (`GraphBuilder_CallbackRealization_smod.F90`)
+checks the hierarchy's forward network for a predecessor of the
+member's `NodeId` (`find_materialized_predecessor`, the same walk
+`graphbuilder_populate_state`'s `populate_one` already uses for an
+ordinary mismatched IMPORT), otherwise creating a brand-new
+Field/FieldBundle for the member.
+
+**Known gap (reported, not fixed by this binding work):** nothing
+actually moves data in the put/`receives:` direction yet.
+`advance_callback_put_arguments` only advances each put argument's
+`NodeRevision` (bookkeeping), and `ComponentGraph%update()` only walks
+the hierarchy's one forward network
+(`ComponentGraph_DemandDrivenUpdate.F90`) — a put network is never
+pulled. The `provides:`/get direction *does* move real data, the same
+way an ordinary mismatched connection does
+(`find_or_build_extension_chain`/`materialize_extension_chain`), because
+get edges join the forward network and `invoke_callback_method` pulls
+it before calling. Until a put-network execution path exists (or some
+other design choice replaces it), an OUT/INOUT argument's `receives:`
+item will not reflect what the method wrote — note this is the
+argument's access direction, not the method's name: a method named
+`put` can have an IN argument (whose value *does* reach it, via
+`provides:`), while a method named `get` can have the OUT argument
+that writes to a `receives:` item.
+
 ## Open items
 
 See `open-questions.md`: Handler/Invoker term choice (low-stakes), and

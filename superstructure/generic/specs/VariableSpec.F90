@@ -62,6 +62,7 @@ module mapl_VariableSpec_mod
    use mapl_RestartModes_mod, only: RestartMode
    use esmf
    use gFTL2_StringVector
+   use gFTL2_StringStringMap, only: StringStringMap
    use nuopc
    use mapl_VariableSpec_private_mod
    use mapl_VariableSpecTag_mod, only: VariableSpecTag
@@ -217,6 +218,26 @@ module mapl_VariableSpec_mod
       ! short_name. Set via plain field assignment only, no
       ! make_VariableSpec keyword, same as `state_item_variant`.
       character(:), allocatable :: callback_declared_name
+
+      !=====================
+      ! Callback provider maps
+      !=====================
+      ! An Invoker IMPORT declaring callback_interface_id only: argument
+      ! name -> this Invoker's own item short name (any of its own
+      ! IMPORT/EXPORT/INTERNAL items), read by GraphBuilder's
+      ! resolve_callback_destination to build the per-argument
+      ! provider_get_ids/provider_put_ids StateItemMemberMaps
+      ! build_callback_method_binding needs. `provides:` (YAML key,
+      ! parsed into callback_provides) names the item that supplies the
+      ! argument's value for a get (IN/INOUT) access; `receives:` (YAML
+      ! key, parsed into callback_receives) names the item a put
+      ! (OUT/INOUT) access writes back into. Default empty for an
+      ! ordinary (non-Invoker) item. The parser
+      ! (ComponentSpecParser/parse_var_specs.F90) checks each key against
+      ! the interface's own declared argument names; this type stores
+      ! whatever it is given with no validation of its own.
+      type(StringStringMap) :: callback_provides
+      type(StringStringMap) :: callback_receives
 
       !=====================
       ! Composite state variant

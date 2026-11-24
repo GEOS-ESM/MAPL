@@ -4255,6 +4255,37 @@ contains
       @assertEqual(0, status)
    end function make_tracer_callback_export
 
+   ! Adds DYN's own callback IMPORT ('tracers', the PassiveTracer
+   ! interface) plus an INTERNAL item ('tracers_store') DYN declares as
+   ! both the `get` method's receives: target and the `put` method's
+   ! provides: source - make_passive_tracer_interface's
+   ! only argument, 'tracers', is OUT on `get` and IN on `put`, so
+   ! production binding (GraphBuilder_CallbackWiring_smod.F90) needs a
+   ! put-side and a get-side provider for it or binding fails loudly.
+   subroutine add_dyn_tracers_import(dyn_meta, interface_id, rc)
+      type(OuterMetaComponent), pointer, intent(inout) :: dyn_meta
+      type(CallbackInterfaceId), intent(in) :: interface_id
+      integer, optional, intent(out) :: rc
+
+      type(ComponentSpec), pointer :: dyn_spec
+      type(VariableSpec) :: dyn_import
+      type(VariableSpec) :: tracers_store
+
+      dyn_spec => dyn_meta%get_component_spec()
+
+      tracers_store = make_var(ESMF_STATEINTENT_INTERNAL, 'tracers_store')
+      tracers_store%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call dyn_spec%add_var_spec(tracers_store)
+
+      dyn_import = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
+      dyn_import%callback_interface_id = interface_id
+      call dyn_import%callback_receives%insert('tracers', 'tracers_store')
+      call dyn_import%callback_provides%insert('tracers', 'tracers_store')
+      call dyn_spec%add_var_spec(dyn_import)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_dyn_tracers_import
+
    ! Builds root -> CHEM -> DU, SS (each exporting a 'tracer_callback'
    ! composite satisfying PassiveTracer) plus root -> DYN (a plain child,
    ! left for the caller to advertise its own 'tracers' import onto) -
@@ -4337,8 +4368,7 @@ contains
       type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: interface_id
-      type(ComponentSpec), pointer :: root_spec, dyn_spec
-      type(VariableSpec) :: dyn_import
+      type(ComponentSpec), pointer :: root_spec
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
       type(ComponentGraph), pointer :: root_graph
@@ -4357,10 +4387,7 @@ contains
       call build_tracer_hierarchy('svc-5-3', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
            dyn_meta, iface, interface_id, _RC)
 
-      dyn_import = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
-      dyn_import%callback_interface_id = interface_id
-      dyn_spec => dyn_meta%get_component_spec()
-      call dyn_spec%add_var_spec(dyn_import)
+      call add_dyn_tracers_import(dyn_meta, interface_id, _RC)
       call gb%advertise(dyn_meta, status)
       @assert_that(status, is(0))
 
@@ -6142,8 +6169,7 @@ contains
       type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: interface_id
-      type(ComponentSpec), pointer :: root_spec, dyn_spec
-      type(VariableSpec) :: dyn_import
+      type(ComponentSpec), pointer :: root_spec
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, checked
       type(ComponentGraph), pointer :: root_graph, dyn_graph, du_graph
@@ -6163,10 +6189,7 @@ contains
       call build_tracer_hierarchy('svc-qsrc', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
            dyn_meta, iface, interface_id, _RC)
 
-      dyn_import = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
-      dyn_import%callback_interface_id = interface_id
-      dyn_spec => dyn_meta%get_component_spec()
-      call dyn_spec%add_var_spec(dyn_import)
+      call add_dyn_tracers_import(dyn_meta, interface_id, _RC)
       call gb%advertise(dyn_meta, status)
       @assert_that(status, is(0))
 

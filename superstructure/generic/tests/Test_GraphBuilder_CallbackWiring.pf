@@ -1479,7 +1479,7 @@ contains
       call provider_get_ids%insert('value', provider_id)
       call provider_put_ids%insert('value', provider_id)
 
-      method_binding = build_callback_method_binding(outer_meta, iface, 'exchange', state_binding, &
+      method_binding = build_callback_method_binding(outer_meta, 'cb', iface, 'exchange', state_binding, &
            provider_get_ids, provider_put_ids, status)
       @assert_that(status, is(0))
 
@@ -1578,7 +1578,7 @@ contains
       call provider_get_ids%insert('value', provider_id)
       call provider_put_ids%insert('value', provider_id)
 
-      method_binding = build_callback_method_binding(outer_meta, iface, 'exchange', state_binding, &
+      method_binding = build_callback_method_binding(outer_meta, 'cb', iface, 'exchange', state_binding, &
            provider_get_ids, provider_put_ids, status)
       @assertExceptionRaised('GraphBuilder: wire_callback_argument - a characteristic is still unresolved ' // &
            '(DEFERRED); callback binding must run after ordinary connections resolve')
@@ -1717,7 +1717,7 @@ contains
       call provider_get_ids%insert('value', provider_id)
       call provider_put_ids%insert('value', provider_id)
 
-      method_binding = build_callback_method_binding(outer_meta, iface, 'exchange', state_binding, &
+      method_binding = build_callback_method_binding(outer_meta, 'cb', iface, 'exchange', state_binding, &
            provider_get_ids, provider_put_ids, status)
       @assert_that(status, is(0))
 
