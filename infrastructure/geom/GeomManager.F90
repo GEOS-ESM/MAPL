@@ -54,6 +54,7 @@ module mapl_GeomManager_mod
            get_mapl_geom_from_metadata, &
            get_mapl_geom_from_spec, &
            get_mapl_geom_from_id
+      procedure :: has_mapl_geom
 
       ! Internal API
       ! ------------
@@ -128,6 +129,13 @@ module mapl_GeomManager_mod
           type(GeomId), intent(in) :: id
          integer, optional, intent(out) :: rc
       end function get_mapl_geom_from_id
+
+      ! True if a mapl_geom with this id has already been registered.
+      module function has_mapl_geom(this, id) result(has_geom)
+         logical :: has_geom
+         class(GeomManager), target, intent(in) :: this
+         type(GeomId), intent(in) :: id
+      end function has_mapl_geom
 
       module function get_mapl_geom_from_spec(this, geom_spec, rc) result(mapl_geom)
          type(MaplGeom), pointer :: mapl_geom

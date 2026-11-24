@@ -6,6 +6,8 @@ submodule (mapl_VerticalGridAspect_mod) make_transform_smod
    use mapl_ComponentDriver_mod
    use mapl_StandardNameAspect_mod, only: StandardNameAspect
    use mapl_FieldClassAspect_mod, only: fieldClassAspect
+   ! ifort sees more than one find here (error #6405).
+   use gftl2_StringVector, only: string_vector_find => find
 
    implicit none(type,external)
 
@@ -142,7 +144,7 @@ contains
       vec_out = dst%vertical_grid%get_supported_physical_dimensions()
 
       do i = 1, vec_in%size()
-         if (find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
+         if (string_vector_find(vec_out%begin(), vec_out%end(), vec_in%of(i)) /= vec_out%end()) then
             physical_dimension = vec_in%of(i)
             _RETURN(_SUCCESS)
          end if

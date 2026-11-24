@@ -13,6 +13,7 @@ set(srcs
   CoordinateAxis.F90
 
   GeomManager.F90
+  UnownedGeom.F90
 
   GeomGet.F90       # also contains GeomGetHorzIJIndex and GridGetHorzIJIndex (merged, #4944)
   GridGet.F90
