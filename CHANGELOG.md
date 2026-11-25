@@ -230,10 +230,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   wrap it in a `MAPL_FieldPredicate` extension). The alternative, an internal
   procedure predicate that uses its host's variables, crashes under ifx.
 - Updated `components.yaml`
-  - ESMA_cmake v4.51.0
+  - ESMA_env v5.28.0
+    - Update to GEOSpyD 26.7.2 Python 3.14
+    - Update to Baselibs 8.34.0
+      - GFE v1.31.0
+          - fArgParse v1.12.0
+          - pFUnit v4.22.0
+          - yaFyaml v1.7.3
+          - pFlogger v1.19.1
+  - ESMA_cmake v4.54.0
     - Make ESMA_cmake reentrant
     - Fix issue with quad precision detection test
     - Fixes for Flang and NVIDIA compilers
+    - Add `USE_EXTERNAL_MAPL` option to allow use of MAPL installation in GEOSgcm, etc.
+    - Fixes for NVHPC ng compiler
+    - Add OS detection
 
 ### Fixed
 
