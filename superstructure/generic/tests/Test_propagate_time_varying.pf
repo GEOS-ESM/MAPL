@@ -241,6 +241,89 @@ contains
    end subroutine test_propagate_geom
 
    @test(type=ESMF_TestMethod, npes=[1])
+   !---------
+   !
+   !       e (bracket) --> interp --> i (field)
+   !
+   ! With an unchanged bracket, update() must not reallocate the export
+   ! field, so its data address stays fixed (GEOS-ESM/MAPL#5541).
+   !---------
+   subroutine test_export_address_unchanged(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(mapl_GeomManager), pointer :: geom_mgr
+      integer :: status
+      type(ESMF_Field) :: f, f_alias, bracket(2)
+      type(ESMF_FieldBundle) :: fb, fb_alias
+      type(ESMF_Geom) :: geom
+      class(ExtensionTransform), allocatable :: transform
+      type(ESMF_GridComp) :: coupler
+      type(GriddedComponentDriver) :: driver
+      real(kind=ESMF_KIND_R4), pointer :: x_initial(:,:), x_step1(:,:), x_step2(:,:)
+
+      geom_mgr => mapl_get_geom_manager()
+      call setup(_RC)
+      call ESMF_FieldGet(f, fArrayPtr=x_initial, _RC)
+
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
+      call ESMF_FieldGet(f, fArrayPtr=x_step1, _RC)
+
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
+      call driver%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
+      call ESMF_FieldGet(f, fArrayPtr=x_step2, _RC)
+
+      @assert_that(associated(x_step1, x_initial), is(true()))
+      @assert_that(associated(x_step2, x_step1), is(true()))
+      @assert_that(all(x_step2 == 2.), is(true()))
+
+   contains
+
+      subroutine setup(rc)
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_HConfig) :: hconfig
+         type(mapl_MaplGeom) :: mapl_geom
+         type(MultiState) :: states
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+
+         hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+         mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+         geom = mapl_geom%get_geom()
+
+         transform = TimeInterpolateTransform()
+         coupler = make_coupler(transform, _RC)
+         driver = GriddedComponentDriver(coupler)
+
+         bracket(1) = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, _RC)
+         bracket(2) = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(bracket(1), fArrayPtr=x, _RC)
+         x = 1.
+         call ESMF_FieldGet(bracket(2), fArrayPtr=x, _RC)
+         x = 3.
+
+         fb = MAPL_FieldBundleCreate(fieldList=bracket, fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, _RC)
+         call MAPL_FieldBundleSet(fb, typekind=ESMF_TYPEKIND_R4, bracket_updated=.true., _RC)
+         call MAPL_FieldBundleSet(fb, geom=geom, interpolation_weights=[0.0, 0.5, 0.5], _RC)
+         fb_alias = ESMF_NamedAlias(fb, name='import[1]', _RC)
+
+         f = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(f, fArrayPtr=x, _RC)
+         x = 0.
+         f_alias = ESMF_NamedAlias(f, name='export[1]', _RC)
+
+         states = driver%get_states()
+         call ESMF_StateAdd(states%importState, fieldBundleList=[fb_alias], _RC)
+         call ESMF_StateAdd(states%exportState, fieldList=[f_alias], _RC)
+         call driver%initialize(_RC)
+
+         if (present(rc)) rc = _SUCCESS
+      end subroutine setup
+
+   end subroutine test_export_address_unchanged
+
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_propagate_shared_attrs(this)
       class(ESMF_TestMethod), intent(inout) :: this
 

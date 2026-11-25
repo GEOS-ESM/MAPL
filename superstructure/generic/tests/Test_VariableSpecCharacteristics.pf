@@ -20,7 +20,8 @@ module Test_VariableSpecCharacteristics
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
         RESTART_MODE_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
-        EXPRESSION_CHARACTERISTIC_KIND
+        EXPRESSION_CHARACTERISTIC_KIND, NON_NEGATIVE_CHARACTERISTIC_KIND
+   use mapl_NonNegativeCharacteristic_mod, only: NonNegativeCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: &
         ITEM_SHAPE => ITEM_SHAPE_CHARACTERISTIC_KIND, StateItemCharacteristicKind
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
@@ -3082,5 +3083,59 @@ contains
       @assertTrue(status /= 0)
       @assertTrue(allocated(aspect))
    end subroutine test_make_ClassAspect_allocates_result_on_error
+
+   ! A declared non_negative fill gives a SPECIFIED entry; an undeclared one
+   ! gives no entry.
+   @test
+   subroutine test_non_negative_declared_and_undeclared()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           non_negative='column', rc=status)
+      @assertEqual(0, status)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      call descriptor%get_characteristic(NON_NEGATIVE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (NonNegativeCharacteristic)
+         @assertEqual('column', c%get_fill())
+      class default
+         @assertTrue(.false., 'NON_NEGATIVE entry has the wrong type')
+      end select
+
+      descriptor = empty_descriptor
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
+      @assertEqual(0, status)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(descriptor%has_characteristic(NON_NEGATIVE_CHARACTERISTIC_KIND))
+   end subroutine test_non_negative_declared_and_undeclared
+
+   @test
+   subroutine test_non_negative_unknown_fill_fails()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           non_negative='clip', rc=status)
+      @assertExceptionRaised('non_negative fill must be column, not <clip>: X')
+      @assertEqual(1, status)
+   end subroutine test_non_negative_unknown_fill_fails
+
+   @test
+   subroutine test_non_negative_on_bundle_fails()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELDBUNDLE, non_negative='column', rc=status)
+      @assertExceptionRaised('non_negative can only be specified for a field: X')
+      @assertEqual(1, status)
+   end subroutine test_non_negative_on_bundle_fails
 
 end module Test_VariableSpecCharacteristics

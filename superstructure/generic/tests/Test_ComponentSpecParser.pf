@@ -113,6 +113,65 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_geometry_mirror
 
+   ! non_negative: {fill: column} sets the fill method; an item that omits it
+   ! has none.
+   @test
+   subroutine test_parse_var_specs_non_negative()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'A: {typekind: R4, non_negative: {fill: column}},' // &
+           'B: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (var_spec%short_name == 'A') then
+               @assertTrue(allocated(var_spec%non_negative))
+               @assertEqual('column', var_spec%non_negative)
+            else
+               @assertFalse(allocated(var_spec%non_negative))
+            end if
+         end do
+      end associate
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_non_negative
+
+   ! A non_negative value that is not a map with only a scalar fill key is
+   ! rejected: no map, a sequence fill, or an extra key.
+   @test
+   subroutine test_parse_var_specs_non_negative_needs_fill()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      character(64) :: values(3)
+      integer :: rc, status, i
+
+      values(1) = 'true'
+      values(2) = '{fill: [column]}'
+      values(3) = '{fill: column, extra: 1}'
+      do i = 1, size(values)
+         config = ESMF_HConfigCreate(content='{states: {export: {' // &
+              'A: {typekind: R4, non_negative: ' // trim(values(i)) // '}}}}', _RC)
+         var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+         @assertExceptionRaised('non_negative must be a map with only a scalar fill key, e.g. {fill: column}')
+         @assertExceptionRaised('status=1')
+         @assertExceptionRaised('status=1')
+         @assertEqual(1, status)
+         call ESMF_HConfigDestroy(config, _RC)
+      end do
+   end subroutine test_parse_var_specs_non_negative_needs_fill
+
    ! A mirror request on an internal is rejected by make_VariableSpec, which
    ! the parser calls; an import with the same request is accepted.
    @test

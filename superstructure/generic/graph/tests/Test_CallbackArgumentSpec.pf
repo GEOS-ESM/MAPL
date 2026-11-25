@@ -1,7 +1,7 @@
 ! Spec: spec/15-callbacks.md.
 module Test_CallbackArgumentSpec
    use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
-   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE, operator(==)
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, operator(==)
    use funit
    implicit none
 
@@ -16,5 +16,82 @@ contains
       @assertEqual('tracers', spec%get_name())
       @assertTrue(spec%get_expected_kind() == MAPL_STATEITEM_FIELDBUNDLE)
    end subroutine test_construction_and_accessors
+
+   ! A field argument declared with name, kind and dims only is
+   ! required, not extensive, and the weight of no other argument.
+   @test
+   subroutine test_defaults_match_name_and_kind_only()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('mixed_quantity', MAPL_STATEITEM_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(spec%has_dims())
+      @assertEqual('xyz', spec%get_dims())
+      @assertFalse(spec%is_optional())
+      @assertFalse(spec%is_extensive())
+      @assertFalse(spec%has_weight_for())
+      @assertEqual('', spec%get_weight_for())
+   end subroutine test_defaults_match_name_and_kind_only
+
+   ! A non-field argument keeps its old meaning: no dims needed.
+   @test
+   subroutine test_bundle_argument_needs_no_dims()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(spec%has_dims())
+      @assertEqual('', spec%get_dims())
+      @assertFalse(spec%is_optional())
+      @assertFalse(spec%is_extensive())
+      @assertFalse(spec%has_weight_for())
+   end subroutine test_bundle_argument_needs_no_dims
+
+   @test
+   subroutine test_field_argument_without_dims_rejected()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('mixed_quantity', MAPL_STATEITEM_FIELD, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_field_argument_without_dims_rejected
+
+   @test
+   subroutine test_dims_other_than_xyz_or_xy_rejected()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('mixed_quantity', MAPL_STATEITEM_FIELD, dims='z', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_dims_other_than_xyz_or_xy_rejected
+
+   @test
+   subroutine test_xy_dims_and_optional_retrievable()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('surface_flux', MAPL_STATEITEM_FIELD, dims='xy', optional=.true., rc=status)
+      @assertEqual(0, status)
+      @assertEqual('xy', spec%get_dims())
+      @assertTrue(spec%is_optional())
+      @assertFalse(spec%is_extensive())
+   end subroutine test_xy_dims_and_optional_retrievable
+
+   @test
+   subroutine test_weight_relation_retrievable()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('air_mass', MAPL_STATEITEM_FIELD, dims='xyz', &
+           extensive=.true., weight_for='mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%is_extensive())
+      @assertTrue(spec%has_weight_for())
+      @assertEqual('mixed_quantity', spec%get_weight_for())
+      @assertFalse(spec%is_optional())
+   end subroutine test_weight_relation_retrievable
 
 end module Test_CallbackArgumentSpec

@@ -515,14 +515,24 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
-   subroutine add_to_bundle(this, field_bundle, rc)
+   ! With `name`, the member is a NamedAlias of the payload with that name
+   ! (same data), so the bundle member keeps a name; the payload itself is
+   ! created without one.
+   subroutine add_to_bundle(this, field_bundle, name, rc)
       class(FieldClassAspect), intent(in) :: this
       type(ESMF_FieldBundle), intent(inout) :: field_bundle
+      character(*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Field) :: alias
 
-      call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
+      if (present(name)) then
+         alias = MAPL_NamedAlias(this%payload, name=name, _RC)
+         call ESMF_FieldBundleAdd(field_bundle, [alias], multiflag=.true., _RC)
+      else
+         call ESMF_FieldBundleAdd(field_bundle, [this%payload], multiflag=.true., _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle

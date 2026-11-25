@@ -1,0 +1,664 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_ConfigurableCallback
+   use mapl_ConfigurableCallback_mod
+   use pfunit
+   use pf_ExceptionList, only: clearAll
+   use ESMF_TestMethod_mod
+   use esmf
+   implicit none(type, external)
+
+   integer, parameter :: NUM_LEVELS = 3
+
+contains
+
+   ! Builds a mock State from a scenario file on a small 4x4 grid.
+   subroutine make_mock(file, state, grid, rc)
+      character(*), intent(in) :: file
+      type(ESMF_State), intent(out) :: state
+      type(ESMF_Grid), intent(out) :: grid
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: hconfig
+
+      rc = 0
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='mock_grid', rc=status)
+      @assert_that(status, is(0))
+      hconfig = ESMF_HConfigCreate(filename='configurable_callback_scenarios/' // file, rc=status)
+      @assert_that(status, is(0))
+      call ConfigurableCallbackCreate(state, hconfig, grid=grid, num_levels=NUM_LEVELS, rc=status)
+      rc = status
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine make_mock
+
+   ! What a client does: execute the method and require both rc values to be zero.
+   subroutine client_execute(state, label)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: label
+      integer :: status, user_rc
+      call ESMF_MethodExecute(state, label=label, userRc=user_rc, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(ESMF_SUCCESS, user_rc)
+   end subroutine client_execute
+
+   real function field_value_2d(state, name) result(value)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: name
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:)
+      integer :: status
+      call ESMF_StateGet(state, itemName=name, field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=ptr, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(minval(ptr), maxval(ptr), 'field is not uniform')
+      value = ptr(lbound(ptr,1), lbound(ptr,2))
+   end function field_value_2d
+
+   function field_levels_3d(field) result(levels)
+      real, allocatable :: levels(:)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:,:)
+      integer :: status, k
+      call ESMF_FieldGet(field, farrayPtr=ptr, rc=status)
+      @assertEqual(0, status)
+      allocate(levels(size(ptr,3)))
+      do k = 1, size(ptr,3)
+         @assertEqual(minval(ptr(:,:,k)), maxval(ptr(:,:,k)), 'level is not horizontally uniform')
+         levels(k) = ptr(lbound(ptr,1), lbound(ptr,2), k)
+      end do
+   end function field_levels_3d
+
+   real function state_field_level(state, name, k) result(value)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: name
+      integer, intent(in) :: k
+      type(ESMF_Field) :: field
+      real, allocatable :: levels(:)
+      integer :: status
+      call ESMF_StateGet(state, itemName=name, field=field, rc=status)
+      @assertEqual(0, status)
+      levels = field_levels_3d(field)
+      value = levels(k)
+   end function state_field_level
+
+   ! Removes the propagation frames that follow a matched error message.
+   subroutine drain_exceptions()
+      call clearAll()
+   end subroutine drain_exceptions
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t1_supply_constant(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status, k
+
+      call make_mock('t1_constant.yaml', state, grid, status)
+      @assertEqual(0, status)
+      @assertEqual(0, ConfigurableCallbackCallCount(state, 'aerosol_activation_properties', rc=status))
+
+      call client_execute(state, 'aerosol_activation_properties')
+
+      do k = 1, NUM_LEVELS
+         @assertEqual(7.25e7, state_field_level(state, 'num', k))
+      end do
+      @assertEqual(1, ConfigurableCallbackCallCount(state, 'aerosol_activation_properties', rc=status))
+      @assertEqual(0, status)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t1_supply_constant
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t2_interleaved_methods(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status
+      character(:), allocatable :: calls(:)
+      character(len=12), parameter :: expected(5) = [character(len=12) :: &
+           'method_beta', 'method_alpha', 'method_beta', 'method_beta', 'method_alpha']
+      integer :: i
+
+      call make_mock('t2_two_methods.yaml', state, grid, status)
+      @assertEqual(0, status)
+
+      do i = 1, size(expected)
+         call client_execute(state, trim(expected(i)))
+      end do
+
+      call ConfigurableCallbackCalls(state, calls, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(size(expected), size(calls))
+      do i = 1, size(expected)
+         @assertEqual(trim(expected(i)), trim(calls(i)))
+      end do
+      @assertEqual(2, ConfigurableCallbackCallCount(state, 'method_alpha', rc=status))
+      @assertEqual(3, ConfigurableCallbackCallCount(state, 'method_beta', rc=status))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t2_interleaved_methods
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t3_by_attribute(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status, n
+      character(len=ESMF_MAXSTR) :: modes(2)
+      character(:), allocatable :: seen(:)
+      real :: du_value, ss_value
+
+      call make_mock('t3_by_attribute.yaml', state, grid, status)
+      @assertEqual(0, status)
+
+      ! state_attributes are visible through the legacy attribute API.
+      call ESMF_AttributeGet(state, name='aerosol_modes', itemCount=n, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, n)
+      call ESMF_AttributeGet(state, name='aerosol_modes', valueList=modes, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('du001', trim(modes(1)))
+      @assertEqual('ss001', trim(modes(2)))
+
+      call ESMF_AttributeSet(state, name='aerosol_mode', value='ss001', rc=status)
+      @assertEqual(0, status)
+      call client_execute(state, 'aerosol_activation_properties')
+      ss_value = state_field_level(state, 'num', 2)
+
+      call ESMF_AttributeSet(state, name='aerosol_mode', value='du001', rc=status)
+      @assertEqual(0, status)
+      call client_execute(state, 'aerosol_activation_properties')
+      du_value = state_field_level(state, 'num', 2)
+
+      @assertEqual(5.0e7, ss_value)
+      @assertEqual(1.0e8, du_value)
+
+      call ConfigurableCallbackAttrSeen(state, 'aerosol_activation_properties', 'aerosol_mode', seen, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(seen))
+      @assertEqual('ss001', trim(seen(1)))
+      @assertEqual('du001', trim(seen(2)))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t3_by_attribute
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t4_field_name_indirection(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: t_field, seen
+      real(kind=ESMF_KIND_R4), pointer :: t_ptr(:,:,:)
+      character(len=ESMF_MAXSTR) :: t_name, num_name
+      real, allocatable :: levels(:)
+      integer :: status
+
+      call make_mock('t4_indirection.yaml', state, grid, status)
+      @assertEqual(0, status)
+
+      ! Client resolves its input field through an attribute and fills it.
+      call ESMF_AttributeGet(state, name='air_temperature', value=t_name, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(state, itemName=trim(t_name), field=t_field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(t_field, farrayPtr=t_ptr, rc=status)
+      @assertEqual(0, status)
+      t_ptr = 263.5
+
+      call client_execute(state, 'aerosol_activation_properties')
+
+      ! Client then mutates its input; the recording must keep the value seen at the call.
+      t_ptr = 199.0
+
+      call ESMF_AttributeGet(state, name='aerosol_number_concentration', value=num_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('num', trim(num_name))
+      @assertEqual(3.5e6, field_value_2d(state, trim(num_name)))
+
+      call ConfigurableCallbackFieldSeen(state, 'aerosol_activation_properties', 'T', 1, seen, rc=status)
+      @assertEqual(0, status)
+      levels = field_levels_3d(seen)
+      @assertEqual([263.5, 263.5, 263.5], levels)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t4_field_name_indirection
+
+   ! The failing call records its inputs but supplies nothing; the calls
+   ! around it supply normally, and by_call still counts the failed call.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t5_fail_on_call(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: t_field, seen
+      real(kind=ESMF_KIND_R4), pointer :: t_ptr(:,:,:)
+      character(len=ESMF_MAXSTR) :: activation_state
+      character(:), allocatable :: values(:)
+      integer :: status, user_rc, i
+      character(*), parameter :: label = 'aerosol_activation_properties'
+      integer, parameter :: expected_user_rc(3) = [ESMF_SUCCESS, 17, ESMF_SUCCESS]
+      character(len=5), parameter :: modes(3) = ['du001', 'ss002', 'oc003']
+      real, parameter :: t_values(3) = [250.5, 260.5, 270.5]
+      real, parameter :: expected_num(3) = [1.5, 1.5, 3.5]
+      character(len=6), parameter :: expected_state(3) = ['first ', 'first ', 'third ']
+
+      call make_mock('t5_fail_on_call.yaml', state, grid, status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(state, itemName='T', field=t_field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(t_field, farrayPtr=t_ptr, rc=status)
+      @assertEqual(0, status)
+
+      do i = 1, 3
+         call ESMF_AttributeSet(state, name='aerosol_mode', value=modes(i), rc=status)
+         @assertEqual(0, status)
+         t_ptr = t_values(i)
+         user_rc = -999
+         call ESMF_MethodExecute(state, label=label, userRc=user_rc, rc=status)
+         @assertEqual(ESMF_SUCCESS, status)
+         @assertEqual(expected_user_rc(i), user_rc)
+         @assertEqual(expected_num(i), field_value_2d(state, 'num'))
+         call ESMF_AttributeGet(state, name='activation_state', value=activation_state, rc=status)
+         @assertEqual(0, status)
+         @assertEqual(trim(expected_state(i)), trim(activation_state))
+         @assertEqual(i, ConfigurableCallbackCallCount(state, label, rc=status))
+      end do
+
+      call ConfigurableCallbackAttrSeen(state, label, 'aerosol_mode', values, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, size(values))
+      do i = 1, 3
+         @assertEqual(modes(i), trim(values(i)))
+      end do
+      do i = 1, 3
+         call ConfigurableCallbackFieldSeen(state, label, 'T', i, seen, rc=status)
+         @assertEqual(0, status)
+         @assertEqual([t_values(i), t_values(i), t_values(i)], field_levels_3d(seen))
+      end do
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t5_fail_on_call
+
+   ! A method label that collides with the mock's own Info keys is rejected.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_reserved_label_num_levels(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content='{methods: {num_levels: {}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: method label <num_levels> is reserved')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reserved_label_num_levels
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fail_on_call_rejects_internal_rc(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content='{methods: {m: {fail_on_call: {1: -999901}}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: value of <methods/m/fail_on_call/1> is reserved for errors inside the mock')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_fail_on_call_rejects_internal_rc
+
+   ! ESMF reports an unattached label through existflag with rc success;
+   ! without existflag it is an ESMF error.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t6_unconfigured_label(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status, user_rc
+      logical :: exists
+      character(:), allocatable :: calls(:)
+
+      call make_mock('t2_two_methods.yaml', state, grid, status)
+      @assertEqual(0, status)
+
+      exists = .true.
+      call ESMF_MethodExecute(state, label='not_configured', existflag=exists, userRc=user_rc, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertFalse(exists)
+
+      call ESMF_MethodExecute(state, label='method_alpha', existflag=exists, userRc=user_rc, rc=status)
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertTrue(exists)
+
+      call ESMF_MethodExecute(state, label='not_configured', userRc=user_rc, rc=status)
+      @assertTrue(status /= ESMF_SUCCESS)
+
+      call ConfigurableCallbackCalls(state, calls, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, size(calls))
+      @assertEqual('method_alpha', trim(calls(1)))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t6_unconfigured_label
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t7_two_mocks_no_cross_talk(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state_a, state_b
+      type(ESMF_Grid) :: grid_a, grid_b
+      integer :: status
+      character(:), allocatable :: calls_a(:), calls_b(:)
+
+      call make_mock('t7_mock_a.yaml', state_a, grid_a, status)
+      @assertEqual(0, status)
+      call make_mock('t7_mock_b.yaml', state_b, grid_b, status)
+      @assertEqual(0, status)
+
+      ! shared_label is slot 1 in mock A and slot 2 in mock B.
+      call client_execute(state_b, 'shared_label')
+      call client_execute(state_a, 'shared_label')
+      call client_execute(state_b, 'other_label')
+      call client_execute(state_b, 'shared_label')
+
+      @assertEqual(11.5, field_value_2d(state_a, 'num'))
+      @assertEqual(23.75, field_value_2d(state_b, 'num'))
+      @assertEqual(1, ConfigurableCallbackCallCount(state_a, 'shared_label', rc=status))
+      @assertEqual(2, ConfigurableCallbackCallCount(state_b, 'shared_label', rc=status))
+      @assertEqual(1, ConfigurableCallbackCallCount(state_b, 'other_label', rc=status))
+
+      call ConfigurableCallbackCalls(state_a, calls_a, rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCalls(state_b, calls_b, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, size(calls_a))
+      @assertEqual(3, size(calls_b))
+      @assertEqual('other_label', trim(calls_b(2)))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t7_two_mocks_no_cross_talk
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t8_unlisted_attribute_value(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status, user_rc
+
+      call make_mock('t8_unlisted_value.yaml', state, grid, status)
+      @assertEqual(0, status)
+
+      call ESMF_AttributeSet(state, name='aerosol_mode', value='oc002', rc=status)
+      @assertEqual(0, status)
+      call ESMF_MethodExecute(state, label='aerosol_activation_properties', userRc=user_rc, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: method <aerosol_activation_properties>, <supply/fields/num>: by_attribute key <aerosol_mode> has unlisted value <oc002>')
+      ! Remaining exceptions are the status propagation frames of the slot procedure.
+      call drain_exceptions()
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(MOCK_INTERNAL_ERROR_RC, user_rc)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t8_unlisted_attribute_value
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_t9_too_many_methods(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      call make_mock('t9_too_many_methods.yaml', state, grid, status)
+      @assertExceptionRaised('ConfigurableCallback: 9 methods configured, but at most 8 are supported')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_t9_too_many_methods
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_profile_and_by_call(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), pointer :: q(:,:)
+      character(len=ESMF_MAXSTR) :: phase
+      integer :: status, n_steps
+
+      call make_mock('profile_by_call.yaml', state, grid, status)
+      @assertEqual(0, status)
+
+      call client_execute(state, 'step')
+      @assertEqual(210.5, state_field_level(state, 't_out', 1))
+      @assertEqual(245.25, state_field_level(state, 't_out', 2))
+      @assertEqual(287.75, state_field_level(state, 't_out', 3))
+      call ESMF_StateGet(state, itemName='q_out', field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=q, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0.0125d0, maxval(q))
+      @assertEqual(0.0125d0, minval(q))
+      call ESMF_AttributeGet(state, name='phase', value=phase, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('warmup', trim(phase))
+      call ESMF_AttributeGet(state, name='n_steps', value=n_steps, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(42, n_steps)
+
+      call client_execute(state, 'step')
+      @assertEqual(0.0375d0, maxval(q))
+      call ESMF_AttributeGet(state, name='phase', value=phase, rc=status)
+      @assertEqual('steady', trim(phase))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_profile_and_by_call
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_unknown_key_fails_at_create(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content='{methods: {m: {suply: {}}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: unknown key <suply> in <methods/m>; allowed: supply, record, fail_on_call')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unknown_key_fails_at_create
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_by_attribute_requires_default(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], rc=status)
+      @assertEqual(0, status)
+      hconfig = ESMF_HConfigCreate(content= &
+           '{fields: {num: {dims: xy}}, methods: {m: {supply: {fields: {num: {by_attribute: {key: mode, a: {constant: 2.5}}}}}}}}', &
+           rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, grid=grid, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: key <methods/m/supply/fields/num/by_attribute/default> is required (error, or a form)')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_by_attribute_requires_default
+
+   ! An unlisted value falls through to a default form, whether default sits
+   ! beside by_attribute or inside it; a listed value still wins.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_by_attribute_default_form(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      call make_mock('t3_default_form.yaml', state, grid, status)
+      @assertEqual(0, status)
+
+      call ESMF_AttributeSet(state, name='aerosol_mode', value='oc002', rc=status)
+      @assertEqual(0, status)
+      call client_execute(state, 'default_beside')
+      call client_execute(state, 'default_inside')
+      @assertEqual(4.75, field_value_2d(state, 'beside'))
+      @assertEqual(6.125, field_value_2d(state, 'inside'))
+
+      call ESMF_AttributeSet(state, name='aerosol_mode', value='du001', rc=status)
+      @assertEqual(0, status)
+      call client_execute(state, 'default_beside')
+      call client_execute(state, 'default_inside')
+      @assertEqual(2.5, field_value_2d(state, 'beside'))
+      @assertEqual(3.25, field_value_2d(state, 'inside'))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_by_attribute_default_form
+
+   ! The nested record State appears only when some method records fields.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_record_state_only_when_recording(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      integer :: status, item_count
+      character(len=ESMF_MAXSTR), allocatable :: names(:)
+
+      call make_mock('t1_constant.yaml', state, grid, status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      allocate(names(item_count))
+      call ESMF_StateGet(state, itemNameList=names, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, item_count)
+      @assertEqual('num', trim(names(1)))
+
+      call make_mock('t4_indirection.yaml', state, grid, status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      deallocate(names)
+      allocate(names(item_count))
+      call ESMF_StateGet(state, itemNameList=names, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, item_count)
+      @assertTrue(any(names == 'mapl_mock_record'))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_record_state_only_when_recording
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_geometry_rejected(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content='{geometry: {}, methods: {m: {}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: key <geometry> is not supported; pass the grid to ConfigurableCallbackCreate')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_geometry_rejected
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_function_form_rejected(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], rc=status)
+      @assertEqual(0, status)
+      hconfig = ESMF_HConfigCreate(content= &
+           '{fields: {num: {dims: xy}}, methods: {m: {supply: {fields: {num: {function: lon}}}}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, grid=grid, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: key <methods/m/supply/fields/num/function>: the function supply form is not supported')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_function_form_rejected
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_xyz_field_requires_num_levels(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], rc=status)
+      @assertEqual(0, status)
+      hconfig = ESMF_HConfigCreate(content='{fields: {T: {dims: xyz}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, grid=grid, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: field <T> has dims xyz but no positive num_levels was passed to ConfigurableCallbackCreate')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_xyz_field_requires_num_levels
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_profile_wrong_length(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], rc=status)
+      @assertEqual(0, status)
+      hconfig = ESMF_HConfigCreate(content= &
+           '{fields: {T: {dims: xyz}}, methods: {m: {supply: {fields: {T: {profile: [1.5, 2.5]}}}}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, grid=grid, num_levels=NUM_LEVELS, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: key <methods/m/supply/fields/T/profile> must be a list of 3 numbers')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_profile_wrong_length
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_by_call_past_end(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_State) :: state
+      type(ESMF_Grid) :: grid
+      type(ESMF_HConfig) :: hconfig
+      integer :: status, user_rc
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], rc=status)
+      @assertEqual(0, status)
+      hconfig = ESMF_HConfigCreate(content= &
+           '{fields: {num: {dims: xy}}, methods: {m: {supply: {fields: {num: {by_call: [{constant: 1.5}]}}}}}}', rc=status)
+      @assertEqual(0, status)
+      call ConfigurableCallbackCreate(state, hconfig, grid=grid, rc=status)
+      @assertEqual(0, status)
+
+      call client_execute(state, 'm')
+      @assertEqual(1.5, field_value_2d(state, 'num'))
+
+      call ESMF_MethodExecute(state, label='m', userRc=user_rc, rc=status)
+      @assertExceptionRaised('ConfigurableCallback: method <m>, <supply/fields/num>: by_call has 1 forms but this is call 2')
+      call drain_exceptions()
+      @assertEqual(ESMF_SUCCESS, status)
+      @assertEqual(MOCK_INTERNAL_ERROR_RC, user_rc)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_by_call_past_end
+
+end module Test_ConfigurableCallback

@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added the `callback-contracts-and-registry` OpenSpec change proposal
+  (planning artifacts only, no code): a registration file of named
+  callback interfaces (argument/attribute/rule/call-scalar schema), a
+  frozen interface registry, realized-State conformance checks, and
+  Invoker-side method execution with regrid-aware argument wiring. See
+  `docs/graph/plans/callback-contracts-and-registry.md` and
+  `openspec/changes/callback-contracts-and-registry/`.
 - Added agent-oriented architecture documentation for MAPL3 (`AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions.md`, `docs/generic/`, one `ARCHITECTURE.md` per layer and for cap, History, ExtData and geometry)
 - Add hack so that edge level geos-chem inputs can be read and correctly identified as edge instead of centers
 - Enforced the `standard_name` convention between a connected Import and
@@ -85,6 +92,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when an EXPRESSION item cannot be resolved or is unsupported. It does not
   yet replace the legacy path. Also see `docs/graph/GLOSSARY.md` and
   `superstructure/generic/AGENTS.md`.
+- Added a configurable callback mock State (mark 1, GEOS-ESM/MAPL#5534):
+  `mapl_ConfigurableCallback_mod`/`mapl_ConfigurableCallbackSpec_mod`
+  (`superstructure/state/`) build a YAML-configured `ESMF_State` for testing
+  client code that calls `ESMF_MethodExecute` on a State. The mock records
+  each call's attributes and field values and the call order, can fail on
+  demand with a configured `userRc`, and can supply attributes and field
+  values for the client to read back. See `docs/mapl3/configurable-callback.md`.
+- The members of a service bundle (a `MAPL_STATEITEM_SERVICE` import or export)
+  now carry the short name of the subscriber's item, as a `NamedAlias` of the
+  subscribed field. Before, a member had no name of its own (ESMF's generated
+  name), so a service provider could not tell the subscribed fields apart except
+  through their `standard_name`. The data is shared with the subscriber's item,
+  as before. `FieldClassAspect%add_to_bundle` has a new optional `name` argument.
 
 ### Changed
 
@@ -92,6 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - pFUnit tests now need pFUnit 4.22.0 or newer (GEOS-ESM/MAPL#5535). A failure passed up the call stack by `_VERIFY`/`_RC` or a failing `_RETURN` is reported as one exception with a traceback (pFUnit `propagate`), so a test asserts only the original error and no longer needs one `@assertExceptionRaised('status=1')` per call level. Non-test behaviour is unchanged.
 
+- Items marked `restart_skip` are no longer written to netCDF checkpoints (`RestartHandler%write`); the in-memory checkpoint is unchanged. A checkpoint file whose items are all `restart_skip` is no longer written. This changes the checkpoint files, so the checkpoint regression baselines were regenerated (variables dropped from files; some files absent)
 - Internal refactor of connection resolution in the graph layer
   (`superstructure/generic/GraphBuilder_ConnectionResolution_smod.F90`,
   GEOS-ESM/MAPL#5505): folded the three duplicated per-connection dispatch
@@ -216,6 +237,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `FieldBundleGet` (`FieldBundleGet.F90`) now returns the `GeomManager` geom for the bundle's grid (new `get_unowned_geom` in `infrastructure/geom/UnownedGeom.F90`, with `GeomManager%has_mapl_geom`) instead of creating a new `ESMF_Geom` on each call. The new geom never compared equal to the cached one, so bundle-to-field couplers (e.g. ExtData imports) reallocated their output field every step, changing the import's data address and leaking a geom per step. The bundle's own geom is not returned because ESMF destroys it when the bundle empties (#5541).
+- netCDF checkpoints written by `RestartHandler%write` now have a written `time`
+  variable (value 0). Before, `time` was defined
+  in the file but never written, so it held the netCDF fill value
+  (`9.96921e+36`). The checkpoint regression baselines were regenerated.
 - `VirtualConnectionPt%matches` (`VirtualConnectionPt.F90`) now frees the regex it
   compiles. Without `regfree`, every wildcard match (e.g. the cap's Root-to-History
   `MatchConnection` from `connect_all`) leaked the compiled pattern and glibc's DFA tables;

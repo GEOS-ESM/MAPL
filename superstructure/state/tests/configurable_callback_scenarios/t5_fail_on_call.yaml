@@ -1,0 +1,19 @@
+fields:
+  T:   {dims: xyz}
+  num: {dims: xy}
+methods:
+  aerosol_activation_properties:
+    record:
+      attributes: [aerosol_mode]
+      fields: [T]
+    supply:
+      fields:
+        num:
+          by_call:
+            - {constant: 1.5}
+            - {constant: 2.5}
+            - {constant: 3.5}
+      attributes:
+        activation_state:
+          by_call: [first, second, third]
+    fail_on_call: {2: 17}
