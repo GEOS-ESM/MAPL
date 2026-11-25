@@ -13,6 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_env v5.28.0
+    - Update to Baselibs 8.34.0
+      - GFE v1.31.0
+          - fArgParse v1.12.0
+          - pFUnit v4.22.0
+          - yaFyaml v1.7.3
+          - pFlogger v1.19.1
+  - ESMA_cmake v4.54.0
+    - Fixes for Flang and NVIDIA compilers
+    - Add `USE_EXTERNAL_MAPL` option to allow use of MAPL installation in GEOSgcm, etc.
+    - Fixes for NVHPC ng compiler
+    - Add OS detection
+- Update CI to Baselibs 8.34.0
+
 ### Removed
 
 ### Deprecated
