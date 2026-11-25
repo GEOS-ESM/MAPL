@@ -362,10 +362,19 @@ its interface; undeclared matches keep today's skip-and-report.
 See "Critical path" above. Not a GitHub-volunteer task (too much
 in-flight design context), but author/reviewer subagents build it once
 design questions are settled with the owner.
-- **Status:** 5.0, 5.1a, 5.1d, 5.2a, 5.2b done (tasks.md); 5.1b, 5.1e,
-  5.2c, 5.3, 5.4 not started. Design: decisions 11, 12, 19, 20, 21.
-  5.2b leaves a known gap (put-direction `receives:` data never moves,
-  accepted by the owner as a documented limitation); closes at task 6.5.
+- **Status:** 5.0, 5.1a, 5.1d, 5.2a, 5.2b done (tasks.md); 5.3 done
+  (`Plan-Task: CB5-Execute-5.3`, PR #5561 against
+  `feature/callback-contracts-and-registry`, pending merge):
+  `CallbackMemberHandle`/`CallbackCollectionIterator` on `GraphBuilder`
+  (`GraphBuilder_CallbackExecution_smod.F90`), advance-first iterator
+  over one collection's matched Handlers, `%execute(method, rc)` and
+  `%get_state()`. Documented a get+put side effect of the 5.2b gap: a
+  member that is IN on get and OUT on put has its put write land in the
+  Invoker's own `provides:` Field via get-side forward-network aliasing
+  (same accepted gap, not a new decision). 5.1b, 5.1e, 5.2c, 5.4 not
+  started. Design: decisions 11, 12, 19, 20, 21. 5.2b leaves a known gap
+  (put-direction `receives:` data never moves, accepted by the owner as
+  a documented limitation); closes at task 6.5.
 
 **CB5-LazyCheck.** Hook the realized-State check into execution and
 add the explicit collection check.
