@@ -139,10 +139,14 @@ and `graph/tests/` stay facade-only.
   entry and needs no `@assertExceptionRaised`. Descriptor status conflicts
   (`resolve_descriptors`) still go to `unsupported_characteristics`.
 - Under pFUnit, a failing `_ASSERT`/`_FAIL` records its message as an
-  exception, and every enclosing `_RC`/`_VERIFY` it propagates through
-  records another one, `status=<rc>`. A test must consume each one with
-  `@assertExceptionRaised` (exact text), or it fails even when
-  `rc` is right. Checking `rc` with `@assertEqual` does not consume them.
+  exception. Each enclosing `_RC`/`_VERIFY` it passes through adds its
+  location to that exception's traceback (pFUnit `propagate`) rather than
+  recording a new exception. A test must consume the exception with one
+  `@assertExceptionRaised` (exact text) or `@assertExceptionMatches`
+  (regex), or it fails even when `rc` is right. Checking `rc` with
+  `@assertEqual` does not consume it. A nonzero rc that no `_ASSERT` raised
+  (for example ESMF's) becomes one exception, `status=<rc>`, at the first
+  `_VERIFY`.
   This holds for the generic suites (`superstructure/generic/tests/`). The
   graph suite (`MAPL.generic.graph`, `graph/tests/`) never uses
   `@assertExceptionRaised`, because it installs no exception handler: its tests check

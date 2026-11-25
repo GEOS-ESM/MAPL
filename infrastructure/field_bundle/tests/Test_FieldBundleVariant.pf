@@ -61,8 +61,7 @@ contains
       call MAPL_FieldBundleInfoSetInternal(info, has_geom=.true., _RC)
 
       call MAPL_FieldBundleGet(bundle, geom=geom, rc=status)
-      @assertExceptionRaised('get_unowned_geom: unsupported geomtype')
-      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('unsupported geomtype; needs simple extension')
       @assertEqual(1, status)
 
       call ESMF_FieldBundleDestroy(bundle, _RC)

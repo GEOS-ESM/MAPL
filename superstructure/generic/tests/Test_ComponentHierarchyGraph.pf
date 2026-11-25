@@ -241,14 +241,8 @@ contains
 
       child_spec = ChildSpec()
       call parent_meta%add_child('dup_name', child_spec, rc=status)
-      ! add_child_by_spec's own _ASSERT raises an exception rather than
-      ! returning a nonzero status for the caller to inspect directly -
-      ! same multi-frame-unwind pattern Test_GraphBuilder.pf's own
-      ! test_freeze_fails_and_leaves_graph_unfrozen_on_conflict and
-      ! Test_OuterMetaComponentDriverResolver.pf's
-      ! test_unknown_key_fails_loudly document: the raised exception
-      ! must be consumed via @assertExceptionRaised before status is
-      ! meaningful.
+      ! add_child_by_spec's _ASSERT raises an exception, which must be
+      ! consumed before status is meaningful.
       @assertExceptionRaised('duplicate child name: <dup_name>.')
       @assert_that(status, is(not(equal_to(0))))
 

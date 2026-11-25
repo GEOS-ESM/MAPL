@@ -4909,7 +4909,6 @@ contains
       call outer_meta%initialize_accept_transfer(import_state, export_state, &
            clock, rc=status)
       @assertExceptionRaised('GraphBuilder: expression expr references missing item MISSING')
-      @assertExceptionRaised('status=1')
       @assertTrue(status /= 0)
 
       _UNUSED_DUMMY(this)
@@ -6115,17 +6114,6 @@ contains
 
       call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
       @assertExceptionRaised('Child not found: <NOPE>.')
-      ! One status=1 per error-return frame between the failing lookup and here.
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assertTrue(status /= 0)
 
       _UNUSED_DUMMY(this)
@@ -6244,9 +6232,6 @@ contains
       src_pt = ConnectionPt('CHEM/NOPE', VirtualConnectionPt(state_intent='export', short_name='tracer_callback'))
       matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
       @assertExceptionRaised('Child not found: <NOPE>.')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assertTrue(status /= 0)
 
       _UNUSED_DUMMY(this)

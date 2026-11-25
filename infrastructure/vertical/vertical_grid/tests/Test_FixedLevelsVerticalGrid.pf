@@ -97,8 +97,6 @@ contains
 
       call grid%initialize(spec, rc=rc)
       @assertExceptionRaised('levels must be strictly monotonic (all increasing or all decreasing)')
-      ! _VERIFY in initialize adds a second (traceback) exception
-      @assertExceptionRaised('status=1')
       @assertTrue(rc /= 0, 'Non-monotonic levels should fail')
    end subroutine test_fixed_level_non_monotonic_fails
 
@@ -274,7 +272,6 @@ contains
 
       call grid%initialize(spec, rc=rc)
       @assertExceptionRaised('levels must be strictly monotonic (all increasing or all decreasing)')
-      @assertExceptionRaised('status=1')
       @assertTrue(rc /= 0, 'Non-monotonic height levels should fail')
    end subroutine test_height_non_monotonic_fails
 
@@ -325,8 +322,6 @@ contains
       config = esmf_HConfigCreate(content='{levels: [1.0, 3.0, 2.0], physical_dimension: height}')
       spec = factory%create_spec_from_config(config, rc)
       @assertExceptionRaised('levels must be strictly monotonic (all increasing or all decreasing)')
-      ! the enclosing return-code check adds a second (traceback) exception
-      @assertExceptionRaised('status=1')
       @assertTrue(rc /= 0, 'Non-monotonic height list should fail')
       call esmf_HConfigDestroy(config)
    end subroutine test_create_spec_height_non_monotonic_fails

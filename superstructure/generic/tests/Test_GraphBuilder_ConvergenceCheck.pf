@@ -275,9 +275,7 @@ contains
       call make_two_child_fixture(parent_meta, leave_unresolved=.true., _RC)
 
       call gb%run_graph_freeze_hook(parent_meta)
-      @assertExceptionRaised( &
-           'GraphBuilder: unresolved required import(s) remain once the fixed realize/accept/realize '// &
-           'schedule ends (griddedcomponentdriver-integration-lifecycle design.md "REQ-MTH-011 step (c) convergence")')
+      @assertExceptionMatches('^GraphBuilder: unresolved required import[(]s[)] remain ')
 
       ! freeze() itself already succeeded (for every component in the
       ! hierarchy) before the new check ran - the hard error does not
