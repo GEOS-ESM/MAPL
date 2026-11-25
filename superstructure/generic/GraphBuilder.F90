@@ -134,6 +134,15 @@ module mapl_GraphBuilder_mod
    public :: callback_method_binding_key
    public :: invoke_callback_method
 
+   ! Per-call Invoker-side handle/iterator over a collection node's bound
+   ! Handler members. Declared here, not a standalone module, so their
+   ! submodule implementation reaches invoke_callback_method/
+   ! callback_method_binding_key by host association with no new `use`
+   ! and no circularity.
+   public :: CallbackMemberHandle
+   public :: CallbackCollectionIterator
+   public :: begin_callback_collection
+
    ! Shared multi-level qualified-path resolution, used by callback and
    ! ordinary connection resolution. Public for the same gfortran
    ! cross-submodule-linkage reason as is_self above.
@@ -283,6 +292,51 @@ module mapl_GraphBuilder_mod
       character(:), allocatable :: short_name
       type(NodeId) :: node_id
    end type UnresolvedImportEntry
+
+   ! One matched Handler member, reached through
+   ! CallbackCollectionIterator%current(): the member's own composite
+   ! ESMF_State plus enough of the collection node's bound-method lookup
+   ! to invoke one by name. Only valid immediately after the %current()
+   ! call that produced it - see CallbackCollectionIterator's own doc
+   ! comment on the advance-first loop idiom.
+   type :: CallbackMemberHandle
+      type(ComponentGraph), pointer :: graph => null()
+      class(StateItemNode), pointer :: collection_node => null()
+      character(:), allocatable :: member_qualified_name
+      type(ESMF_State) :: member_state
+   contains
+      procedure :: execute => callback_member_handle_execute
+      procedure :: get_state => callback_member_handle_get_state
+      procedure :: get_member_qualified_name => callback_member_handle_get_member_qualified_name
+   end type CallbackMemberHandle
+
+   ! An Invoker's walk over one callback collection's matched Handler
+   ! members, in the order begin_callback_collection pre-collected them
+   ! (StateItemMemberMap iteration order is not guaranteed to be
+   ! declaration/resolution order). Advance-first, like a Fortran DO: a
+   ! freshly built iterator sits "before first" - call %advance() once
+   ! before trusting %done() or calling %current(). %current() called
+   ! before any %advance(), or once %done() is true, is a caller-ordering
+   ! bug and fails loudly rather than indexing past the collected name
+   ! list. collection_node is a raw pointer into the hierarchy's
+   ! ComponentGraph; callback execution only happens once the graph is
+   ! frozen (ComponentGraph%register_node asserts not finalized/frozen),
+   ! so no new node can appear while an iterator is alive and the
+   ! pointer stays valid for its whole lifetime.
+   type :: CallbackCollectionIterator
+      type(ComponentGraph), pointer :: graph => null()
+      class(StateItemNode), pointer :: collection_node => null()
+      ! Collected once at construction: the established idiom
+      ! (GraphBuilder_CallbackRealization_smod.F90) for walking a
+      ! StateItemMemberMap without holding a live map iterator across
+      ! intervening calls.
+      type(StringVector) :: member_names
+      integer :: position = 0
+   contains
+      procedure :: advance => callback_collection_iterator_advance
+      procedure :: done => callback_collection_iterator_done
+      procedure :: current => callback_collection_iterator_current
+   end type CallbackCollectionIterator
 
    ! Matches mapl_MethodInvocation_mod's MAX_ARGUMENT_NAME_LEN.
    integer, parameter :: MAX_CALLBACK_ARGUMENT_NAME_LEN = 128
@@ -729,6 +783,47 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine advance_callback_put_arguments
+
+      ! Callback execution procedures (GraphBuilder_CallbackExecution_smod.F90)
+   module function begin_callback_collection(this, import_short_name, rc) result(iter)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: import_short_name
+      integer, optional, intent(out) :: rc
+      type(CallbackCollectionIterator) :: iter
+
+   end function begin_callback_collection
+   module subroutine callback_collection_iterator_advance(this)
+      class(CallbackCollectionIterator), intent(inout) :: this
+
+   end subroutine callback_collection_iterator_advance
+   module function callback_collection_iterator_done(this) result(is_done)
+      class(CallbackCollectionIterator), intent(in) :: this
+      logical :: is_done
+
+   end function callback_collection_iterator_done
+   module function callback_collection_iterator_current(this, rc) result(handle)
+      class(CallbackCollectionIterator), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      type(CallbackMemberHandle) :: handle
+
+   end function callback_collection_iterator_current
+   module subroutine callback_member_handle_execute(this, method, rc)
+      class(CallbackMemberHandle), intent(in) :: this
+      character(*), intent(in) :: method
+      integer, optional, intent(out) :: rc
+
+   end subroutine callback_member_handle_execute
+   module function callback_member_handle_get_state(this, rc) result(state)
+      class(CallbackMemberHandle), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      type(ESMF_State) :: state
+
+   end function callback_member_handle_get_state
+   module function callback_member_handle_get_member_qualified_name(this) result(name)
+      class(CallbackMemberHandle), intent(in) :: this
+      character(:), allocatable :: name
+
+   end function callback_member_handle_get_member_qualified_name
 
       ! Ordinary-phase MethodGraphNode construction procedures (GraphBuilder_RunPhaseNode_smod.F90)
    module subroutine graphbuilder_build_run_phase_node(this, rc)

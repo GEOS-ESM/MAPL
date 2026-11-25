@@ -198,6 +198,7 @@ set(components_test_srcs
   Test_GraphBuilder_ConnectionResolution.pf
   Test_GraphBuilder_CallbackWiring.pf
   Test_GraphBuilder_CallbackRealization.pf
+  Test_GraphBuilder_CallbackExecution.pf
   Test_CallbackInterfaceMessages.pf
   Test_CallbackInterfaceRegistryMessages.pf
   Test_CallbackAttributeAccessMessages.pf
