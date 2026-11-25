@@ -9,6 +9,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.74.0] - 2026-11-09
+
+### Fixed
+
+- Fixed `NC_ENAMEINUSE` in `MAPL_StateVarWriteNCPar`: for bundle fields with `::` in the name, the prefix is now removed before `<BundleName>_` is added, which matches the reader
+  - NOTE: When upstream code that needs this fix is updated, this could affect checkpoints. The actual fields would not change, but names could
+
+### Added
+
+- Added agent-oriented architecture documentation (`AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions.md`, one `ARCHITECTURE.md` per source directory)
+
+## [2.73.0] - 2026-11-05
+
+### Fixed
+
+- `ExtData2G` `find_any_file` now accounts for the reference time when searching
+  for a file to read metadata from. The trial times are snapped onto the
+  `ref_time + n*freq` grid the files are actually written on, so collections
+  whose files are not aligned with the current time are found instead of
+  exhausting every trial. Also removed a leftover debug print.
+
+- Fixed possible deadlock and memory overrun in pFIO `DirectoryService`: the
+  shared-directory mutex is now always released before error checks, a
+  duplicate `publish` reports a correct error, and directory/local-port
+  capacity (`MAX_NUM_PORTS`) is checked. `MpiMutex` and directory get/put
+  routines now propagate errors via `rc`; replaced MPI-3-removed
+  `MPI_Type_extent` with `MPI_Type_get_extent`; added `Test_MpiMutex` (#5460)
+
+### Added
+
+- Add attribute `from_bundle` to fields in checkpoints that were in a bundle
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_cmake v4.52.0
+    - Make ESMA_cmake reentrant
+    - Fix issue with quad precision detection test
+    - Fixes for Flang and NVIDIA compilers
+    - Fixes for CMake builds
+  - ESMA_env v5.27.0
+    - Update to GEOSpyD 26.7.2
+- MAPLPy: add a method to retrieve the Fortran MPI communicator (as a flat `Fint`)
+- MAPLPy: add a `GetResource_Int64` alongside the 32bit one
+
+## [2.72.0] - 2026-09-23
+
+### Fixed
+
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
 - Added `log_files_read` option to ExtData2G to easily log all files read during a run. The argument to `log_files_read` is the name of file to save the output
@@ -17,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed NAG OpenMP initialization in profiler constructors and meters
 
 ### Added
+
 - Added DIMS entries for tile dimensions in ACG (2)
 
 ### Changed
@@ -35,10 +93,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Better support for LLVM Flang on macOS
     - Updates for MAPL3 work
 - Update CI to use Baselibs 8.33.0 and add `gfortran-16`
-
-### Removed
-
-### Deprecated
 
 ## [2.71.0] - 2026-08-18
 

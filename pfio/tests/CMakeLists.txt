@@ -17,6 +17,7 @@ set (TEST_SRCS
     Test_Client.pf
     Test_ProtocolParser.pf
     Test_DirectoryService.pf
+    Test_MpiMutex.pf
   )
 
 # SRCS are mostly mocks to facilitate tests

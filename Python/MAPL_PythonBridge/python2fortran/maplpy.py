@@ -87,6 +87,10 @@ class MAPLPyAPI:
             self._mapl_bridge.MAPL_GetNY(mapl_state),
         )
 
+    def get_fortran_comm(self) -> int:
+        """Retrieve the Fortran runtime communicator"""
+        return self._mapl_bridge.get_fortran_comm()
+
     @property
     def fpy_converter(self) -> FortranPythonConverter:
         """Fortran to Python converter helper"""
