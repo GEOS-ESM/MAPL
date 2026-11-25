@@ -50,7 +50,7 @@ contains
    end subroutine test_fields_only
 
    ! A state containing a FieldBundle: fields are renamed
-   ! <bundle_name>_1, <bundle_name>_2, … in the output bundle.
+   ! <bundle_name>_<field_name> in the output bundle.
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_fieldbundle_in_state(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -76,10 +76,10 @@ contains
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       @assert_that(field_count, is(equal_to(2)))
 
-      call ESMF_FieldBundleGet(bundle, 'UV_1', isPresent=is_present, _RC)
+      call ESMF_FieldBundleGet(bundle, 'UV_U', isPresent=is_present, _RC)
       @assert_that(is_present, is(true()))
 
-      call ESMF_FieldBundleGet(bundle, 'UV_2', isPresent=is_present, _RC)
+      call ESMF_FieldBundleGet(bundle, 'UV_V', isPresent=is_present, _RC)
       @assert_that(is_present, is(true()))
 
       call ESMF_FieldBundleDestroy(bundle, _RC)
@@ -115,15 +115,15 @@ contains
 
       call StateGet(state, bundle, _RC)
 
-      ! T + UV_1 + UV_2 = 3 fields total
+      ! T + UV_U + UV_V = 3 fields total
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       @assert_that(field_count, is(equal_to(3)))
 
       call ESMF_FieldBundleGet(bundle, 'T', isPresent=is_present, _RC)
       @assert_that(is_present, is(true()))
-      call ESMF_FieldBundleGet(bundle, 'UV_1', isPresent=is_present, _RC)
+      call ESMF_FieldBundleGet(bundle, 'UV_U', isPresent=is_present, _RC)
       @assert_that(is_present, is(true()))
-      call ESMF_FieldBundleGet(bundle, 'UV_2', isPresent=is_present, _RC)
+      call ESMF_FieldBundleGet(bundle, 'UV_V', isPresent=is_present, _RC)
       @assert_that(is_present, is(true()))
 
       call ESMF_FieldBundleDestroy(bundle, _RC)
@@ -134,6 +134,55 @@ contains
       call ESMF_FieldDestroy(fv, _RC)
       call ESMF_GridDestroy(grid, _RC)
    end subroutine test_mixed_state
+
+   ! Members without a name of their own (ESMF's generated name) are renamed
+   ! <bundle_name>_<index>; a member whose name is already taken in the output
+   ! bundle gets <bundle_name>_<name>_<index>.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fieldbundle_unnamed_and_duplicate_members(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_FieldBundle) :: inner, bundle
+      type(ESMF_State) :: state
+      integer :: field_count, status
+      logical :: is_present
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      f1 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC) ! no name
+      f2 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='Q', _RC)
+      f3 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='Q', _RC)
+      f4 = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, _RC) ! no name
+      inner = ESMF_FieldBundleCreate(name='TR', _RC)
+      call ESMF_FieldBundleAdd(inner, [f1, f2, f3, f4], multiflag=.true., _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[inner], _RC)
+
+      call StateGet(state, bundle, _RC)
+
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(4)))
+
+      call ESMF_FieldBundleGet(bundle, 'TR_1', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+      call ESMF_FieldBundleGet(bundle, 'TR_Q', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+      call ESMF_FieldBundleGet(bundle, 'TR_Q_3', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+      call ESMF_FieldBundleGet(bundle, 'TR_4', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_FieldBundleDestroy(inner, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(f1, _RC)
+      call ESMF_FieldDestroy(f2, _RC)
+      call ESMF_FieldDestroy(f3, _RC)
+      call ESMF_FieldDestroy(f4, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_fieldbundle_unnamed_and_duplicate_members
 
    ! An empty state produces an empty bundle with zero fields.
    @test(type=ESMF_TestMethod, npes=[1])
