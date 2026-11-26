@@ -441,14 +441,16 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+           "service name 'no_such_interface' not registered; registered: (none)"
 
       call reset_callback_registry_for_testing()
 
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'A: {callback_interface: no_such_interface}}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
-           "service name 'no_such_interface' not registered; registered: (none)")
+      @assertExceptionRaised(expected)
       ! make_VariableSpec, parse_state_specs and parse_var_specs each pass it up
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
@@ -467,13 +469,15 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"alias" is only valid inside a "members" ' // &
+           'entry, not a top-level state item: tracer'
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // &
            'tracer: {typekind: R4, alias: TR1}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"alias" is only valid inside a "members" ' // &
-           'entry, not a top-level state item: tracer')
+      @assertExceptionRaised(expected)
       ! parse_var_specs's own _RC propagates parse_state_specs's failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -490,13 +494,15 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           'a unit-placeholder binding ({Placeholder: ConcreteUnit}) is only ' // &
+           'valid inside a "members" entry, not a top-level state item: bound'
 
       config = ESMF_HConfigCreate(content="{states: {export: {" // &
            "bound: {typekind: R4, units: {U: 'kg kg-1'}}" // &
            "}}}", _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('a unit-placeholder binding ({Placeholder: ConcreteUnit}) is only ' // &
-           'valid inside a "members" entry, not a top-level state item: bound')
+      @assertExceptionRaised(expected)
       ! parse_var_specs's own _RC propagates parse_state_specs's failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -514,13 +520,15 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" is only valid on a Handler callback-State EXPORT ' // &
+           'declaring "callback_interface": cb'
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // &
            'cb: {typekind: R4, members: {arg1: {}}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" is only valid on a Handler callback-State EXPORT ' // &
-           'declaring "callback_interface": cb')
+      @assertExceptionRaised(expected)
       ! parse_var_specs's own _RC propagates parse_state_specs's failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -539,6 +547,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" has unsupported key "typekind": a YAML member ' // &
+           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_unsupported_key', iface, expected_id, _RC)
@@ -548,8 +559,7 @@ contains
            'members: {arg1: {typekind: R8}}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" has unsupported key "typekind": a YAML member ' // &
-           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"')
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
       ! call site each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
@@ -572,6 +582,10 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" cannot use "vertical_dim_spec: mirror": a member ' // &
+           'is never part of the IMPORT/EXPORT connection-resolution graph, so there is no partner ' // &
+           'to mirror from'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_vertical_mirror', iface, expected_id, _RC)
@@ -581,9 +595,7 @@ contains
            'members: {arg1: {vertical_dim_spec: mirror}}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" cannot use "vertical_dim_spec: mirror": a member ' // &
-           'is never part of the IMPORT/EXPORT connection-resolution graph, so there is no partner ' // &
-           'to mirror from')
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
       ! call site each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
@@ -604,6 +616,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" cannot use "dims: mirror": a member is never ' // &
+           'part of the IMPORT/EXPORT connection-resolution graph, so there is no partner to mirror from'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_dims_mirror', iface, expected_id, _RC)
@@ -613,8 +628,7 @@ contains
            'members: {arg1: {dims: mirror}}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" cannot use "dims: mirror": a member is never ' // &
-           'part of the IMPORT/EXPORT connection-resolution graph, so there is no partner to mirror from')
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
       ! call site each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
@@ -636,6 +650,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" has unsupported key "vertical_grid_mirror": a YAML member ' // &
+           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_vgrid_mirror_key', iface, expected_id, _RC)
@@ -645,8 +662,7 @@ contains
            'members: {arg1: {vertical_grid_mirror: true}}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" has unsupported key "vertical_grid_mirror": a YAML member ' // &
-           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"')
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
       ! call site each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
@@ -670,6 +686,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" cannot combine "vertical_dim_spec: none" with ' // &
+           '"vertical_grid": a 2D field cannot also carry a vertical grid'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_none_with_vgrid', iface, expected_id, _RC)
@@ -679,8 +698,7 @@ contains
            'members: {arg1: {vertical_dim_spec: none, vertical_grid: {num_levels: 5}}}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" cannot combine "vertical_dim_spec: none" with ' // &
-           '"vertical_grid": a 2D field cannot also carry a vertical grid')
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
       ! call site each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
@@ -702,6 +720,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "bundle_arg" answers a non-FIELD-kind interface ' // &
+           'argument; a YAML member can only answer a FIELD-kind argument: cb'
 
       call reset_callback_registry_for_testing()
       call iface%declare_argument('bundle_arg', MAPL_VARIANT_FIELDBUNDLE, _RC)
@@ -712,8 +733,7 @@ contains
            'members: {bundle_arg: {}}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "bundle_arg" answers a non-FIELD-kind interface ' // &
-           'argument; a YAML member can only answer a FIELD-kind argument: cb')
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
       ! call site each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
@@ -823,6 +843,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"provides" is only valid on an Invoker callback IMPORT ' // &
+           'declaring "callback_interface": cb'
 
       call reset_callback_registry_for_testing()
       call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', _RC)
@@ -833,8 +856,7 @@ contains
            'provides: {quantity: provide_item}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"provides" is only valid on an Invoker callback IMPORT ' // &
-           'declaring "callback_interface": cb')
+      @assertExceptionRaised(expected)
       ! parse_var_specs's own _RC propagates parse_state_specs's failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -851,13 +873,15 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"receives" is only valid on an Invoker callback IMPORT ' // &
+           'declaring "callback_interface": cb'
 
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'cb: {typekind: R4, receives: {quantity: receive_item}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"receives" is only valid on an Invoker callback IMPORT ' // &
-           'declaring "callback_interface": cb')
+      @assertExceptionRaised(expected)
       ! parse_var_specs's own _RC propagates parse_state_specs's failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -876,6 +900,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"receives" entry names argument "bogus" ' // &
+           'not declared on interface "toy_provides_unknown_arg": cb'
 
       call reset_callback_registry_for_testing()
       call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', _RC)
@@ -886,8 +913,7 @@ contains
            'receives: {bogus: receive_item}}' // &
            '}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"receives" entry names argument "bogus" ' // &
-           'not declared on interface "toy_provides_unknown_arg": cb')
+      @assertExceptionRaised(expected)
       ! parse_state_specs's own call site, then parse_var_specs's own call
       ! site, each pass the failure up (two more _RC levels).
       @assertExceptionRaised('status=1')
