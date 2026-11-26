@@ -3,7 +3,6 @@ module mapl_StdDevColumn_mod
    use mapl_SimpleColumn_mod
    use mapl_AbstractMeterNode_mod
    use mapl_AbstractMeter_mod
-   use mapl_AdvancedMeter_mod
    use mapl_DistributedMeter_mod
    implicit none
    private
@@ -48,16 +47,11 @@ contains
 
       if (.not. allocated(this%option)) then
          tmr => node%get_meter()
-         select type (tmr)
-         class is (AdvancedMeter)
-            if (this%relative) then
-               allocate(row, source=tmr%get_relative_deviation())
-            else
-               allocate(row, source=tmr%get_standard_deviation())
-            end if
-         class default
-            print*,'error handling here'
-         end select
+         if (this%relative) then
+            allocate(row, source=tmr%get_relative_deviation())
+         else
+            allocate(row, source=tmr%get_standard_deviation())
+         end if
       else
          call this%get_row_dist(node, row)
       end if

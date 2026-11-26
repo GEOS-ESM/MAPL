@@ -2,7 +2,6 @@ module mapl_MinCycleColumn_mod
    use mapl_SimpleColumn_mod
    use mapl_AbstractMeterNode_mod
    use mapl_AbstractMeter_mod
-   use mapl_AdvancedMeter_mod
    use mapl_DistributedMeter_mod
    implicit none
    private
@@ -39,14 +38,11 @@ contains
       class (AbstractMeter), pointer :: tmr
 
       tmr => node%get_meter()
-      select type (tmr)
-      class is (AdvancedMeter)
-         if (.not. allocated(this%option)) then
-            allocate(row, source=tmr%get_min_cycle())
-         else
-            call this%get_row_dist(node, row)
-         end if
-      end select
+      if (.not. allocated(this%option)) then
+         allocate(row, source=tmr%get_min_cycle())
+      else
+         call this%get_row_dist(node, row)
+      end if
 
    end function get_row
 

@@ -4,7 +4,6 @@ module mapl_NumCyclesColumn_mod
    use mapl_AbstractColumn_mod
    use mapl_SimpleColumn_mod
    use mapl_AbstractMeterNode_mod
-   use mapl_AdvancedMeter_mod
    use mapl_AbstractMeter_mod
    implicit none
    private
@@ -31,12 +30,7 @@ contains
 
       tmr => node%get_meter()
 
-      select type (tmr)
-      class is (AdvancedMeter)
-         allocate(row, source=tmr%get_num_cycles())
-      class default
-         print*,'error handling here'
-      end select
+      allocate(row, source=tmr%get_num_cycles())
 
    end function get_row
 

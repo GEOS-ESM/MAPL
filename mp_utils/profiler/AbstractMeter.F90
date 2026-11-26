@@ -25,6 +25,14 @@ module mapl_AbstractMeter_mod
       procedure(i_add_cycle), deferred :: add_cycle
 
       procedure(i_get), deferred :: get_total
+
+      procedure(i_get), deferred :: get_min_cycle
+      procedure(i_get), deferred :: get_max_cycle
+      procedure(i_get), deferred :: get_mean_cycle
+      procedure(i_get_int), deferred :: get_num_cycles
+      procedure(i_get), deferred :: get_standard_deviation
+      procedure(i_get), deferred :: get_relative_deviation
+
       procedure(i_accumulate), deferred :: accumulate
       procedure :: finalize
    end type AbstractMeter
@@ -49,6 +57,14 @@ module mapl_AbstractMeter_mod
          real(kind=REAL64) :: val
          class (AbstractMeter), intent(in) :: this
       end function i_get
+
+      ! get_num_cycles returns a count, not a real(REAL64) statistic;
+      ! callers (e.g. NumCyclesColumn) rely on its integer dynamic type.
+      function i_get_int(this) result(val)
+         import AbstractMeter
+         integer :: val
+         class (AbstractMeter), intent(in) :: this
+      end function i_get_int
 
       subroutine i_accumulate(this, lap)
          import AbstractMeter

@@ -108,6 +108,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `AbstractMeter` (`mp_utils/profiler/AbstractMeter.F90`) now declares
+  `get_min_cycle`, `get_max_cycle`, `get_mean_cycle`, `get_num_cycles`,
+  `get_standard_deviation` and `get_relative_deviation` as deferred
+  bindings; `AdvancedMeter`'s existing implementations are unchanged and
+  now satisfy them. **Possibly breaking** for any out-of-tree type that
+  extends `AbstractMeter` directly (not `AdvancedMeter`/`DistributedMeter`):
+  it must now implement these six methods to compile. Five reporting
+  columns (`MinCycleColumn`, `MaxCycleColumn`, `MeanCycleColumn`,
+  `NumCyclesColumn`, `StdDevColumn`) no longer `select type` to
+  `AdvancedMeter` to call these getters, removing a silently-swallowed
+  `class default` error path in two of them. No behavior change for any
+  in-tree caller.
 - The members of a field bundle in a checkpointed state (`MAPL_StateGet` into a
   bundle, used by the netCDF and in-memory checkpoints) are named
   `<bundle>_<member name>` instead of `<bundle>_<index>`, so a checkpoint no
