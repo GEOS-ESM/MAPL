@@ -2689,9 +2689,16 @@ target `develop`, not the feature branch.
   add deferred `make_geom`/`make_file_metadata`/`make_gridded_dims`/
   `make_variable_attributes` to `GeomSpec` (and `make_grid()` to
   `VerticalGridSpec`), bodies mostly re-homed from existing `typesafe_*`
-  helpers; drop `supports_spec`. Check for out-of-tree geometry-type
-  authors before committing (owner decision needed first, since this
-  changes public API shape).
+  helpers; drop `supports_spec` from `GeomFactory` outright (owner,
+  2026-11-26: no out-of-tree-repo survey first — MAPL owns the concrete
+  geometry types that matter; other orgs providing their own
+  `GeomFactory`/`GeomSpec` subclass accept source breakage same as any
+  public-API change). Owner flagged a standing philosophical concern,
+  to be addressed by the change itself, not just stated here: `GeomSpec`
+  was meant to be data, `GeomFactory` construction, and moving
+  `make_geom`/etc. onto `GeomSpec` blurs that — the task must come back
+  as "owner review" (not auto-landed) so he can judge whether the result
+  stays clean enough to accept despite that shift.
   - **Status:** not started
 - `G4-GraphNodeInterface` (assessment §2.1; main-line, graph-layer
   files; highest payoff): `GraphNode` has no useful interface, so ~43
@@ -2891,7 +2898,7 @@ it may author D1/A4/B5 with sonnet review.
 | rebase-case-sensitive | sonnet | sonnet | right after the next develop rebase/merge (PR #5501) |
 | G1-Connection | sonnet | sonnet | main-line; coordinate with active B/C/D graph-layer task |
 | G2-ProfilerMeter | sonnet | sonnet | self-contained library, no public-interface impact |
-| G3-GeomFactory | sonnet | opus | public geometry API shape change; owner decision on out-of-tree authors first |
+| G3-GeomFactory | sonnet | opus | public geometry API shape change; owner review (owner, 2026-11-26: spec-vs-factory concern, see task text) |
 | G4a-GraphNodeInterface | opus | sonnet | design-bearing; real missing virtual methods |
 | G4b-GraphNodeInterface | sonnet | opus | main-line; mechanical once G4a lands, land one file/group at a time like D1 |
 | G5-PfioServers | sonnet | opus | defer; bundle with other planned pfio work only |
