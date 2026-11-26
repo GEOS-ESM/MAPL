@@ -120,6 +120,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `AdvancedMeter` to call these getters, removing a silently-swallowed
   `class default` error path in two of them. No behavior change for any
   in-tree caller.
+- The members of a field bundle in a checkpointed state (`MAPL_StateGet` into a
+  bundle, used by the netCDF and in-memory checkpoints) are named
+  `<bundle>_<member name>` instead of `<bundle>_<index>`, so a checkpoint no
+  longer depends on the order in which the members were added. A member with no
+  name of its own (ESMF's generated name, for example the members of a vector)
+  keeps `<bundle>_<index>`, and so does a member whose name is already used in
+  the bundle (`<bundle>_<name>_<index>`). **BREAKING for regression data**: the
+  variables of service bundles (`TRADV`, `MTR`, ...), `TRI`-like bundles and
+  named aerosol bundles (`DU_AERO_DP`, ...) have new names in checkpoint files, so
+  baselines that contain them must be regenerated. Their values do not change.
 - Items marked `restart_skip` are no longer written to netCDF checkpoints (`RestartHandler%write`); the in-memory checkpoint is unchanged. A checkpoint file whose items are all `restart_skip` is no longer written. This changes the checkpoint files, so the checkpoint regression baselines were regenerated (variables dropped from files; some files absent)
 - Internal refactor of connection resolution in the graph layer
   (`superstructure/generic/GraphBuilder_ConnectionResolution_smod.F90`,
