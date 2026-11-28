@@ -106,7 +106,7 @@ contains
       allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
       @assert_that(status, is(0))
 
-      geom = factory%make_geom(geom_spec, rc=status)
+      geom = geom_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       call ESMF_HConfigDestroy(hconfig, rc=status)
@@ -131,7 +131,7 @@ contains
       allocate(geom_spec, source=factory%make_spec(hconfig, rc=status))
       @assert_that(status, is(0))
 
-      dims = factory%make_gridded_dims(geom_spec, rc=status)
+      dims = geom_spec%make_gridded_dims(rc=status)
       @assert_that(status, is(0))
       @assert_that(int(dims%size()), is(2))
 

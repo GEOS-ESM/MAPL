@@ -1,8 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory_mod) typesafe_make_file_metadata_smod
+submodule (mapl_EASEGeomSpec_mod) make_file_metadata_smod
    use mapl_GeomSpec_mod
-   use mapl_EASEGeomSpec_mod
    use mapl_EASECoords_mod
    use mapl_ErrorHandling_mod
    use pfio
@@ -12,10 +11,11 @@ submodule (mapl_EASEGeomFactory_mod) typesafe_make_file_metadata_smod
 
 contains
 
-   module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+   module function make_file_metadata(this, unusable, chunksizes, rc) &
+        result(file_metadata)
       use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
-      type(EASEGeomSpec), intent(in) :: geom_spec
+      class(EASEGeomSpec), intent(in) :: this
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
@@ -25,11 +25,11 @@ contains
       type(Variable) :: v
       real(kind=REAL64), allocatable :: lon_cen(:), lat_cen(:)
 
-      call compute_lons(geom_spec, centers=lon_cen, _RC)
-      call compute_lats(geom_spec, centers=lat_cen, _RC)
+      call compute_lons(this, centers=lon_cen, _RC)
+      call compute_lats(this, centers=lat_cen, _RC)
 
-      im = geom_spec%get_im_world(_RC)
-      jm = geom_spec%get_jm_world(_RC)
+      im = this%get_im_world(_RC)
+      jm = this%get_jm_world(_RC)
 
       call file_metadata%add_dimension('lon', im)
       call file_metadata%add_dimension('lat', jm)
@@ -50,6 +50,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function typesafe_make_file_metadata
+   end function make_file_metadata
 
-end submodule typesafe_make_file_metadata_smod
+end submodule make_file_metadata_smod

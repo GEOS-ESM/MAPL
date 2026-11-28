@@ -28,6 +28,8 @@ module mapl_FixedLevelsVerticalGrid_mod
       character(len=:), allocatable :: physical_dimension
       real, allocatable :: levels(:)
       character(len=:), allocatable :: units
+   contains
+      procedure :: make_grid
    end type FixedLevelsVerticalGridSpec
    
    ! Grid type
@@ -51,12 +53,10 @@ module mapl_FixedLevelsVerticalGrid_mod
    type, extends(VerticalGridFactory) :: FixedLevelsVerticalGridFactory
    contains
       procedure :: get_name
-      procedure :: supports_spec
       procedure :: supports_file_metadata
       procedure :: supports_config
       procedure :: create_spec_from_config
       procedure :: create_spec_from_file_metadata
-      procedure :: create_grid_from_spec
    end type FixedLevelsVerticalGridFactory
 
    interface FixedLevelsVerticalGridSpec
@@ -124,6 +124,22 @@ contains
       _VERIFY(STATUS)
       _RETURN(_SUCCESS)
    end subroutine initialize
+
+   function make_grid(this, rc) result(grid)
+      class(VerticalGrid), allocatable :: grid
+      class(FixedLevelsVerticalGridSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      type(FixedLevelsVerticalGrid) :: local_grid
+      integer :: status
+
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=local_grid)
+      call local_grid%initialize(this, _RC)
+      deallocate(grid); allocate(grid, source=local_grid)
+
+      _RETURN(_SUCCESS)
+   end function make_grid
 
    function get_levels(this) result(levels)
       real, allocatable :: levels(:)
@@ -262,20 +278,6 @@ contains
       _UNUSED_DUMMY(this)
    end function get_name
 
-   function supports_spec(this, spec, rc) result(is_supported)
-      logical :: is_supported
-      class(FixedLevelsVerticalGridFactory), intent(in) :: this
-      class(VerticalGridSpec), intent(in) :: spec
-      integer, optional, intent(out) :: rc
-
-      type(FixedLevelsVerticalGridSpec) :: fixed_spec
-
-      is_supported = same_type_as(spec, fixed_spec)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-   end function supports_spec
-
    function supports_file_metadata(this, file_metadata, rc) result(is_supported)
       logical :: is_supported
       class(FixedLevelsVerticalGridFactory), intent(in) :: this
@@ -373,30 +375,6 @@ contains
       _UNUSED_DUMMY(file_metadata)
       _RETURN(_FAILURE)
    end function create_spec_from_file_metadata
-
-   function create_grid_from_spec(this, spec, rc) result(grid)
-      class(VerticalGrid), allocatable :: grid
-      class(FixedLevelsVerticalGridFactory), intent(in) :: this
-      class(VerticalGridSpec), intent(in) :: spec
-      integer, intent(out), optional :: rc
-      
-      type(FixedLevelsVerticalGrid) :: local_grid
-      integer :: status
-      
-      ! An allocatable result must be allocated on error paths too; the caller copies it.
-      allocate(grid, source=local_grid)
-      select type (spec)
-      type is (FixedLevelsVerticalGridSpec)
-         call local_grid%initialize(spec, _RC)
-         deallocate(grid)
-         allocate(grid, source=local_grid)
-      class default
-         _RETURN(_FAILURE)
-      end select
-      
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-   end function create_grid_from_spec
 
    ! Helper function to get default units for a physical dimension
    function get_default_units(physical_dimension) result(units)

@@ -279,6 +279,29 @@ contains
    end subroutine test_height_non_monotonic_fails
 
 
+   @test
+   ! make_grid's result is allocatable, so the caller copies it even when
+   ! initialize() fails on non-monotonic levels.  It must be allocated.
+   subroutine test_make_grid_allocates_result_on_error()
+      type(FixedLevelsVerticalGridSpec) :: spec
+      class(VerticalGrid), allocatable :: grid
+      integer :: rc
+
+      spec%levels = [100.0, 1000.0, 500.0]
+      spec%physical_dimension = "pressure"
+      spec%units = "Pa"
+
+      grid = spec%make_grid(rc)
+      @assertExceptionRaised('levels must be strictly monotonic (all increasing or all decreasing)')
+      ! One status=1 per error-return frame between derive_direction and here:
+      ! initialize()'s own _VERIFY, then make_grid()'s _RC-driven _VERIFY.
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(rc /= 0, 'Non-monotonic levels should give a nonzero rc')
+      @assertTrue(allocated(grid), 'The result must be allocated on the error path')
+   end subroutine test_make_grid_allocates_result_on_error
+
+
    ! The factory path: config text to spec to grid
    @test
    subroutine test_factory_height_config_gives_up_grid()
@@ -291,7 +314,7 @@ contains
 
       config = esmf_HConfigCreate(content='{levels: [0.0, 100.0, 500.0], physical_dimension: height}')
       spec = factory%create_spec_from_config(config, rc_spec)
-      grid = factory%create_grid_from_spec(spec, rc_grid)
+      grid = spec%make_grid(rc_grid)
       direction = grid%get_coordinate_direction()
       call esmf_HConfigDestroy(config)
 

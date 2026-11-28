@@ -56,7 +56,7 @@ module Test_StateItemDescriptor
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
         VERTICAL_STAGGER_EDGE
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec, &
-        mapl_BasicVerticalGridFactory, mapl_VerticalGridManager, mapl_VerticalGridFactory, &
+        mapl_VerticalGridManager, &
         mapl_get_vertical_grid_manager
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
@@ -1432,14 +1432,9 @@ contains
       class(VerticalGrid), pointer :: vgrid
 
       type(mapl_VerticalGridManager), pointer :: mgr
-      class(mapl_VerticalGridFactory), pointer :: factory
       integer :: status
 
       mgr => mapl_get_vertical_grid_manager(rc=status)
-      if (status == 0) factory => mgr%find_factory(mapl_BasicVerticalGridSpec(1), rc=status)
-      if (status /= 0 .or. .not. associated(factory)) then
-         call mgr%register_factory('Basic', mapl_BasicVerticalGridFactory(), rc=status)
-      end if
       if (status == 0) vgrid => mgr%add_grid(mapl_BasicVerticalGridSpec(num_levels=4), rc=status)
       if (present(rc)) rc = status
    end function make_registered_vgrid

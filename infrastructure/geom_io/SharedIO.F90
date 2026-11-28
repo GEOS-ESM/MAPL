@@ -12,7 +12,6 @@ module mapl_SharedIO_mod
    use mapl_StringDictionary_mod
    use gFTL2_StringSet
    use mapl_geom_api
-   use mapl_GeomFactory_mod, only: GeomFactory
    use mapl_CoordinateAxis_mod, only: get_dim_name
    use mapl_UngriddedDims_mod
    use, intrinsic :: iso_fortran_env, only: REAL64, REAL32, INT64, INT32
@@ -371,15 +370,13 @@ contains
       type(StringVector), pointer :: var_dims
       character(len=:), allocatable :: dim_name, lon_dim, lat_dim, units
       real, allocatable :: coords(:)
-      class(GeomFactory), allocatable :: geom_factory
       class(mapl_GeomSpec), allocatable :: geom_spec
       type(StringVector) :: gridded_dims
 
       ungridded_dims = UngriddedDims()
 
-      geom_factory = geom%get_factory()
       geom_spec = geom%get_spec()
-      gridded_dims = geom_factory%make_gridded_dims(geom_spec, _RC)
+      gridded_dims = geom_spec%make_gridded_dims(_RC)
 
       ! some files name the horizontal dimensions differently than the geom
       ! factory does (i.e. longitude vs lon), so also identify them by units

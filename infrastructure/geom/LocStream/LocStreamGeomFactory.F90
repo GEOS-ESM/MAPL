@@ -17,9 +17,6 @@ module mapl_LocStreamGeomFactory_mod
    use pFIO_NetCDF4_FileFormatterMod, only: NetCDF4_FileFormatter
    use pFIO_ConstantsMod,      only: pFIO_READ
    use gftl2_StringVector, only: StringVector
-   use mapl_StringDictionary_mod, only: StringDictionary
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
-   use MAPL_Constants, only: MAPL_PI_R8
    use esmf
    implicit none
    private
@@ -31,13 +28,8 @@ module mapl_LocStreamGeomFactory_mod
    contains
       procedure :: make_geom_spec_from_hconfig
       procedure :: make_geom_spec_from_metadata
-      procedure :: supports_spec
       procedure :: supports_hconfig
       procedure :: supports_metadata
-      procedure :: make_geom
-      procedure :: make_file_metadata
-      procedure :: make_gridded_dims
-      procedure :: make_variable_attributes
    end type LocStreamGeomFactory
 
 contains
@@ -222,18 +214,6 @@ contains
       _RETURN(_SUCCESS)
    end function make_geom_spec_from_metadata
 
-   logical function supports_spec(this, geom_spec) result(supports)
-      class(LocStreamGeomFactory), intent(in) :: this
-      class(GeomSpec), intent(in) :: geom_spec
-
-      type(LocStreamGeomSpec) :: reference
-
-      _UNUSED_DUMMY(this)
-
-      supports = same_type_as(geom_spec, reference)
-
-   end function supports_spec
-
    logical function supports_hconfig(this, hconfig, rc) result(supports)
       class(LocStreamGeomFactory), intent(in) :: this
       type(ESMF_HConfig), intent(in) :: hconfig
@@ -312,105 +292,5 @@ contains
 
       _RETURN(_SUCCESS)
    end function supports_metadata
-
-   function make_geom(this, geom_spec, rc) result(geom)
-      class(LocStreamGeomFactory), intent(in) :: this
-      class(GeomSpec), intent(in) :: geom_spec
-      type(ESMF_Geom) :: geom
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer :: local_count, i_0, i_1
-      type(ESMF_LocStream) :: locstream
-      type(ESMF_VM) :: vm
-      integer :: local_pet
-      real(kind=ESMF_KIND_R8), allocatable :: tlons(:), tlats(:)
-      real(kind=ESMF_KIND_R8), pointer :: lons_deg(:) => null(), lats_deg(:) => null()
-      type(LocStreamDecomposition) :: decomp
-
-      _UNUSED_DUMMY(this)
-
-      select type (geom_spec)
-      type is (LocStreamGeomSpec)
-         ! Get the decomposition and current PE's rank
-         decomp = geom_spec%get_decomposition()
-         call ESMF_VMGetCurrent(vm, _RC)
-         call ESMF_VMGet(vm, localPet=local_pet, _RC)
-
-         ! Determine local indices for this PE
-         call decomp%get_local_indices(local_pet, i_0, i_1)
-         
-         local_count = i_1 - i_0 + 1
-
-         allocate(tlons(local_count))
-         allocate(tlats(local_count))
-
-         call geom_spec%get_coordinates(lons_deg, lats_deg)
-         _ASSERT(associated(lons_deg) .and. associated(lats_deg), 'LocStreamGeomSpec missing coordinates')
-         _ASSERT(i_1 <= size(lons_deg), 'LocStreamGeomSpec coordinate index out of bounds')
-         _ASSERT(i_1 <= size(lats_deg), 'LocStreamGeomSpec coordinate index out of bounds')
-
-         ! Extract local portion of coordinates and convert from degrees to radians
-         tlons = lons_deg(i_0:i_1) * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
-         tlats = lats_deg(i_0:i_1) * MAPL_PI_R8 / 180.0_ESMF_KIND_R8
-
-         locstream = ESMF_LocStreamCreate(localCount=local_count, coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
-         call ESMF_LocStreamAddKey(locstream, keyName="ESMF:Lat", farray=tlats, datacopyflag=ESMF_DATACOPY_VALUE, &
-              keyUnits="Radians", keyLongName="Latitude", _RC)
-         call ESMF_LocStreamAddKey(locstream, keyName="ESMF:Lon", farray=tlons, datacopyflag=ESMF_DATACOPY_VALUE, &
-              keyUnits="Radians", keyLongName="Longitude", _RC)
-
-         geom = ESMF_GeomCreate(locstream, _RC)
-      class default
-         _FAIL("geom_spec type not supported")
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_geom
-
-   function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
-      class(LocStreamGeomFactory), intent(in) :: this
-      class(GeomSpec), intent(in) :: geom_spec
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: chunksizes(:)
-      type(FileMetadata) :: file_metadata
-      integer, optional, intent(out) :: rc
-
-      ! LocStream-specific file metadata generation can be added later.
-      file_metadata = FileMetadata()
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(geom_spec)
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(chunksizes)
-
-      _RETURN(_SUCCESS)
-   end function make_file_metadata
-
-   function make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
-      class(LocStreamGeomFactory), intent(in) :: this
-      class(GeomSpec), intent(in) :: geom_spec
-      type(StringVector) :: gridded_dims
-      integer, optional, intent(out) :: rc
-
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(geom_spec)
-
-      call gridded_dims%push_back("loc")
-
-      _RETURN(_SUCCESS)
-   end function make_gridded_dims
-
-   function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
-      class(LocStreamGeomFactory), intent(in) :: this
-      class(GeomSpec), intent(in) :: geom_spec
-      type(StringDictionary) :: variable_attributes
-      integer, optional, intent(out) :: rc
-
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(geom_spec)
-
-      variable_attributes = StringDictionary()
-
-      _RETURN(_SUCCESS)
-   end function make_variable_attributes
 
 end module mapl_LocStreamGeomFactory_mod

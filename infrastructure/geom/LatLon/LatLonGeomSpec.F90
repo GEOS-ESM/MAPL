@@ -6,6 +6,7 @@ module mapl_LatLonGeomSpec_mod
    use mapl_LatLonDecomposition_mod
    use mapl_LonAxis_mod
    use mapl_LatAxis_mod
+   use pfio, only: FileMetadata
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_HConfig, ESMF_Geom
 
    implicit none
@@ -29,6 +30,11 @@ module mapl_LatLonGeomSpec_mod
       procedure :: supports_hconfig => supports_hconfig_
       procedure :: supports_metadata => supports_metadata_
       generic :: supports => supports_hconfig, supports_metadata
+
+      procedure :: make_geom
+      procedure :: make_file_metadata
+      procedure :: make_gridded_dims
+      procedure :: make_variable_attributes
 
       ! Accessors
       procedure :: get_lon_axis
@@ -135,6 +141,57 @@ interface
          integer, intent(in) :: dims(2)
          integer, optional, intent(out) :: rc
       end function make_decomposition
+
+      module function make_geom(this, rc) result(geom)
+         use esmf, only: ESMF_Geom
+         type(ESMF_Geom) :: geom
+         class(LatLonGeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function make_geom
+
+      module function create_basic_grid(spec, unusable, name, rc) result(grid)
+         use esmf, only: ESMF_Grid
+         use mapl_KeywordEnforcer_mod
+         type(ESMF_Grid) :: grid
+         type(LatLonGeomSpec), intent(in) :: spec
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         character(len=*), optional, intent(in) :: name
+         integer, optional, intent(out) :: rc
+      end function create_basic_grid
+
+      module subroutine fill_coordinates(spec, grid, unusable, rc)
+         use esmf, only: ESMF_Grid
+         use mapl_KeywordEnforcer_mod
+         type(LatLonGeomSpec), intent(in) :: spec
+         type(ESMF_Grid), intent(inout) :: grid
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine fill_coordinates
+
+      module function make_file_metadata(this, unusable, chunksizes, rc) &
+           result(file_metadata)
+         use mapl_KeywordEnforcer_mod
+         type(FileMetadata) :: file_metadata
+         class(LatLonGeomSpec), intent(in) :: this
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: chunksizes(:)
+         integer, optional, intent(out) :: rc
+      end function make_file_metadata
+
+      module function make_gridded_dims(this, rc) result(gridded_dims)
+         use gFTL2_StringVector
+         type(StringVector) :: gridded_dims
+         class(LatLonGeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function make_gridded_dims
+
+      module function make_variable_attributes(this, rc) &
+           result(variable_attributes)
+         use mapl_StringDictionary_mod
+         type(StringDictionary) :: variable_attributes
+         class(LatLonGeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function make_variable_attributes
 
    end interface
 

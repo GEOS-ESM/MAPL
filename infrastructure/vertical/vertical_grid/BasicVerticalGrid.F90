@@ -25,6 +25,8 @@ module mapl_BasicVerticalGrid_mod
       ! Default-initialized so the error-path placeholder copies of this
       ! type are well defined.
       integer :: num_levels = 0
+   contains
+      procedure :: make_grid
    end type BasicVerticalGridSpec
 
    ! Grid type
@@ -45,12 +47,10 @@ module mapl_BasicVerticalGrid_mod
    type, extends(VerticalGridFactory) :: BasicVerticalGridFactory
    contains
       procedure :: get_name
-      procedure :: supports_spec
       procedure :: supports_file_metadata
       procedure :: supports_config
       procedure :: create_spec_from_config
       procedure :: create_spec_from_file_metadata
-      procedure :: create_grid_from_spec
    end type BasicVerticalGridFactory
 
 contains
@@ -134,20 +134,6 @@ contains
 
       _UNUSED_DUMMY(this)
    end function get_name
-
-   function supports_spec(this, spec, rc) result(is_supported)
-      logical :: is_supported
-      class(BasicVerticalGridFactory), intent(in) :: this
-      class(VerticalGridSpec), intent(in) :: spec
-      integer, optional, intent(out) :: rc
-
-      type(BasicVerticalGridSpec) :: basic_spec
-
-      is_supported = same_type_as(spec, basic_spec)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-   end function supports_spec
 
    function supports_file_metadata(this, file_metadata, rc) result(is_supported)
       logical :: is_supported
@@ -262,28 +248,18 @@ contains
 
    end function create_spec_from_file_metadata
 
-   function create_grid_from_spec(this, spec, rc) result(grid)
+   function make_grid(this, rc) result(grid)
       class(VerticalGrid), allocatable :: grid
-      class(BasicVerticalGridFactory), intent(in) :: this
-      class(VerticalGridSpec), intent(in) :: spec
+      class(BasicVerticalGridSpec), intent(in) :: this
       integer, intent(out), optional :: rc
 
       type(BasicVerticalGrid) :: local_grid
 
-      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      call local_grid%initialize(this)
       allocate(grid, source=local_grid)
-      select type (spec)
-      type is (BasicVerticalGridSpec)
-         call local_grid%initialize(spec)
-         deallocate(grid)
-         allocate(grid, source=local_grid)
-      class default
-         _RETURN(_FAILURE)
-      end select
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-   end function create_grid_from_spec
+   end function make_grid
 
 end module mapl_BasicVerticalGrid_mod
 

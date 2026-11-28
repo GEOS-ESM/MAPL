@@ -17,34 +17,6 @@ module Test_MeshGeomFactory
 contains
 
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_factory_supports_mesh_spec(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-      
-      type(MeshGeomFactory) :: factory
-      type(MeshGeomSpec) :: mesh_spec
-      character(len=256) :: filename
-      integer :: status
-      logical :: supports
-      
-      _UNUSED_DUMMY(this)
-      
-      ! Create a test file and spec
-      filename = 'test_factory_supports.nc'
-      call create_simple_quad_file(filename, rc=status)
-      @assert_that(status, is(0))
-      
-      mesh_spec = MeshGeomSpec(filename, rc=status)
-      @assert_that(status, is(0))
-      
-      supports = factory%supports_spec(mesh_spec)
-      @assertTrue(supports)
-      
-      ! Clean up
-      call cleanup_test_file(filename, rc=status)
-      
-   end subroutine test_factory_supports_mesh_spec
-
-   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_factory_supports_mesh_hconfig(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
@@ -96,7 +68,6 @@ contains
    subroutine test_make_gridded_dims(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(StringVector) :: gridded_dims
       character(len=256) :: filename
@@ -111,7 +82,7 @@ contains
       mesh_spec = MeshGeomSpec(filename, rc=status)
       @assert_that(status, is(0))
       
-      gridded_dims = factory%make_gridded_dims(mesh_spec, rc=status)
+      gridded_dims = mesh_spec%make_gridded_dims(rc=status)
       @assert_that(status, is(0))
       @assert_that(int(gridded_dims%size()), is(1))
       @assert_that(gridded_dims%of(1), is("ncells"))
@@ -124,7 +95,6 @@ contains
    subroutine test_make_variable_attributes(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(StringDictionary) :: attrs
       character(len=256) :: filename
@@ -139,7 +109,7 @@ contains
       mesh_spec = MeshGeomSpec(filename, rc=status)
       @assert_that(status, is(0))
       
-      attrs = factory%make_variable_attributes(mesh_spec, rc=status)
+      attrs = mesh_spec%make_variable_attributes(rc=status)
       @assert_that(status, is(0))
       
       ! For now, just verify it returns successfully
@@ -153,7 +123,6 @@ contains
    subroutine test_create_simple_quad_mesh(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
@@ -183,7 +152,7 @@ contains
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
       
       ! Verify it's a mesh geometry
@@ -209,7 +178,6 @@ contains
    subroutine test_create_triangle_mesh(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
@@ -238,7 +206,7 @@ contains
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
       
       ! Verify mesh was created correctly
@@ -259,7 +227,6 @@ contains
    subroutine test_create_hexagon_mesh(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
@@ -288,7 +255,7 @@ contains
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
       
       ! Verify mesh was created correctly
@@ -309,7 +276,6 @@ contains
    subroutine test_create_octagon_mesh(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
@@ -338,7 +304,7 @@ contains
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
       
       ! Verify mesh was created correctly
@@ -359,7 +325,6 @@ contains
    subroutine test_create_mixed_polygon_mesh(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
@@ -388,7 +353,7 @@ contains
       @assert_that(status, is(0))
       
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
       
       ! Verify mesh was created correctly

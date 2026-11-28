@@ -2,7 +2,7 @@
 
 submodule (mapl_XYGeomSpec_mod) supports_metadata_smod
    use mapl_ErrorHandling_mod
-   use pfio, only: FileMetadata, Attribute
+   use pfio, only: Attribute
    implicit none
 
 contains

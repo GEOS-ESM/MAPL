@@ -27,9 +27,7 @@ module Test_VerticalGridAspect_NoneMatch
    use mapl_vertical_grid_api, only: &
       VerticalGrid => mapl_VerticalGrid, &
       BasicVerticalGridSpec => mapl_BasicVerticalGridSpec, &
-      BasicVerticalGridFactory => mapl_BasicVerticalGridFactory, &
       VerticalGridManager => mapl_VerticalGridManager, &
-      VerticalGridFactory => mapl_VerticalGridFactory, &
       get_vertical_grid_manager => mapl_get_vertical_grid_manager
 
    use mapl_ErrorHandling_mod
@@ -236,15 +234,9 @@ contains
    subroutine force_register(mgr, rc)
       type(VerticalGridManager), pointer, intent(in) :: mgr
       integer, optional, intent(out) :: rc
-      integer :: status
-      class(VerticalGridFactory), pointer :: ptr
 
       if (.not. associated(mgr)) then
          _RETURN(_FAILURE)
-      end if
-      ptr => mgr%find_factory(BasicVerticalGridSpec(1), rc=status)
-      if (.not. associated(ptr) .or. status /= ESMF_SUCCESS) then
-         call mgr%register_factory('Basic', BasicVerticalGridFactory(), _RC)
       end if
 
    end subroutine force_register

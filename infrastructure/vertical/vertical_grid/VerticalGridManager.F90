@@ -33,10 +33,9 @@ module mapl_VerticalGridManager_mod
       procedure :: remove_grid
       procedure :: has_id
       procedure :: get_size
-      procedure :: find_factory_for_spec
       procedure :: find_factory_for_config
       procedure :: find_factory_for_file_metadata
-      generic :: find_factory => find_factory_for_spec, find_factory_for_config, find_factory_for_file_metadata
+      generic :: find_factory => find_factory_for_config, find_factory_for_file_metadata
       generic :: create_grid => create_grid_from_config, create_grid_from_file_metadata, create_grid_from_spec
       procedure :: create_grid_from_config
       procedure :: create_grid_from_file_metadata
@@ -122,16 +121,10 @@ contains
       class(VerticalGridSpec), intent(in) :: spec
       integer, intent(out), optional :: rc
 
-      class(VerticalGridFactory), pointer :: factory
       class(VerticalGrid), allocatable :: new_grid
       integer :: status
 
-      ! Find appropriate factory
-      factory => this%find_factory_for_spec(spec, _RC)
-      _ASSERT(associated(factory), 'No factory found that supports the provided specification')
-
-      ! Create grid using factory
-      new_grid = factory%create_grid_from_spec(spec, _RC)
+      new_grid = spec%make_grid(_RC)
 
       ! Add grid to manager and get reference to stored copy
       grid_ptr => this%add_grid(new_grid, _RC)
@@ -216,38 +209,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine register_factory
 
-   function find_factory_for_spec(this, spec, rc) result(factory_ptr)
-      class(VerticalGridFactory), pointer :: factory_ptr
-      class(VerticalGridManager), target, intent(inout) :: this
-      class(VerticalGridSpec), intent(in) :: spec
-      integer, intent(out), optional :: rc
-
-      type(VerticalGridFactoryIterator) :: iter
-      class(VerticalGridFactory), pointer :: candidate
-      integer :: status
-
-      call this%initialize(_RC)  ! Ensure initialized
-
-      factory_ptr => null()
-
-      ! Try each factory
-      iter = this%factories%ftn_begin()
-      associate (e => this%factories%ftn_end())
-        do while (iter /= e)
-           call iter%next()
-           candidate => iter%second()
-           _ASSERT(associated(candidate), 'Factory registry returned null factory pointer')
-
-           if (candidate%supports(spec)) then
-              factory_ptr => candidate
-              _RETURN(_SUCCESS)
-           end if
-        end do
-      end associate
-
-      _FAIL('No suitable factory found.')
-   end function find_factory_for_spec
-
    function find_factory_for_config(this, config, rc) result(factory_ptr)
       class(VerticalGridFactory), pointer :: factory_ptr
       class(VerticalGridManager), target, intent(inout) :: this
@@ -319,16 +280,10 @@ contains
       class(VerticalGridSpec), intent(in) :: spec
       integer, intent(out), optional :: rc
 
-      class(VerticalGridFactory), pointer :: factory
       class(VerticalGrid), allocatable :: new_grid
       integer :: status
 
-      ! Find appropriate factory
-      factory => this%find_factory_for_spec(spec, _RC)
-      _ASSERT(associated(factory), 'No factory found that supports the provided configuration')
-
-      ! Create grid using factory
-      new_grid = factory%create_grid_from_spec(spec, _RC)
+      new_grid = spec%make_grid(_RC)
 
       ! Add grid to manager and get reference to stored copy
       grid_ptr => this%add_grid(new_grid, _RC)

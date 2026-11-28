@@ -1,8 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory_mod) fill_coordinates_smod
+submodule (mapl_EASEGeomSpec_mod) fill_coordinates_smod
    use mapl_GeomSpec_mod
-   use mapl_EASEGeomSpec_mod
    use mapl_EASECoords_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer

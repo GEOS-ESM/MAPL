@@ -4,9 +4,6 @@ module mapl_MeshGeomFactory_mod
    use mapl_GeomSpec_mod
    use mapl_GeomFactory_mod
    use mapl_MeshGeomSpec_mod
-   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
-   use gftl2_StringVector, only: StringVector
-   use mapl_StringDictionary_mod, only: StringDictionary
    use pfio_FileMetadataMod, only: FileMetadata
    use esmf
    implicit none
@@ -20,13 +17,8 @@ module mapl_MeshGeomFactory_mod
       ! Mandatory GeomFactory interfaces
       procedure :: make_geom_spec_from_hconfig
       procedure :: make_geom_spec_from_metadata
-      procedure :: supports_spec
       procedure :: supports_hconfig
       procedure :: supports_metadata
-      procedure :: make_geom
-      procedure :: make_file_metadata
-      procedure :: make_gridded_dims
-      procedure :: make_variable_attributes
    end type MeshGeomFactory
 
    interface
@@ -47,11 +39,6 @@ module mapl_MeshGeomFactory_mod
       end function make_geom_spec_from_metadata
 
       ! Support checking methods
-      module logical function supports_spec(this, geom_spec) result(supports)
-         class(MeshGeomFactory), intent(in) :: this
-         class(GeomSpec), intent(in) :: geom_spec
-      end function supports_spec
-
       module logical function supports_hconfig(this, hconfig, rc) result(supports)
          class(MeshGeomFactory), intent(in) :: this
          type(ESMF_HConfig), intent(in) :: hconfig
@@ -63,40 +50,6 @@ module mapl_MeshGeomFactory_mod
          type(FileMetadata), intent(in) :: file_metadata
          integer, optional, intent(out) :: rc
       end function supports_metadata
-
-      ! Geometry creation
-      module function make_geom(this, geom_spec, rc) result(geom)
-         type(ESMF_Geom) :: geom
-         class(MeshGeomFactory), intent(in) :: this
-         class(GeomSpec), intent(in) :: geom_spec
-         integer, optional, intent(out) :: rc
-      end function make_geom
-
-      ! File metadata generation
-      module function make_file_metadata(this, geom_spec, unusable, chunksizes, rc) result(file_metadata)
-         use mapl_KeywordEnforcer_mod
-         type(FileMetadata) :: file_metadata
-         class(MeshGeomFactory), intent(in) :: this
-         class(GeomSpec), intent(in) :: geom_spec
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         integer, optional, intent(in) :: chunksizes(:)
-         integer, optional, intent(out) :: rc
-      end function make_file_metadata
-
-      ! Dimension and attribute helpers
-      module function make_gridded_dims(this, geom_spec, rc) result(gridded_dims)
-         type(StringVector) :: gridded_dims
-         class(MeshGeomFactory), intent(in) :: this
-         class(GeomSpec), intent(in) :: geom_spec
-         integer, optional, intent(out) :: rc
-      end function make_gridded_dims
-
-      module function make_variable_attributes(this, geom_spec, rc) result(variable_attributes)
-         type(StringDictionary) :: variable_attributes
-         class(MeshGeomFactory), intent(in) :: this
-         class(GeomSpec), intent(in) :: geom_spec
-         integer, optional, intent(out) :: rc
-      end function make_variable_attributes
 
    end interface
 

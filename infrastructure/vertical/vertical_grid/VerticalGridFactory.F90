@@ -14,15 +14,13 @@ module mapl_VerticalGridFactory_mod
    type, abstract :: VerticalGridFactory
       private
    contains
-      procedure(I_supports_spec), deferred :: supports_spec
       procedure(I_supports_file_metadata), deferred :: supports_file_metadata
       procedure(I_supports_config), deferred :: supports_config
-      generic :: supports => supports_spec, supports_file_metadata, supports_config
+      generic :: supports => supports_file_metadata, supports_config
       procedure(I_get_name), deferred :: get_name
       procedure(I_create_spec_from_config), deferred :: create_spec_from_config
       procedure(I_create_spec_from_file_metadata), deferred :: create_spec_from_file_metadata
       generic :: create_spec => create_spec_from_config, create_spec_from_file_metadata
-      procedure(I_create_grid_from_spec), deferred :: create_grid_from_spec
       ! Non-deferred concrete methods that use the deferred methods
       procedure :: create_grid_from_config
       procedure :: create_grid_from_file_metadata
@@ -30,17 +28,6 @@ module mapl_VerticalGridFactory_mod
    end type VerticalGridFactory
    
    abstract interface
-      function I_supports_spec(this, spec, rc) result(is_supported)
-         use pfio, only: FileMetadata
-         import VerticalGridFactory
-         import VerticalGridSpec
-         implicit none
-         logical :: is_supported
-         class(VerticalGridFactory), intent(in) :: this
-         class(VerticalGridSpec), intent(in) :: spec
-         integer, optional, intent(out) :: rc
-      end function I_supports_spec
-
       function I_supports_file_metadata(this, file_metadata, rc) result(is_supported)
          use pfio, only: FileMetadata
          import VerticalGridFactory
@@ -89,17 +76,6 @@ module mapl_VerticalGridFactory_mod
          type(FileMetadata), intent(in), target :: file_metadata
          integer, intent(out), optional :: rc
       end function I_create_spec_from_file_metadata
-      
-      function I_create_grid_from_spec(this, spec, rc) result(grid)
-         use mapl_VerticalGrid_mod, only: VerticalGrid
-         use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
-         import VerticalGridFactory
-         implicit none
-         class(VerticalGrid), allocatable :: grid
-         class(VerticalGridFactory), intent(in) :: this
-         class(VerticalGridSpec), intent(in) :: spec
-         integer, intent(out), optional :: rc
-      end function I_create_grid_from_spec
    end interface
 
 contains
@@ -121,7 +97,7 @@ contains
       ! Create spec and then grid from spec
       spec = this%create_spec_from_config(config, _RC)
       deallocate(grid)
-      allocate(grid, source=this%create_grid_from_spec(spec, rc=status))
+      allocate(grid, source=spec%make_grid(rc=status))
       _VERIFY(status)
       
       _RETURN(_SUCCESS)
@@ -142,7 +118,7 @@ contains
       ! Create spec and then grid from spec
       spec = this%create_spec_from_file_metadata(file_metadata, _RC)
       deallocate(grid)
-      grid = this%create_grid_from_spec(spec, _RC)
+      grid = spec%make_grid(_RC)
       
       _RETURN(_SUCCESS)
    end function create_grid_from_file_metadata

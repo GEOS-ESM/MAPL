@@ -6,7 +6,6 @@ module mapl_FieldBundleRead_mod
    use mapl_enums_api
    use mapl_ErrorHandling_mod
    use mapl_GeomPFIO_mod
-   use mapl_GeomFactory_mod, only: GeomFactory
    use mapl_GeomCategorizer_mod
    use mapl_geom_api, only: mapl_GeomManager, mapl_MaplGeom, mapl_GeomSpec, mapl_get_geom_manager, mapl_get_mapl_geom, MAPL_SameGeom
    use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldGet
@@ -69,7 +68,6 @@ contains
       ! Grid geometry info
       type(mapl_MaplGeom), pointer :: mapl_geom
       class(mapl_GeomSpec), allocatable :: geom_spec
-      class(GeomFactory), allocatable   :: geom_factory
       type(FileMetadata), target        :: geom_file_metadata
       type(StringVariableMap), pointer  :: geom_vars
       type(StringVariableMapIterator)   :: geom_var_iter
@@ -101,12 +99,11 @@ contains
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
       _ASSERT(field_count == 0, 'FieldBundlePopulate: bundle must be empty')
 
-      ! Get the GeomSpec and factory from mapl_geom, then use the factory to
-      ! produce file metadata describing this geometry's coordinate variables.
+      ! Get the GeomSpec from mapl_geom, then use it to produce file
+      ! metadata describing this geometry's coordinate variables.
       mapl_geom => mapl_get_mapl_geom(file_geom, _RC)
       geom_spec = mapl_geom%get_spec()
-      geom_factory = mapl_geom%get_factory()
-      geom_file_metadata = geom_factory%make_file_metadata(geom_spec, _RC)
+      geom_file_metadata = geom_spec%make_file_metadata(_RC)
 
       ! Build comma-delimited exclude list: all geometry coordinate variable names + lev/edge + time
       exclude_list = ",time,time_bnds,lev,edge,"

@@ -22,7 +22,6 @@ contains
    subroutine test_automatic_distribution_uniform(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -54,7 +53,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry - should use ESMF_MeshCreate automatic path
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify mesh is correctly distributed
@@ -83,7 +82,6 @@ contains
    subroutine test_custom_distribution_nonuniform(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -117,7 +115,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry - should use ESMF_MeshCreate with custom elementDistgrid
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify mesh distribution matches custom decomposition
@@ -157,7 +155,6 @@ contains
    subroutine test_automatic_distribution_with_remainder(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -191,7 +188,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify distribution
@@ -231,7 +228,6 @@ contains
    subroutine test_single_pe_automatic_distribution(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -252,7 +248,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry - should use automatic path
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify mesh

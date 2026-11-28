@@ -55,14 +55,12 @@ contains
       real(kind=ESMF_KIND_R4), allocatable :: expected_value(:)
       type(ESMF_Field), allocatable :: fieldList(:)
 
-      type(mapl_BasicVerticalGridFactory) :: factory
-
       var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
            short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, &
            fill_value=17.0, _RC)
 
       vspec = mapl_BasicVerticalGridSpec(num_levels=5)
-      vgrid = factory%create_grid_from_spec(vspec, _RC)
+      vgrid = vspec%make_grid(_RC)
       state_item_spec = var_spec%make_StateItemSpec(registry, vertical_grid=vgrid, _RC)
 
       call state_item_spec%create(_RC)

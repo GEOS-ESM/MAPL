@@ -259,15 +259,9 @@ contains
    subroutine force_register(mgr, rc)
       type(VerticalGridManager), pointer, intent(in) :: mgr
       integer, optional, intent(out) :: rc
-      integer :: status
-      class(VerticalGridFactory), pointer :: ptr
 
       if(.not. associated(mgr)) then
          _RETURN(_FAILURE)
-      end if
-      ptr => mgr%find_factory(BasicVerticalGridSpec(1), rc=status)
-      if(.not. associated(ptr) .or. status /= ESMF_SUCCESS) then
-         call mgr%register_factory('Basic', BasicVerticalGridFactory(), _RC)
       end if
 
    end subroutine force_register

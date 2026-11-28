@@ -73,9 +73,8 @@ decomp = MeshDecomposition([1])
 mesh_spec = MeshGeomSpec(4, 1, decomp)
 call mesh_spec%set_mesh_data(node_coords, element_conn, num_element_conn)
 
-! Create ESMF geometry
-factory = MeshGeomFactory()
-geom = factory%make_geom(mesh_spec)
+! Create ESMF geometry: the spec builds its own geom
+geom = mesh_spec%make_geom()
 ```
 
 ### NC4 File Format
@@ -223,21 +222,33 @@ function :: get_point_distribution() result(distribution)
 
 ### MeshGeomFactory
 
+`MeshGeomFactory` only builds a `MeshGeomSpec` from external input; it has
+no role in building the geom, file metadata, or anything else the spec
+already fully describes.
+
 **Factory Methods:**
 ```fortran
 geom_spec = factory%make_spec(hconfig, rc)
 geom_spec = factory%make_spec(file_metadata, rc)
-geom = factory%make_geom(geom_spec, rc)
-file_metadata = factory%make_file_metadata(geom_spec, rc)
 ```
 
 **Support Methods:**
 ```fortran
-logical :: supports_spec(geom_spec)
 logical :: supports_hconfig(hconfig, rc)
 logical :: supports_metadata(file_metadata, rc)
-gridded_dims = factory%make_gridded_dims(geom_spec, rc)
-variable_attributes = factory%make_variable_attributes(geom_spec, rc)
+```
+
+### MeshGeomSpec
+
+`MeshGeomSpec` builds its own `ESMF_Mesh` geometry and the metadata needed
+to write it to a file:
+
+**Methods:**
+```fortran
+geom = geom_spec%make_geom(rc)
+file_metadata = geom_spec%make_file_metadata(rc)
+gridded_dims = geom_spec%make_gridded_dims(rc)
+variable_attributes = geom_spec%make_variable_attributes(rc)
 ```
 
 ## Testing

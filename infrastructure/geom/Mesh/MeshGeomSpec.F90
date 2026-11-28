@@ -30,7 +30,12 @@ module mapl_MeshGeomSpec_mod
       procedure :: supports_hconfig => supports_hconfig_
       procedure :: supports_metadata => supports_metadata_
       generic :: supports => supports_hconfig, supports_metadata
-      
+
+      procedure :: make_geom
+      procedure :: make_file_metadata
+      procedure :: make_gridded_dims
+      procedure :: make_variable_attributes
+
       ! Accessors
       procedure, public :: get_nnodes
       procedure, public :: get_nelements
@@ -91,6 +96,37 @@ module mapl_MeshGeomSpec_mod
          class(MeshGeomSpec), intent(in) :: a
          class(GeomSpec), intent(in) :: b
       end function equal_to
+
+      module function make_geom(this, rc) result(geom)
+         type(ESMF_Geom) :: geom
+         class(MeshGeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function make_geom
+
+      module function make_file_metadata(this, unusable, chunksizes, rc) &
+           result(file_metadata)
+         use mapl_KeywordEnforcer_mod
+         type(FileMetadata) :: file_metadata
+         class(MeshGeomSpec), intent(in) :: this
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: chunksizes(:)
+         integer, optional, intent(out) :: rc
+      end function make_file_metadata
+
+      module function make_gridded_dims(this, rc) result(gridded_dims)
+         use gftl2_StringVector, only: StringVector
+         type(StringVector) :: gridded_dims
+         class(MeshGeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function make_gridded_dims
+
+      module function make_variable_attributes(this, rc) &
+           result(variable_attributes)
+         use mapl_StringDictionary_mod, only: StringDictionary
+         type(StringDictionary) :: variable_attributes
+         class(MeshGeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function make_variable_attributes
    end interface
 
 contains

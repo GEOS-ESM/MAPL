@@ -8,6 +8,9 @@ submodule (mapl_CubedSphereGeomSpec_mod) CubedSphereGeomSpec_smod
    use mapl_Range_mod
    use mapl_ErrorHandling_mod
    use MAPL_Constants
+   use gFTL2_StringVector
+   use mapl_StringDictionary_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 
@@ -294,5 +297,261 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end function supports_metadata_
+
+   module function make_geom(this, rc) result(geom)
+      type(ESMF_Geom) :: geom
+      class(CubedSphereGeomSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Grid) :: grid
+      character(:), allocatable :: name
+
+      if (this%has_name()) name = this%get_name()
+      grid = create_basic_grid(this, name=name, _RC)
+      geom = ESMF_GeomCreate(grid=grid, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_geom
+
+   module function create_basic_grid(spec, unusable, name, rc) result(grid)
+      use mapl_KeywordEnforcer_mod
+      type(ESMF_Grid) :: grid
+      type(CubedSphereGeomSpec), intent(in) :: spec
+      class(KE), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status, im_world, ntiles, i
+      type(CubedSphereDecomposition) :: decomp
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      logical :: not_stretched
+      integer, allocatable :: ims(:,:), jms(:,:), face_ims(:), face_jms(:)
+
+      ntiles = 6
+
+      decomp = spec%get_decomposition()
+      schmidt_parameters = spec%get_schmidt_parameters()
+      im_world = spec%get_im_world()
+      not_stretched = .not. is_stretched_cube(schmidt_parameters)
+      face_ims = decomp%get_x_distribution()
+      face_jms = decomp%get_y_distribution()
+      allocate(ims(size(face_ims),ntiles))
+      allocate(jms(size(face_jms),ntiles))
+      do i=1,ntiles
+         ims(:,i) = face_ims
+         jms(:,i) = face_jms
+      enddo
+
+      if (not_stretched) then
+         grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
+            countsPerDEDim2PTile=jms, &
+            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
+            name=name, _RC)
+      else
+         grid = ESMF_GridCreateCubedSPhere(im_world,countsPerDEDim1PTile=ims, &
+            countsPerDEDim2PTile=jms,  &
+            staggerLocList=[ESMF_STAGGERLOC_CENTER,ESMF_STAGGERLOC_CORNER], coordSys=ESMF_COORDSYS_SPH_RAD, &
+            transformArgs=schmidt_parameters, &
+            name=name, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function create_basic_grid
+
+   module function make_gridded_dims(this, rc) result(gridded_dims)
+      type(StringVector) :: gridded_dims
+      class(CubedSphereGeomSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      gridded_dims = StringVector()
+      call gridded_dims%push_back('Xdim')
+      call gridded_dims%push_back('Ydim')
+      call gridded_dims%push_back('nf')
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end function make_gridded_dims
+
+   module function make_variable_attributes(this, rc) &
+        result(variable_attributes)
+      type(StringDictionary) :: variable_attributes
+      class(CubedSphereGeomSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      variable_attributes = StringDictionary()
+      call variable_attributes%put('coordinates','lons lats')
+      call variable_attributes%put('grid_mapping','cubed_sphere')
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end function make_variable_attributes
+
+   module function make_file_metadata(this, unusable, chunksizes, rc) &
+        result(file_metadata)
+      type(FileMetadata) :: file_metadata
+      class(CubedSphereGeomSpec), intent(in) :: this
+      class(KE), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: chunksizes(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: im, im_world
+      type (Variable) :: v
+      integer, parameter :: MAXLEN=80
+      character(len=MAXLEN) :: gridspec_file_name
+      !!! character(len=5), allocatable :: cvar(:,:)
+      integer, allocatable :: ivar(:,:)
+      integer, allocatable :: ivar2(:,:,:)
+
+      real(ESMF_KIND_R8), allocatable :: temp_coords(:)
+
+      integer :: status, i
+      integer, parameter :: ncontact = 4
+      type(ESMF_CubedSphereTransform_Args) :: schmidt_parameters
+      integer, parameter :: nf = 6
+      logical :: is_stretched
+
+      im_world = this%get_im_world()
+      schmidt_parameters = this%get_schmidt_parameters()
+      is_stretched = is_stretched_cube(schmidt_parameters)
+      ! Grid dimensions
+      call file_metadata%add_dimension('Xdim', im_world, _RC)
+      call file_metadata%add_dimension('Ydim', im_world, _RC)
+      call file_metadata%add_dimension('XCdim', im_world+1, _RC)
+      call file_metadata%add_dimension('YCdim', im_world+1, _RC)
+      call file_metadata%add_dimension('nf', nf, _RC)
+      call file_metadata%add_dimension('ncontact', ncontact, _RC)
+      call file_metadata%add_dimension('orientationStrLen', 5, _RC)
+
+      ! Coordinate variables
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim')
+      call v%add_attribute('long_name', 'Fake Longitude for GrADS Compatibility')
+      !call v%add_attribute('units', 'degrees_east')
+      call v%add_attribute('units', 'index')
+      temp_coords = [(i,i=1,im_world)]
+      call file_metadata%add_variable('Xdim', CoordinateVariable(v, temp_coords))
+      deallocate(temp_coords)
+
+      v = Variable(type=PFIO_REAL64, dimensions='Ydim')
+      call v%add_attribute('long_name', 'Fake Latitude for GrADS Compatibility')
+      !call v%add_attribute('units', 'degrees_north')
+      call v%add_attribute('units', 'index')
+      temp_coords = [(i,i=1,im_world)]
+      call file_metadata%add_variable('Ydim', CoordinateVariable(v, temp_coords))
+      deallocate(temp_coords)
+
+      v = Variable(type=PFIO_INT32, dimensions='nf')
+      call v%add_attribute('long_name','cubed-sphere face')
+      call v%add_attribute('axis','e')
+      call v%add_attribute('grads_dim','e')
+      call v%add_const_value(UnlimitedEntity([1,2,3,4,5,6]))
+      call file_metadata%add_variable('nf',v)
+
+      v = Variable(type=PFIO_INT32, dimensions='ncontact')
+      call v%add_attribute('long_name','number of contact points')
+      call v%add_const_value(UnlimitedEntity([1,2,3,4]))
+      call file_metadata%add_variable('ncontact',v)
+      ! Other variables
+      allocate(ivar(4,6))
+      ivar = reshape( [5, 3, 2, 6, &
+                       1, 3, 4, 6, &
+                       1, 5, 4, 2, &
+                       3, 5, 6, 2, &
+                       3, 1, 6, 4, &
+                       5, 1, 2, 4 ], [ncontact,nf])
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,nf')
+      call v%add_attribute('long_name', 'adjacent face starting from left side going clockwise')
+      call v%add_const_value(UnlimitedEntity(ivar))
+      call file_metadata%add_variable('contacts', v)      !!! At present pfio does not seem to work with string variables
+      !!! allocate(cvar(4,6))
+      !!! cvar =reshape([" Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y", &
+      !!!                " Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y", &
+      !!!                " Y:-X", " X:-Y", " Y:Y ", " X:X ", &
+      !!!                " Y:Y ", " X:X ", " Y:-X", " X:-Y" ], [ncontact,nf])
+      !!! v = Variable(type=PFIO_STRING, dimensions='orientationStrLen,ncontact,nf')
+      !!! call v%add_attribute('long_name', 'orientation of boundary')
+      !!! call v%add_const_value(UnlimitedEntity(cvar))
+      !!! call file_metadata%add_variable('orientation', v)
+
+      im = im_world
+      allocate(ivar2(4,4,6))
+      ivar2 = reshape(            &
+               [[im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im], &
+                [im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im], &
+                [im, im,  1, im,  &
+                  1, im,  1,  1,  &
+                  1, im,  1,  1,  &
+                 im, im,  1, im], &
+                [im,  1, im, im,  &
+                  1,  1, im,  1,  &
+                  1,  1, im,  1,  &
+                 im,  1, im, im] ], [ncontact,ncontact,nf])
+      v = Variable(type=PFIO_INT32, dimensions='ncontact,ncontact,nf')
+      call v%add_attribute('long_name', 'anchor point')
+      call v%add_const_value(UnlimitedEntity(ivar2))
+      call file_metadata%add_variable('anchor', v)
+
+      call file_metadata%add_attribute('grid_mapping_name', 'gnomonic cubed-sphere')
+      call file_metadata%add_attribute('file_format_version', '2.92')
+      call file_metadata%add_attribute('additional_vars', 'contacts,orientation,anchor')
+      write(gridspec_file_name,'("C",i0,"_gridspec.nc4")') im_world
+      call file_metadata%add_attribute('gridspec_file', trim(gridspec_file_name))
+
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call file_metadata%add_variable('lons',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='Xdim,Ydim,nf')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call file_metadata%add_variable('lats',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','longitude')
+      call v%add_attribute('units','degrees_east')
+      call file_metadata%add_variable('corner_lons',v)
+
+      v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim,nf')
+      call v%add_attribute('long_name','latitude')
+      call v%add_attribute('units','degrees_north')
+      call file_metadata%add_variable('corner_lats',v)
+
+      if (is_stretched) then
+         call file_metadata%add_attribute('STRETCH_FACTOR',schmidt_parameters%stretch_factor)
+         call file_metadata%add_attribute('TARGET_LON',schmidt_parameters%target_lon)
+         call file_metadata%add_attribute('TARGET_LAT',schmidt_parameters%target_lat)
+      end if
+
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(chunksizes)
+   end function make_file_metadata
+
+   logical function is_stretched_cube(schmidt_parameters) result(is_stretched)
+      type(ESMF_CubedSphereTransform_Args), intent(in) :: schmidt_parameters
+
+      is_stretched = (schmidt_parameters%target_lat /= undef_schmidt) .and. &
+                          (schmidt_parameters%target_lon /= undef_schmidt) .and. &
+                          (schmidt_parameters%stretch_factor /= undef_schmidt)
+   end function is_stretched_cube
 
 end submodule CubedSphereGeomSpec_smod
