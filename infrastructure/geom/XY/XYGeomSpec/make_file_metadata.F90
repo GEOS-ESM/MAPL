@@ -1,7 +1,8 @@
 #include "MAPL.h"
 
-submodule (mapl_XYGeomFactory_mod) typesafe_make_file_metadata_smod
+submodule (mapl_XYGeomSpec_mod) make_file_metadata_smod
    use mapl_ErrorHandling_mod
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use pfio
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL64
@@ -9,10 +10,11 @@ submodule (mapl_XYGeomFactory_mod) typesafe_make_file_metadata_smod
 
 contains
 
-   module function typesafe_make_file_metadata(spec, unusable, chunksizes, rc) result(file_metadata)
+   module function make_file_metadata(this, unusable, chunksizes, rc) &
+        result(file_metadata)
       use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
-      type(XYGeomSpec), intent(in) :: spec
+      class(XYGeomSpec), intent(in) :: this
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
@@ -21,13 +23,13 @@ contains
       type(Variable) :: v
       real(kind=REAL64), allocatable :: fake_coord(:)
 
-      im = spec%get_im_world()
-      jm = spec%get_jm_world()
+      im = this%get_im_world()
+      jm = this%get_jm_world()
 
       call file_metadata%add_dimension('Xdim', im)
       call file_metadata%add_dimension('Ydim', jm)
 
-      if (spec%get_has_corners()) then
+      if (this%get_has_corners()) then
          call file_metadata%add_dimension('XCdim', im+1)
          call file_metadata%add_dimension('YCdim', jm+1)
       end if
@@ -66,7 +68,7 @@ contains
       call v%add_attribute('units', 'degrees_north')
       call file_metadata%add_variable('lats', v)
 
-      if (spec%get_has_corners()) then
+      if (this%get_has_corners()) then
          v = Variable(type=PFIO_REAL64, dimensions='XCdim,YCdim', chunksizes=chunksizes)
          call v%add_attribute('long_name', 'longitude')
          call v%add_attribute('units', 'degrees_east')
@@ -82,6 +84,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function typesafe_make_file_metadata
+   end function make_file_metadata
 
-end submodule typesafe_make_file_metadata_smod
+end submodule make_file_metadata_smod

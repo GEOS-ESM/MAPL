@@ -1,8 +1,7 @@
 #include "MAPL.h"
 
-submodule (mapl_EASEGeomFactory_mod) create_basic_grid_smod
+submodule (mapl_EASEGeomSpec_mod) create_basic_grid_smod
    use mapl_GeomSpec_mod
-   use mapl_EASEGeomSpec_mod
    use mapl_EASEDecomposition_mod
    use mapl_ErrorHandling_mod
    use esmf

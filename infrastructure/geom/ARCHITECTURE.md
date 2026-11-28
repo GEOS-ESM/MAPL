@@ -2,7 +2,7 @@
 
 **Audience:** coding agents and developers working on `infrastructure/geom` in MAPL.
 **Describes:** the MAPL3 line, branch `develop`.
-**Verified against:** `MAPL` @ `1a5a5acf` (2026-11-06).
+**Verified against:** `MAPL` @ `47e89a375` (2026-11-28).
 **Placement:** as in the GEOSgcm fixture (`components.yaml` @ `56ce4e8`, GEOSgcm `release/MAPL-v3`): key `MAPL`, checked out at `src/Shared/@MAPL`.
 Other fixtures (for example GEOSadas, GEOSldas) may place this repository
 elsewhere; paths inside this repository do not change.
@@ -38,7 +38,7 @@ the routine (for example `GeomManager/get_mapl_geom_from_spec.F90`).
 | `GeomFactory.F90` | `mapl_GeomFactory_mod` | Abstract `GeomFactory` (see section 4) |
 | `GeomId.F90` | `mapl_GeomId_mod` | `GeomId` (integer, `is_assigned` when positive), `GeomIdManager` counter, `get_geom_id_manager` |
 | `GeomUtilities.F90` | `mapl_GeomUtilities_mod` | `GeomSetId`, `GeomGetId`, `SameGeom`; the id is stored in the `ESMF_Geom` info under key `mapl/geom/id` |
-| `MaplGeom.F90`, `MaplGeom/` | `mapl_MaplGeom_mod` | Cached record: spec, `ESMF_Geom`, factory, id, file metadata, gridded dimensions, variable attributes, vector bases (`get_basis`) |
+| `MaplGeom.F90`, `MaplGeom/` | `mapl_MaplGeom_mod` | Cached record: spec, `ESMF_Geom`, id, file metadata, gridded dimensions, variable attributes, vector bases (`get_basis`) |
 | `GeomManager.F90`, `GeomManager/` | `mapl_GeomManager_mod` | Singleton registry and cache (section 5) |
 | `UnownedGeom.F90` | `mapl_UnownedGeom_mod` | `get_unowned_geom`: for a geom that may be owned by an `ESMF_FieldBundle`, return the `GeomManager` geom with the same id and an exactly matching grid, else a new wrapper around the same Grid/Mesh |
 | `GeomFactoryVector.F90`, `GeomSpecVector.F90`, `IntegerMaplGeomMap.F90` | gFTL containers used by the manager | |
@@ -89,18 +89,25 @@ Typical use by other layers:
 
 ## 4. Specifications and factories
 
-A `GeomSpec` holds only the parameters that define a geometry and can be
-compared with `==` (`GeomSpec.F90`, `equal_to`). A `GeomFactory`
-(`GeomFactory.F90`) has deferred procedures:
+A `GeomSpec` holds the parameters that define a geometry, can be compared
+with `==` (`GeomSpec.F90`, `equal_to`), and builds its own geometry and
+file metadata — four deferred procedures live on `GeomSpec` itself, not on
+the factory:
+
+| Procedure | Purpose |
+|---|---|
+| `make_geom` | Build the `ESMF_Geom` this spec describes |
+| `make_file_metadata` | Metadata (dimensions, coordinate variables) to write the geometry to a file |
+| `make_gridded_dims` | Names of the horizontal dimensions |
+| `make_variable_attributes` | Attributes for the geometry's coordinate variables |
+
+A `GeomFactory` (`GeomFactory.F90`) only builds a spec from external input —
+it has no role in building the geom itself:
 
 | Procedure | Purpose |
 |---|---|
 | `make_spec` (`make_geom_spec_from_hconfig`, `make_geom_spec_from_metadata`) | Build a spec from an `ESMF_HConfig` node or from pFIO `FileMetadata` |
-| `supports` (`supports_spec`, `supports_hconfig`, `supports_metadata`) | Whether this factory handles the spec, node or metadata |
-| `make_geom` | Build the `ESMF_Geom` from a spec |
-| `make_file_metadata` | Metadata (dimensions, coordinate variables) to write the geometry to a file |
-| `make_gridded_dims` | Names of the horizontal dimensions |
-| `make_variable_attributes` | Attributes for the geometry's coordinate variables |
+| `supports` (`supports_hconfig`, `supports_metadata`) | Whether this factory handles the hconfig node or metadata |
 
 Kinds, with the configuration key that selects them (`class`, in each
 `supports_hconfig`):
@@ -138,9 +145,10 @@ Sequence for `get_mapl_geom(hconfig)` (`GeomManager/get_mapl_geom_from_hconfig.F
    vector for a spec equal to the request (`==`). If found, returns the cached
    `MaplGeom` (a pointer).
 3. Otherwise `add_mapl_geom` (`add_mapl_geom.F90`): `make_mapl_geom`
-   (`make_mapl_geom_from_spec.F90`) picks the first factory that supports the
-   spec, calls its `make_geom`, `make_file_metadata`, `make_gridded_dims` and
-   `make_variable_attributes`, and builds a `MaplGeom`. A new id comes from
+   (`make_mapl_geom_from_spec.F90`) calls the spec's own `make_geom`,
+   `make_file_metadata`, `make_gridded_dims` and `make_variable_attributes`,
+   and builds a `MaplGeom`. No factory lookup is involved — the spec builds
+   itself. A new id comes from
    the `GeomIdManager` (counter from 1; assertion "Too many geoms created." if
    above `MAX_ID` = 10000), is written into the `ESMF_Geom` info
    (`MaplGeom/set_id.F90`, `GeomSetId`), and spec, id and geom are stored.

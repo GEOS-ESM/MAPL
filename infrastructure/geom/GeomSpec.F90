@@ -19,6 +19,12 @@ module mapl_GeomSpec_mod
       generic :: get_horz_ij_index => get_horz_ij_index_r4, get_horz_ij_index_r8
       generic :: operator(==) => equal_to
 
+      procedure(I_make_geom), deferred :: make_geom
+      procedure(I_make_file_metadata), deferred :: make_file_metadata
+      procedure(I_make_gridded_dims), deferred :: make_gridded_dims
+      procedure(I_make_variable_attributes), deferred :: &
+           make_variable_attributes
+
       procedure, non_overridable :: set_name
       procedure, non_overridable :: get_name
       procedure, non_overridable :: has_name
@@ -53,6 +59,46 @@ module mapl_GeomSpec_mod
          type(ESMF_Geom), optional, intent(in) :: geom
          integer, optional, intent(out) :: rc
       end subroutine I_get_horz_ij_index_r8
+
+      function I_make_geom(this, rc) result(geom)
+         use ESMF, only: ESMF_Geom
+         import GeomSpec
+         implicit none
+         type(ESMF_Geom) :: geom
+         class(GeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function I_make_geom
+
+      function I_make_file_metadata(this, unusable, chunksizes, rc) &
+           result(file_metadata)
+         use pfio_FileMetadataMod
+         use mapl_KeywordEnforcer_mod
+         import GeomSpec
+         implicit none
+         type(FileMetadata) :: file_metadata
+         class(GeomSpec), intent(in) :: this
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(in) :: chunksizes(:)
+         integer, optional, intent(out) :: rc
+      end function I_make_file_metadata
+
+      function I_make_gridded_dims(this, rc) result(gridded_dims)
+         use gFTL2_StringVector
+         import GeomSpec
+         implicit none
+         type(StringVector) :: gridded_dims
+         class(GeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function I_make_gridded_dims
+
+      function I_make_variable_attributes(this, rc) result(variable_attributes)
+         use mapl_StringDictionary_mod
+         import GeomSpec
+         implicit none
+         type(StringDictionary) :: variable_attributes
+         class(GeomSpec), intent(in) :: this
+         integer, optional, intent(out) :: rc
+      end function I_make_variable_attributes
    end interface
 
 contains

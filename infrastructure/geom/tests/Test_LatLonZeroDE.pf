@@ -47,7 +47,7 @@ contains
 
       ! This is the main regression check: constructing the geom used to
       ! fail (or crash) for the PETs that end up with no local DE.
-      geom = factory%make_geom(geom_spec, rc=status)
+      geom = geom_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       call ESMF_GeomGet(geom, grid=grid, rc=status)

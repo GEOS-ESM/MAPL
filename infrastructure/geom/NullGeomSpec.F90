@@ -18,6 +18,10 @@ module mapl_NullGeomSpec_mod
       procedure :: equal_to
       procedure :: get_horz_ij_index_r4
       procedure :: get_horz_ij_index_r8
+      procedure :: make_geom
+      procedure :: make_file_metadata
+      procedure :: make_gridded_dims
+      procedure :: make_variable_attributes
    end type NullGeomSpec
 
    type(NullGeomSpec), protected :: NULL_GEOM_SPEC
@@ -71,5 +75,54 @@ contains
       _UNUSED_DUMMY(lon)
       _UNUSED_DUMMY(lat)
    end subroutine get_horz_ij_index_r8
+
+   function make_geom(this, rc) result(geom)
+      class(NullGeomSpec), intent(in) :: this
+      type(ESMF_Geom) :: geom
+      integer, optional, intent(out) :: rc
+
+      _FAIL('make_geom is not supported for NullGeomSpec')
+
+      _UNUSED_DUMMY(this)
+   end function make_geom
+
+   function make_file_metadata(this, unusable, chunksizes, rc) &
+        result(file_metadata)
+      use pfio_FileMetadataMod
+      use mapl_KeywordEnforcer_mod
+      class(NullGeomSpec), intent(in) :: this
+      type(FileMetadata) :: file_metadata
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: chunksizes(:)
+      integer, optional, intent(out) :: rc
+
+      _FAIL('make_file_metadata is not supported for NullGeomSpec')
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(chunksizes)
+   end function make_file_metadata
+
+   function make_gridded_dims(this, rc) result(gridded_dims)
+      use gFTL2_StringVector
+      class(NullGeomSpec), intent(in) :: this
+      type(StringVector) :: gridded_dims
+      integer, optional, intent(out) :: rc
+
+      _FAIL('make_gridded_dims is not supported for NullGeomSpec')
+
+      _UNUSED_DUMMY(this)
+   end function make_gridded_dims
+
+   function make_variable_attributes(this, rc) result(variable_attributes)
+      use mapl_StringDictionary_mod
+      class(NullGeomSpec), intent(in) :: this
+      type(StringDictionary) :: variable_attributes
+      integer, optional, intent(out) :: rc
+
+      _FAIL('make_variable_attributes is not supported for NullGeomSpec')
+
+      _UNUSED_DUMMY(this)
+   end function make_variable_attributes
 
 end module mapl_NullGeomSpec_mod

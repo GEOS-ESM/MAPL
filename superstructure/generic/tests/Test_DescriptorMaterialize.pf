@@ -38,8 +38,8 @@ module Test_DescriptorMaterialize
         VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, operator(==)
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_vertical_grid_api, only: mapl_get_vertical_grid_manager, &
-        mapl_VerticalGridManager, mapl_VerticalGridFactory, &
-        mapl_BasicVerticalGridSpec, mapl_BasicVerticalGridFactory
+        mapl_VerticalGridManager, &
+        mapl_BasicVerticalGridSpec
    use mapl_QuantityType_mod, only: QUANTITY_TEMPERATURE, operator(==)
    use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
    use mapl_ConservationMetadata_mod, only: ConservationMetadata, operator(==)
@@ -225,14 +225,8 @@ contains
       class(VerticalGrid), pointer, intent(out) :: vgrid
       integer, optional, intent(out) :: rc
       type(mapl_VerticalGridManager), pointer :: manager
-      class(mapl_VerticalGridFactory), pointer :: factory
       integer :: status
       manager => mapl_get_vertical_grid_manager(_RC)
-      factory => manager%find_factory(mapl_BasicVerticalGridSpec(1), _RC)
-      if (.not. associated(factory)) then
-         call manager%register_factory('Basic', &
-              mapl_BasicVerticalGridFactory(), _RC)
-      end if
       vgrid => manager%add_grid(mapl_BasicVerticalGridSpec(num_levels=4), _RC)
       _RETURN(_SUCCESS)
    end subroutine registered_vgrid

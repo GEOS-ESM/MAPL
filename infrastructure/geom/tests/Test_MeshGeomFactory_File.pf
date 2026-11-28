@@ -22,7 +22,6 @@ contains
    subroutine test_make_geom_from_file_simple_quad(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -44,7 +43,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry - this should read data from file
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify it's a mesh geometry
@@ -73,7 +72,6 @@ contains
    subroutine test_make_geom_from_file_triangle(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -94,7 +92,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify mesh properties
@@ -147,7 +145,7 @@ contains
       @assertTrue(allocated(geom_spec))
 
       ! Create ESMF geometry from spec
-      geom = factory%make_geom(geom_spec, rc=status)
+      geom = geom_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify mesh properties
@@ -172,7 +170,6 @@ contains
    subroutine test_make_geom_from_metadata_with_filename(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(ESMF_Geom) :: geom
       type(ESMF_Mesh) :: mesh
@@ -204,7 +201,7 @@ contains
       @assert_that(trim(retrieved_filename), is(trim(filename)))
 
       ! Create ESMF geometry - should read data from file
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify mesh properties
@@ -266,7 +263,6 @@ contains
    subroutine test_make_geom_4pe_four_quads(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -298,7 +294,7 @@ contains
       @assert_that(status, is(0))
 
        ! Create the ESMF geometry
-       geom = factory%make_geom(mesh_spec, rc=status)
+       geom = mesh_spec%make_geom(rc=status)
        @assert_that(status, is(0))
 
        ! Get the mesh
@@ -331,7 +327,6 @@ contains
    subroutine test_make_geom_4pe_eight_elements(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -363,7 +358,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Get the mesh
@@ -395,7 +390,6 @@ contains
    subroutine test_make_geom_4pe_uneven_distribution(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -429,7 +423,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Get the mesh
@@ -507,7 +501,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create ESMF geometry
-      geom = factory%make_geom(geom_spec, rc=status)
+      geom = geom_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Verify mesh is distributed
@@ -537,7 +531,6 @@ contains
    subroutine test_make_geom_4pe_mixed_elements(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -568,7 +561,7 @@ contains
       @assert_that(status, is(0))
 
       ! Create the ESMF geometry
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       ! Get the mesh
@@ -597,7 +590,6 @@ contains
    subroutine test_make_geom_4pe_element_distribution(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec
       type(MeshDecomposition) :: decomp
       type(ESMF_Geom) :: geom
@@ -650,7 +642,7 @@ contains
       end select
 
       ! Create geometry and verify distribution matches
-      geom = factory%make_geom(mesh_spec, rc=status)
+      geom = mesh_spec%make_geom(rc=status)
       @assert_that(status, is(0))
 
       call ESMF_GeomGet(geom, mesh=mesh, rc=status)

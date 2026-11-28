@@ -33,7 +33,6 @@ contains
       type(ESMF_HConfig) :: config
       integer :: i
       type(mapl_BasicVerticalGridSpec) :: vspec
-      type(mapl_BasicVerticalGridFactory) :: factory
       class(mapl_VerticalGrid), allocatable :: vertical_grid
       type(ESMF_Clock) :: clock
       type(ESMF_Time) :: t
@@ -54,7 +53,7 @@ contains
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       call MAPL_GridCompSetGeom(outer_gc, grid, _RC)
       vspec = mapl_BasicVerticalGridSpec(num_levels=5)
-      vertical_grid = factory%create_grid_from_spec(vspec, _RC)
+      vertical_grid = vspec%make_grid(_RC)
       call MAPL_GridCompSetVerticalGrid(outer_gc, vertical_grid, _RC)
 
       associate (import => states%importState, export => states%exportState)

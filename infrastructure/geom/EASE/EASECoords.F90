@@ -2,7 +2,7 @@
 
 module mapl_EASECoords_mod
    ! Private helper module: coordinate computation for EASE grids.
-   ! Used by EASEGeomFactory submodules; not part of the public API.
+   ! Used by EASEGeomSpec submodules; not part of the public API.
 
    use mapl_EASEConversion_mod
    use mapl_EASEGeomSpec_mod

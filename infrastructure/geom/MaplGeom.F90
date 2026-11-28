@@ -4,7 +4,6 @@ module mapl_MaplGeom_mod
    use mapl_GeomSpec_mod
    use mapl_GeomId_mod, only: GeomId
    use mapl_VectorBasis_mod
-   use mapl_GeomFactory_mod
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
@@ -32,7 +31,6 @@ module mapl_MaplGeom_mod
       private
       class(GeomSpec), allocatable :: spec
       type(ESMF_Geom) :: geom
-      class(GeomFactory), allocatable :: factory
       type(GeomId) :: geom_id
       type(FileMetadata) :: file_metadata
       type(StringVector) :: gridded_dims ! center staggered
@@ -45,7 +43,6 @@ module mapl_MaplGeom_mod
       procedure :: get_id
       procedure :: get_spec
       procedure :: get_geom
-      procedure :: get_factory
 !!$      procedure :: get_grid
       procedure :: get_file_metadata
       procedure :: get_gridded_dims
@@ -60,11 +57,11 @@ module mapl_MaplGeom_mod
    end interface MaplGeom
 
    interface 
-      module function new_MaplGeom(spec, geom, factory, file_metadata, gridded_dims, variable_attributes) result(mapl_geom)
+      module function new_MaplGeom(spec, geom, file_metadata, gridded_dims, &
+           variable_attributes) result(mapl_geom)
          class(GeomSpec), intent(in) :: spec
          type(MaplGeom) :: mapl_geom
          type(ESMF_Geom), intent(in) :: geom
-         class(GeomFactory), intent(in) :: factory
          type(FileMetadata), optional, intent(in) :: file_metadata
          type(StringVector), optional, intent(in) :: gridded_dims
          type(StringDictionary), optional, intent(in) :: variable_attributes
@@ -90,11 +87,6 @@ module mapl_MaplGeom_mod
          type(ESMF_Geom) :: geom
          class(MaplGeom), intent(in) :: this
       end function get_geom
-
-      module function get_factory(this) result(factory)
-         class(GeomFactory), allocatable :: factory
-         class(MaplGeom), intent(in) :: this
-      end function get_factory
 
       module function get_file_metadata(this) result(file_metadata)
          type(FileMetadata) :: file_metadata

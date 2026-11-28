@@ -1,15 +1,9 @@
 #include "MAPL.h"
-submodule (mapl_LatLonGeomFactory_mod) fill_coordinates_smod
-   use mapl_GeomSpec_mod
+submodule (mapl_LatLonGeomSpec_mod) fill_coordinates_smod
    use mapl_LonAxis_mod
    use mapl_LatAxis_mod
-   use mapl_LatLonDecomposition_mod
-   use mapl_LatLonGeomSpec_mod
-   use mapl_MinMax_mod
    use mapl_ErrorHandling_mod
    use MAPL_Constants
-   use pFIO
-   use gFTL2_StringVector
    use esmf
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_GridAccessors_mod, only: grid_has_de, grid_get_interior

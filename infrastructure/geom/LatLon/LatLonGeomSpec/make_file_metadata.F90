@@ -1,26 +1,22 @@
 #include "MAPL.h"
-submodule (mapl_LatLonGeomFactory_mod) typesafe_make_file_metadata_smod
-   use mapl_GeomSpec_mod
+
+submodule (mapl_LatLonGeomSpec_mod) make_file_metadata_smod
+
    use mapl_LonAxis_mod
    use mapl_LatAxis_mod
-   use mapl_LatLonDecomposition_mod
-   use mapl_LatLonGeomSpec_mod
-   use mapl_MinMax_mod
    use mapl_ErrorHandling_mod
-   use MAPL_Constants
    use pFIO
-   use gFTL2_StringVector
-   use esmf
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
-   implicit none (type, external)
 
+   implicit none (type, external)
 
 contains
 
-   module function typesafe_make_file_metadata(geom_spec, unusable, chunksizes, rc) result(file_metadata)
+   module function make_file_metadata(this, unusable, chunksizes, rc) &
+        result(file_metadata)
       use mapl_KeywordEnforcer_mod
       type(FileMetadata) :: file_metadata
-      type(LatLonGeomSpec), intent(in) :: geom_spec
+      class(LatLonGeomSpec), intent(in) :: this
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(in) :: chunksizes(:)
       integer, optional, intent(out) :: rc
@@ -29,9 +25,9 @@ contains
       type(LatAxis) :: lat_axis
       type(Variable) :: v
 
-      lon_axis = geom_spec%get_lon_axis()
-      lat_axis = geom_spec%get_lat_axis()
-      
+      lon_axis = this%get_lon_axis()
+      lat_axis = this%get_lat_axis()
+
       call file_metadata%add_dimension('lon', lon_axis%get_extent())
       call file_metadata%add_dimension('lat', lat_axis%get_extent())
 
@@ -40,7 +36,7 @@ contains
       call v%add_attribute('long_name', 'longitude')
       call v%add_attribute('units', 'degrees_east')
       call v%add_const_value(UnlimitedEntity(lon_axis%get_centers()))
-      
+
       call file_metadata%add_variable('lon', v)
 
       v = Variable(type=PFIO_REAL64, dimensions='lat', chunksizes=chunksizes)
@@ -51,6 +47,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function typesafe_make_file_metadata
+   end function make_file_metadata
 
-end submodule typesafe_make_file_metadata_smod
+end submodule make_file_metadata_smod

@@ -6,6 +6,7 @@ module mapl_EASEGeomSpec_mod
    use mapl_EASEConversion_mod
    use mapl_EASEDecomposition_mod
    use mapl_ErrorHandling_mod
+   use pfio, only: FileMetadata
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_Geom
 
    implicit none
@@ -32,6 +33,11 @@ module mapl_EASEGeomSpec_mod
       procedure :: supports_hconfig  => supports_hconfig_
       procedure :: supports_metadata => supports_metadata_
       generic :: supports => supports_hconfig, supports_metadata
+
+      procedure :: make_geom
+      procedure :: make_file_metadata
+      procedure :: make_gridded_dims
+      procedure :: make_variable_attributes
 
       ! Methods (compute from grid_name on demand)
       procedure :: get_grid_name
@@ -106,6 +112,57 @@ interface
       type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional,   intent(out) :: rc
    end subroutine get_horz_ij_index_r8
+
+   module function make_geom(this, rc) result(geom)
+      use esmf, only: ESMF_Geom
+      type(ESMF_Geom) :: geom
+      class(EASEGeomSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+   end function make_geom
+
+   module function create_basic_grid(spec, unusable, name, rc) result(grid)
+      use esmf, only: ESMF_Grid
+      use mapl_KeywordEnforcer_mod
+      type(ESMF_Grid) :: grid
+      type(EASEGeomSpec), intent(in) :: spec
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+   end function create_basic_grid
+
+   module subroutine fill_coordinates(spec, grid, unusable, rc)
+      use esmf, only: ESMF_Grid
+      use mapl_KeywordEnforcer_mod
+      type(EASEGeomSpec), intent(in) :: spec
+      type(ESMF_Grid), intent(inout) :: grid
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+   end subroutine fill_coordinates
+
+   module function make_file_metadata(this, unusable, chunksizes, rc) &
+        result(file_metadata)
+      use mapl_KeywordEnforcer_mod
+      type(FileMetadata) :: file_metadata
+      class(EASEGeomSpec), intent(in) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(in) :: chunksizes(:)
+      integer, optional, intent(out) :: rc
+   end function make_file_metadata
+
+   module function make_gridded_dims(this, rc) result(gridded_dims)
+      use gFTL2_StringVector
+      type(StringVector) :: gridded_dims
+      class(EASEGeomSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+   end function make_gridded_dims
+
+   module function make_variable_attributes(this, rc) &
+        result(variable_attributes)
+      use mapl_StringDictionary_mod
+      type(StringDictionary) :: variable_attributes
+      class(EASEGeomSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+   end function make_variable_attributes
 
 end interface
 

@@ -19,7 +19,6 @@ contains
     subroutine test_make_file_metadata_from_spec(this)
        class(ESMF_TestMethod), intent(inout) :: this
        
-       type(MeshGeomFactory) :: factory
        type(MeshGeomSpec) :: mesh_spec
        type(FileMetadata) :: file_metadata
        type(ESMF_HConfig) :: hconfig
@@ -47,7 +46,7 @@ contains
        @assert_that(status, is(0))
        
        ! Generate file metadata
-       file_metadata = factory%make_file_metadata(mesh_spec, rc=status)
+       file_metadata = mesh_spec%make_file_metadata(rc=status)
        @assert_that(status, is(0))
        
        ! Verify that source_file is set to the mesh filename
@@ -67,7 +66,6 @@ contains
    subroutine test_metadata_roundtrip(this)
       class(ESMF_TestMethod), intent(inout) :: this
       
-      type(MeshGeomFactory) :: factory
       type(MeshGeomSpec) :: mesh_spec1, mesh_spec2
       type(FileMetadata) :: file_metadata
       type(ESMF_HConfig) :: hconfig
@@ -94,7 +92,7 @@ contains
       @assert_that(status, is(0))
       
       ! Generate metadata
-      file_metadata = factory%make_file_metadata(mesh_spec1, rc=status)
+      file_metadata = mesh_spec1%make_file_metadata(rc=status)
       @assert_that(status, is(0))
       
       ! Create second spec from metadata (need to pass filename)
