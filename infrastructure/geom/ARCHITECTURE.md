@@ -199,10 +199,21 @@ generic layer (see the generic-layer documents in `docs/`).
 - `initialize` (used by the singleton; also callable on a constructed
   manager) and `new_GeomManager` register different factory sets; only `new_GeomManager` includes LocStream; no
   routine in the tree registers `MeshGeomFactory` with the manager.
-- `delete_mapl_geom` erases the map entry but not the spec or id vectors;
-  `get_mapl_geom_from_spec` indexes the map by the spec's position
-  (equal to the id while no other id source is used).
-  *Inferred:* a spec found after deletion would fail in the map lookup.
+- `delete_mapl_geom` erases the map entry but leaves the spec and id
+  vectors populated. `add_mapl_geom` still finds the deleted spec and
+  refuses it as "already exists". *Inferred:* `get_mapl_geom_from_spec`
+  also still finds it, so the map lookup on the erased id fails instead
+  of building a new geom (no test exercises this; the return code of the
+  gFTL `at(key, rc)` on an erased key was not confirmed).
+- `LocStreamGeomSpec` `equal_to` compares only `npoints` (and that the
+  other spec is a `LocStreamGeomSpec`). It ignores the stored `lons` and
+  `lats` and the decomposition, so two point sets of the same size with
+  different coordinates compare equal and share one geom in the manager.
+- Each call to `read_bundle` (`infrastructure/geom_io/FieldBundleRead.F90`) creates a new
+  vertical grid: it calls `create_grid_from_file_metadata` on the vertical
+  grid manager, which always adds the grid under a fresh id
+  (`infrastructure/vertical/vertical_grid/VerticalGridManager.F90`, no
+  lookup of an equal existing grid), so repeated reads accumulate grids.
 - `Test_LatLonDistribution.pf` is not listed in `geom/tests/CMakeLists.txt`.
 - `mapl_GeomGetHorzIJIndex` and `GeomGet` share the module
   `mapl_GeomAccessors_mod` whose source file is `GeomGet.F90`; the grid

@@ -219,4 +219,185 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_get_horz_ij_index_zero_points
 
+   ! Builds a spec from a YAML string; the hconfig is destroyed before return.
+   function spec_from_content(content, rc) result(spec)
+      type(CubedSphereGeomSpec) :: spec
+      character(len=*), intent(in) :: content
+      integer, intent(out) :: rc
+
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      rc = 0
+      hconfig = ESMF_HConfigCreate(content=content, rc=status)
+      if (status /= 0) then
+         rc = status
+         return
+      end if
+      spec = make_CubedSphereGeomSpec(hconfig, rc=status)
+      if (status /= 0) rc = status
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      if (status /= 0) rc = status
+   end function spec_from_content
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_equal_identical_unstretched(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(CubedSphereGeomSpec) :: spec_a, spec_b
+      character(len=*), parameter :: content = '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}'
+      integer :: status
+      logical :: same
+
+      spec_a = spec_from_content(content, status)
+      @assert_that(status, is(0))
+      spec_b = spec_from_content(content, status)
+      @assert_that(status, is(0))
+
+      same = (spec_a == spec_b)
+      @assertTrue(same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_equal_identical_unstretched
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_equal_identical_stretched(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(CubedSphereGeomSpec) :: spec_a, spec_b
+      character(len=*), parameter :: content = &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 2.5, target_lat: 35.0, target_lon: 280.0}'
+      integer :: status
+      logical :: same
+
+      spec_a = spec_from_content(content, status)
+      @assert_that(status, is(0))
+      spec_b = spec_from_content(content, status)
+      @assert_that(status, is(0))
+
+      same = (spec_a == spec_b)
+      @assertTrue(same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_equal_identical_stretched
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_unequal_stretch_factor_only(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(CubedSphereGeomSpec) :: spec_a, spec_b
+      integer :: status
+      logical :: same
+
+      spec_a = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 2.5, target_lat: 35.0, target_lon: 280.0}', status)
+      @assert_that(status, is(0))
+      spec_b = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 3.0, target_lat: 35.0, target_lon: 280.0}', status)
+      @assert_that(status, is(0))
+
+      same = (spec_a == spec_b)
+      @assertFalse(same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unequal_stretch_factor_only
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_unequal_target_lat_only(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(CubedSphereGeomSpec) :: spec_a, spec_b
+      integer :: status
+      logical :: same
+
+      spec_a = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 2.5, target_lat: 35.0, target_lon: 280.0}', status)
+      @assert_that(status, is(0))
+      spec_b = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 2.5, target_lat: 40.0, target_lon: 280.0}', status)
+      @assert_that(status, is(0))
+
+      same = (spec_a == spec_b)
+      @assertFalse(same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unequal_target_lat_only
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_unequal_target_lon_only(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(CubedSphereGeomSpec) :: spec_a, spec_b
+      integer :: status
+      logical :: same
+
+      spec_a = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 2.5, target_lat: 35.0, target_lon: 280.0}', status)
+      @assert_that(status, is(0))
+      spec_b = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 2.5, target_lat: 35.0, target_lon: 290.0}', status)
+      @assert_that(status, is(0))
+
+      same = (spec_a == spec_b)
+      @assertFalse(same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unequal_target_lon_only
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_unequal_stretched_vs_unstretched(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(CubedSphereGeomSpec) :: spec_a, spec_b
+      integer :: status
+      logical :: same
+
+      spec_a = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}', status)
+      @assert_that(status, is(0))
+      spec_b = spec_from_content( &
+           '{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1, ' // &
+           'stretch_factor: 2.5, target_lat: 35.0, target_lon: 280.0}', status)
+      @assert_that(status, is(0))
+
+      same = (spec_a == spec_b)
+      @assertFalse(same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unequal_stretched_vs_unstretched
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   subroutine test_equal_same_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: hconfig
+      type(CubedSphereGeomSpec) :: spec_a, spec_b
+      integer :: status
+      logical :: same
+
+      hconfig = ESMF_HConfigCreate( &
+           content='{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}', rc=status)
+      @assert_that(status, is(0))
+
+      spec_a = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+      spec_b = make_CubedSphereGeomSpec(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      same = (spec_a == spec_b)
+      @assertTrue(same)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_equal_same_hconfig
+
 end module Test_CubedSphereGeomSpec

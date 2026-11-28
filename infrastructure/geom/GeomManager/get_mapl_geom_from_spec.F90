@@ -14,13 +14,15 @@ contains
 
       integer :: status
       type(GeomSpecVectorIterator) :: iter
-      integer :: idx
+      integer :: idx, id
 
       associate (b => this%geom_specs%begin(), e => this%geom_specs%end())
         iter = find(first=b, last=e, value=geom_spec)
         if (iter /= this%geom_specs%end()) then
            idx = iter - b + 1  ! Fortran index starts at 1
-           mapl_geom => this%mapl_geoms%at(idx, _RC)
+           ! mapl_geoms is keyed by geom id, which geom_ids holds per position.
+           id = this%geom_ids%of(idx)
+           mapl_geom => this%mapl_geoms%at(id, _RC)
            _RETURN(_SUCCESS)
         end if
       end associate

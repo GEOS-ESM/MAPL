@@ -2,6 +2,7 @@
 module Test_GeomManager
    use pfunit
    use mapl_geom_api
+   use mapl_GeomId_mod, only: GeomId, operator(==), operator(/=)
    use mapl_LatLonTestHelper_mod
    use pfio, only: FileMetadata
    use esmf_TestMethod_mod ! mapl
@@ -249,5 +250,89 @@ contains
       @assertFalse(is_present)
 
    end subroutine test_do_not_reuse_geom_outside_tolerance
+
+   @test(type=ESMF_TestMethod, npes=[6])
+   ! Two lookups with the same cubed-sphere config must return the same
+   ! MaplGeom; a config differing in size must return a different one.
+   subroutine test_cs_same_config_same_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(mapl_GeomManager), target :: geom_manager
+      type(ESMF_HConfig) :: hconfig_a, hconfig_b
+      integer :: status
+      type(mapl_MaplGeom), pointer :: geom_a, geom_b, geom_c
+      type(GeomId) :: id_a, id_b, id_c
+
+      hconfig_a = ESMF_HConfigCreate( &
+           content="{class: CubedSphere, im_world: 12, nx_face: 1, ny_face: 1}", rc=status)
+      @assert_that(status, is(0))
+      hconfig_b = ESMF_HConfigCreate( &
+           content="{class: CubedSphere, im_world: 24, nx_face: 1, ny_face: 1}", rc=status)
+      @assert_that(status, is(0))
+
+      geom_manager = mapl_GeomManager()
+      geom_a => geom_manager%get_mapl_geom(hconfig_a, rc=status)
+      @assert_that(status, is(0))
+      geom_b => geom_manager%get_mapl_geom(hconfig_a, rc=status)
+      @assert_that(status, is(0))
+      geom_c => geom_manager%get_mapl_geom(hconfig_b, rc=status)
+      @assert_that(status, is(0))
+
+      id_a = geom_a%get_id()
+      id_b = geom_b%get_id()
+      id_c = geom_c%get_id()
+      @assertTrue(associated(geom_a, geom_b))
+      @assertTrue(id_a == id_b)
+      @assertFalse(associated(geom_a, geom_c))
+      @assertTrue(id_a /= id_c)
+
+      call ESMF_HConfigDestroy(hconfig_a, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(hconfig_b, rc=status)
+      @assert_that(status, is(0))
+
+   end subroutine test_cs_same_config_same_geom
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! The map is keyed by geom id, not by position in the spec vector.
+   ! Advancing the id counter first makes the first spec position (1)
+   ! differ from its id (2).
+   subroutine test_reuse_geom_id_differs_from_position(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(mapl_GeomManager), target :: geom_manager
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      class(mapl_GeomSpec), allocatable :: spec
+      type(mapl_MaplGeom), pointer :: geom_a, geom_b
+      type(GeomId) :: id_a, id_b, skipped_id
+      integer :: value_a, value_skipped
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assert_that(status, is(0))
+
+      geom_manager = mapl_GeomManager()
+      skipped_id = geom_manager%id_manager%get_next_geom_id()
+      allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+
+      geom_a => geom_manager%get_mapl_geom(spec, rc=status)
+      @assert_that(status, is(0))
+      geom_b => geom_manager%get_mapl_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      id_a = geom_a%get_id()
+      id_b = geom_b%get_id()
+      value_a = id_a%get_value()
+      value_skipped = skipped_id%get_value()
+      @assertEqual(value_skipped + 1, value_a)
+      @assertTrue(id_a == id_b)
+      @assertTrue(associated(geom_a, geom_b))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+   end subroutine test_reuse_geom_id_differs_from_position
 
 end module Test_GeomManager
