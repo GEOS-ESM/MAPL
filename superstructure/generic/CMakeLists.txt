@@ -26,6 +26,7 @@ set(srcs
   GraphBuilder_Visualization_smod.F90
   GraphBuilder_CallbackWiring_smod.F90
   GraphBuilder_CallbackRealization_smod.F90
+  GraphBuilder_CallbackExecution_smod.F90
   GraphBuilder_RunPhaseNode_smod.F90
   GraphBuilder_LifecycleHooks_smod.F90
   OuterMetaComponentDriverResolver.F90

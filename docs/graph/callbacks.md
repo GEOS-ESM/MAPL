@@ -223,6 +223,98 @@ argument's access direction, not the method's name: a method named
 `provides:`), while a method named `get` can have the OUT argument
 that writes to a `receives:` item.
 
+## Invoker-side execution: iterating a collection and invoking a method
+
+`begin_callback_collection(this, import_short_name, rc)`
+(`GraphBuilder_CallbackExecution_smod.F90`) is the Invoker's entry point:
+given its own `OuterMetaComponent` and the short name of a callback
+IMPORT, it returns a `CallbackCollectionIterator` over that import's
+matched Handler members, reusing the resource-index/reuse-entry lookup
+chain `resolve_callback_destination` already built for it at CONNECT
+(`'CALLBACK_COLLECTION:' // <import NodeId>%to_string()`).
+An IMPORT with no resource index yet, or no reuse entry (never matched
+by a connection), yields a zero-member iterator rather than an error —
+an unresolved callback import is reported elsewhere, not here.
+
+The iterator is advance-first, like a Fortran `do` loop: a freshly built
+iterator sits "before first". Call `%advance()` once before trusting
+`%done()` or calling `%current()`; `%current()` before any `%advance()`,
+or once `%done()` is true, is a caller-ordering bug and fails loudly
+(`_ASSERT`) rather than indexing past the collected member-name list.
+Member names are collected once at construction into a `StringVector`
+(the same collect-first idiom `GraphBuilder_CallbackRealization_smod.F90`
+uses for its own `StateItemMemberMap` walk): the iterator must stay
+valid across the caller's whole loop, including intervening `%execute()`
+calls, so it cannot hold a live `StateItemMemberMap` iterator into a map
+later code could in principle touch again.
+
+One iterator "member" is one matched Handler, not one interface
+argument: `StateItemMemberMap`'s keys are the matched export's own
+qualified name (`materialize_callback_collection`, e.g. `cb` for a
+single top-level Handler state, or `HANDLER/cb`/`HANDLER2/cb` when a
+regex source pattern matches more than one Handler), not an argument
+name like `quantity`.
+
+`%current(rc)` returns a `CallbackMemberHandle`: the member's real
+composite `ESMF_State` (`%get_state(rc)`) plus enough of the collection
+node's own `CallbackMethodBindingMap` to invoke one bound method by
+name. `%execute(method, rc)` builds the same
+`callback_method_binding_key(member_qualified_name, method)` already
+bound at CONNECT (`resolve_callback_destination`), looks it up on the
+collection node, fails loudly on an unknown method (before any
+pull/invoke/advance happens), and otherwise calls
+`invoke_callback_method` unchanged — so `%execute()`'s put direction has
+the same known gap described above: the method body runs and the
+Handler member's own Field is written, but the Invoker's `receives:`
+item is only `NodeRevision`-advanced, never fed real data.
+
+For the get direction, "moves real data" above means a genuine copy
+only when the match needs an extension chain (a units or grid
+mismatch); in the common same-unit, same-grid case the member's
+Field *is* the Invoker's `provides:` Field — the same storage, aliased
+by `wire_callback_argument`/the forward network, not copied by
+`ComponentGraph%update()` (a plain item-to-item edge with no
+`TransformGraphNode` is a no-op for `%update()`). Either way
+`%current()%get_state()` shows the Handler's own current value by the
+time `%execute()` returns, but only the mismatched case proves an
+actual pull ran rather than storage already being shared.
+
+When more than one Handler matches the same IMPORT, this sharing
+extends across matches for IN/INOUT (get-side) arguments only, not
+OUT-only ones. `provider_get_ids` is built once per Invoker IMPORT and
+reused for every match (`build_callback_provider_maps`), and every
+IN/INOUT argument's forward-network wiring
+(`wire_callback_argument(graph, forward_net_id, provider_id, member_id, ...)`
+in `build_callback_method_binding`) always names the same `provider_id`,
+so every matched Handler's own IN/INOUT argument Field aliases the
+*same* `provides:` Field — one scratch buffer broadcast to whichever
+member is current, not independent per-Handler storage. An OUT-only
+argument is wired differently: its edge lives on a put network created
+fresh per (match, method) pair (`graph%create_network`), never the
+hierarchy-wide forward network, so `find_materialized_predecessor`
+(`realize_callback_member`'s own predecessor search, which only walks
+the forward network) never finds it — each matched Handler's own
+OUT-only member therefore gets its own newly-materialized Field,
+independent of `receives:` and of every other match. A collection's
+members are distinguished by `member_qualified_name` (what
+`%current()` returns a different `CallbackMemberHandle` for), not by
+comparing argument Field identity across matches.
+
+A side effect follows when one argument name serves both a get (IN)
+method and a put (OUT) method on the same interface: the member's
+Field still has a forward-network predecessor from the get-side wiring,
+so it still aliases the Invoker's `provides:` Field, even though its
+put (OUT) wiring is the separate, never-executed put network described
+above. Writing to that Field inside a `put` method body therefore lands
+directly in the Invoker's own `provides:` storage immediately — not
+because put-direction propagation works, but because the Field the
+method wrote to already *is* that storage. This is a known, accepted
+consequence of today's put-direction gap, not a new decision: a
+dual-purpose (get-and-put-on-the-same-argument) member's put can appear
+to "work" through this get-side aliasing, while a true OUT-only
+argument still shows the real, unfixed gap — nothing moves into
+`receives:`.
+
 ## Open items
 
 See `open-questions.md`: Handler/Invoker term choice (low-stakes), and

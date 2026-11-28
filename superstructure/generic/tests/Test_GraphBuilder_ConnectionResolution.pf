@@ -4816,7 +4816,7 @@ contains
    ! An expression referencing a name with no matching sibling export
    ! is reported through the same GraphResolutionEntry/unresolved convention
    ! every other resolution step in this file uses - not silently dropped, not
-   ! a hard _FAIL - and no transform node is built for that item at all (the
+   ! a hard failure - and no transform node is built for that item at all (the
    ! 'EXPRHOOK:' resource-index entry is never recorded).
    @test(npes=[0])
    subroutine test_expression_hook_reports_unresolved_reference(this)
@@ -6263,7 +6263,8 @@ contains
            dyn_meta, iface, interface_id, _RC)
 
       src_pt = ConnectionPt('CHEM/NOPE', VirtualConnectionPt(state_intent='export', short_name='tracer_callback'))
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assertExceptionRaised('Child not found: <NOPE>.')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')

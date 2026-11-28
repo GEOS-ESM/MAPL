@@ -30,11 +30,12 @@ contains
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
    ! imports and exports.
-   module function parse_var_specs(hconfig, registry, component_name, rc) result(var_specs)
-      type(VariableSpecVector) :: var_specs
+   module subroutine parse_var_specs(hconfig, registry, &
+        component_name, var_specs, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       type(StateRegistry), target, intent(in) :: registry
       character(*), intent(in) :: component_name
+      type(VariableSpecVector), intent(out) :: var_specs
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -787,6 +788,6 @@ contains
          _RETURN(_SUCCESS)
       end function to_dependencies
 
-   end function parse_var_specs
+   end subroutine parse_var_specs
 
 end submodule parse_var_specs_smod

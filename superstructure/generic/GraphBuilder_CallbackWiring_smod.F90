@@ -37,10 +37,10 @@ contains
    ! by recursing over every descendant. A fresh, uncached snapshot
    ! ("currently-known" exports only). root's exports are keyed by short
    ! name; a descendant's by comp_path/short_name.
-   module function build_qualified_export_namespace(root, rc) result(entries)
+   module subroutine build_qualified_export_namespace(root, entries, rc)
       class(OuterMetaComponent), target, intent(inout) :: root
+      type(QualifiedExportEntry), allocatable, intent(out) :: entries(:)
       integer, optional, intent(out) :: rc
-      type(QualifiedExportEntry), allocatable :: entries(:)
 
       integer :: status
 
@@ -48,7 +48,7 @@ contains
       call collect_qualified_exports(root, '', entries, _RC)
 
       _RETURN(_SUCCESS)
-   end function build_qualified_export_namespace
+   end subroutine build_qualified_export_namespace
 
    recursive module subroutine collect_qualified_exports(owner, path_prefix, entries, rc)
       class(OuterMetaComponent), target, intent(inout) :: owner
@@ -64,8 +64,6 @@ contains
       character(:), allocatable :: child_name, child_path
       type(OuterMetaComponent), pointer :: child_meta
       type(QualifiedExportEntry) :: entry
-      type(QualifiedExportEntry), allocatable :: grown_entries(:)
-      integer :: n
 
       comp_spec => owner%get_component_spec()
 
@@ -82,16 +80,7 @@ contains
                entry%qualified_name = path_prefix // '/' // var_spec%short_name
             end if
             entry%var_spec = var_spec
-            ! Classic ifort 2021.13 -O0 segfaults on `entries = [entries, entry]`
-            ! for this nested-allocatable type; grow via move_alloc.
-            n = size(entries)
-            allocate(grown_entries(n + 1))
-            ! NAG 7.2.41 -O0: the zero-extent section assignment
-            ! grown_entries(1:0) = entries (n==0) hits a bus error in the
-            ! generated defined-assignment dispatch; hence the guard.
-            if (n > 0) grown_entries(1:n) = entries
-            grown_entries(n + 1) = entry
-            call move_alloc(grown_entries, entries)
+            call append_qualified_export(entries, entry)
          end do
       end associate
 
@@ -109,6 +98,26 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine collect_qualified_exports
+
+   ! Appends entry to entries. Copies element by element: gfortran skips the
+   ! nested gFTL map deep_copy (VariableSpec%members) in whole-array and
+   ! array-section assignment of this type, leaving dangling parent pointers.
+   ! No `[entries, entry]` constructor either: it ICEs classic ifort.
+   module subroutine append_qualified_export(entries, entry)
+      type(QualifiedExportEntry), allocatable, intent(inout) :: entries(:)
+      type(QualifiedExportEntry), intent(in) :: entry
+
+      type(QualifiedExportEntry), allocatable :: grown(:)
+      integer :: k, n
+
+      n = size(entries)
+      allocate(grown(n + 1))
+      do k = 1, n
+         grown(k) = entries(k)
+      end do
+      grown(n + 1) = entry
+      call move_alloc(grown, entries)
+   end subroutine append_qualified_export
 
    ! Forwards to resolve_qualified_component in GraphBuilder.F90's
    ! shared helpers, so callers in this submodule need no change.

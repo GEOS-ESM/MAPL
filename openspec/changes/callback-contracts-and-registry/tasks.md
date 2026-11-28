@@ -209,7 +209,7 @@
   (Handler `members:`, Invoker `provides:`/`receives:`), as ordinary
   state items have one (owner 2026-11-23: wanted eventually for most or
   all user-configured callbacks; not a priority now). Depends on 5.2b.
-- [ ] 5.3 Invoker API: an iterator over one collection's bound Handlers
+- [x] 5.3 Invoker API: an iterator over one collection's bound Handlers
   (advance, done, current) -- not count-and-index; qualified-name access
   and detailed error behavior (loud `_FAIL` vs. a `found` out-argument)
   deliberately left open past this task. `current()` returns a handle
@@ -220,6 +220,11 @@
   `%get_state()` for `MAPL_CallbackGetAttribute`/`MAPL_CallbackSetScalar`,
   which stay free functions. Same-grid get/put test. Design: design.md
   decision 21 (Invoker API shape, amended 2026-11-23).
+  - **Status:** done (commit trailer `Plan-Task: CB5-Execute-5.3`).
+    `CallbackCollectionIterator`/`CallbackMemberHandle` added to
+    `GraphBuilder.F90`, implemented in `GraphBuilder_CallbackExecution_smod.F90`;
+    `%execute()` still cannot move `put`/`receives:` data (known gap,
+    unchanged by this task).
 - [ ] 5.4 Hook the lazy conformance check (4.3) into 5.3 and add the
   explicit collection check request.
 

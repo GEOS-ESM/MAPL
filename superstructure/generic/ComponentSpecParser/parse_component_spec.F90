@@ -5,11 +5,12 @@ submodule (mapl_ComponentSpecParser_mod) parse_component_spec_smod
 
 contains
 
-   module function parse_component_spec(hconfig, registry, component_name, rc) result(spec)
-      type(ComponentSpec) :: spec
+   module subroutine parse_component_spec(hconfig, registry, &
+        component_name, spec, rc)
       type(ESMF_HConfig), target, intent(inout) :: hconfig
       type(StateRegistry), target, intent(in) :: registry
       character(*), intent(in) :: component_name
+      type(ComponentSpec), intent(out) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -23,7 +24,8 @@ contains
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, component_name, _RC)
-      spec%var_specs = parse_var_specs(mapl_cfg, registry, component_name, _RC)
+      call parse_var_specs(mapl_cfg, registry, component_name, &
+           spec%var_specs, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
 
@@ -39,7 +41,7 @@ contains
       call ESMF_HConfigDestroy(mapl_cfg, _RC)
 
       _RETURN(_SUCCESS)
-   end function parse_component_spec
+   end subroutine parse_component_spec
 
    ! TODO - we may want a `misc` section in the mapl section, but
    ! should wait to see what else goes there.  Or maybe a `test`

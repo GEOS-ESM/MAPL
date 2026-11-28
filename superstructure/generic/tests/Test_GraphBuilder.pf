@@ -260,7 +260,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rejected=rejected, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rejected=rejected, rc=status)
       @assert_that(status, is(0))
 
       @assertEqual(2, size(matches))
@@ -298,7 +299,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='no_such_thing'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(matches))
 

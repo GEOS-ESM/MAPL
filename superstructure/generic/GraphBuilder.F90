@@ -134,6 +134,15 @@ module mapl_GraphBuilder_mod
    public :: callback_method_binding_key
    public :: invoke_callback_method
 
+   ! Per-call Invoker-side handle/iterator over a collection node's bound
+   ! Handler members. Declared here, not a standalone module, so their
+   ! submodule implementation reaches invoke_callback_method/
+   ! callback_method_binding_key by host association with no new `use`
+   ! and no circularity.
+   public :: CallbackMemberHandle
+   public :: CallbackCollectionIterator
+   public :: begin_callback_collection
+
    ! Shared multi-level qualified-path resolution, used by callback and
    ! ordinary connection resolution. Public for the same gfortran
    ! cross-submodule-linkage reason as is_self above.
@@ -283,6 +292,51 @@ module mapl_GraphBuilder_mod
       character(:), allocatable :: short_name
       type(NodeId) :: node_id
    end type UnresolvedImportEntry
+
+   ! One matched Handler member, reached through
+   ! CallbackCollectionIterator%current(): the member's own composite
+   ! ESMF_State plus enough of the collection node's bound-method lookup
+   ! to invoke one by name. Only valid immediately after the %current()
+   ! call that produced it - see CallbackCollectionIterator's own doc
+   ! comment on the advance-first loop idiom.
+   type :: CallbackMemberHandle
+      type(ComponentGraph), pointer :: graph => null()
+      class(StateItemNode), pointer :: collection_node => null()
+      character(:), allocatable :: member_qualified_name
+      type(ESMF_State) :: member_state
+   contains
+      procedure :: execute => callback_member_handle_execute
+      procedure :: get_state => callback_member_handle_get_state
+      procedure :: get_member_qualified_name => callback_member_handle_get_member_qualified_name
+   end type CallbackMemberHandle
+
+   ! An Invoker's walk over one callback collection's matched Handler
+   ! members, in the order begin_callback_collection pre-collected them
+   ! (StateItemMemberMap iteration order is not guaranteed to be
+   ! declaration/resolution order). Advance-first, like a Fortran DO: a
+   ! freshly built iterator sits "before first" - call %advance() once
+   ! before trusting %done() or calling %current(). %current() called
+   ! before any %advance(), or once %done() is true, is a caller-ordering
+   ! bug and fails loudly rather than indexing past the collected name
+   ! list. collection_node is a raw pointer into the hierarchy's
+   ! ComponentGraph; callback execution only happens once the graph is
+   ! frozen (ComponentGraph%register_node asserts not finalized/frozen),
+   ! so no new node can appear while an iterator is alive and the
+   ! pointer stays valid for its whole lifetime.
+   type :: CallbackCollectionIterator
+      type(ComponentGraph), pointer :: graph => null()
+      class(StateItemNode), pointer :: collection_node => null()
+      ! Collected once at construction: the established idiom
+      ! (GraphBuilder_CallbackRealization_smod.F90) for walking a
+      ! StateItemMemberMap without holding a live map iterator across
+      ! intervening calls.
+      type(StringVector) :: member_names
+      integer :: position = 0
+   contains
+      procedure :: advance => callback_collection_iterator_advance
+      procedure :: done => callback_collection_iterator_done
+      procedure :: current => callback_collection_iterator_current
+   end type CallbackCollectionIterator
 
    ! Matches mapl_MethodInvocation_mod's MAX_ARGUMENT_NAME_LEN.
    integer, parameter :: MAX_CALLBACK_ARGUMENT_NAME_LEN = 128
@@ -612,12 +666,11 @@ module mapl_GraphBuilder_mod
    end function graphbuilder_build_label_map
 
       ! Callback wiring procedures (GraphBuilder_CallbackWiring_smod.F90)
-   module function build_qualified_export_namespace(root, rc) result(entries)
+   module subroutine build_qualified_export_namespace(root, entries, rc)
       class(OuterMetaComponent), target, intent(inout) :: root
+      type(QualifiedExportEntry), allocatable, intent(out) :: entries(:)
       integer, optional, intent(out) :: rc
-      type(QualifiedExportEntry), allocatable :: entries(:)
-
-   end function build_qualified_export_namespace
+   end subroutine build_qualified_export_namespace
    recursive module subroutine collect_qualified_exports(owner, path_prefix, entries, rc)
       class(OuterMetaComponent), target, intent(inout) :: owner
       character(*), intent(in) :: path_prefix
@@ -625,6 +678,10 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine collect_qualified_exports
+   module subroutine append_qualified_export(entries, entry)
+      type(QualifiedExportEntry), allocatable, intent(inout) :: entries(:)
+      type(QualifiedExportEntry), intent(in) :: entry
+   end subroutine append_qualified_export
    module function resolve_descendant(root, comp_path, rc) result(meta)
       class(OuterMetaComponent), target, intent(inout) :: root
       character(*), intent(in) :: comp_path
@@ -729,6 +786,47 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine advance_callback_put_arguments
+
+      ! Callback execution procedures (GraphBuilder_CallbackExecution_smod.F90)
+   module function begin_callback_collection(this, import_short_name, rc) result(iter)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: import_short_name
+      integer, optional, intent(out) :: rc
+      type(CallbackCollectionIterator) :: iter
+
+   end function begin_callback_collection
+   module subroutine callback_collection_iterator_advance(this)
+      class(CallbackCollectionIterator), intent(inout) :: this
+
+   end subroutine callback_collection_iterator_advance
+   module function callback_collection_iterator_done(this) result(is_done)
+      class(CallbackCollectionIterator), intent(in) :: this
+      logical :: is_done
+
+   end function callback_collection_iterator_done
+   module function callback_collection_iterator_current(this, rc) result(handle)
+      class(CallbackCollectionIterator), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      type(CallbackMemberHandle) :: handle
+
+   end function callback_collection_iterator_current
+   module subroutine callback_member_handle_execute(this, method, rc)
+      class(CallbackMemberHandle), intent(in) :: this
+      character(*), intent(in) :: method
+      integer, optional, intent(out) :: rc
+
+   end subroutine callback_member_handle_execute
+   module function callback_member_handle_get_state(this, rc) result(state)
+      class(CallbackMemberHandle), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      type(ESMF_State) :: state
+
+   end function callback_member_handle_get_state
+   module function callback_member_handle_get_member_qualified_name(this) result(name)
+      class(CallbackMemberHandle), intent(in) :: this
+      character(:), allocatable :: name
+
+   end function callback_member_handle_get_member_qualified_name
 
       ! Ordinary-phase MethodGraphNode construction procedures (GraphBuilder_RunPhaseNode_smod.F90)
    module subroutine graphbuilder_build_run_phase_node(this, rc)
@@ -908,7 +1006,7 @@ contains
                if (.not. associated(candidate_node)) cycle
                select type (candidate_node)
                class is (StateItemNode)
-                  ! Grow via move_alloc; see collect_qualified_exports.
+                  ! Grow via move_alloc; see append_qualified_export.
                   n = size(node_ids)
                   allocate(grown(n + 1))
                   if (n > 0) grown(1:n) = node_ids
@@ -923,7 +1021,7 @@ contains
    end function find_export_port_node_ids
 
    ! Same resolution as resolve_qualified_export_node_id, but found is
-   ! .false. (rather than a build-failing _ASSERT) for an export not yet
+   ! .false. (rather than a build-failing assertion) for an export not yet
    ! advertised. resolve_callback_import's candidate search calls this on
    ! every namespace entry while a merge is possible, including ones that
    ! may not be this import's match and may not be advertised yet; only
@@ -1028,13 +1126,14 @@ contains
    ! (callback_declaration_report) and fails the build rather than being
    ! silently skipped. Read-only (never mutates a ComponentGraph), so
    ! safe from both the activate-time check and connect-time resolution.
-   function resolve_callback_import(this, src_pt, expected_interface_id, rejected, rc) result(matches)
+   subroutine resolve_callback_import(this, src_pt, expected_interface_id, &
+        matches, rejected, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(QualifiedExportEntry), allocatable, intent(out) :: matches(:)
       type(StringVector), optional, intent(out) :: rejected
       integer, optional, intent(out) :: rc
-      type(QualifiedExportEntry), allocatable :: matches(:)
 
       integer :: status
       class(OuterMetaComponent), pointer :: root_meta
@@ -1043,14 +1142,12 @@ contains
       type(CallbackInterface) :: expected_iface
       type(StringVector) :: reject_reasons
       integer :: i, j
-      integer :: n
       logical :: conforms
       type(CallbackInterfaceId) :: declared_id
       character(:), allocatable :: declared_name
       type(CallbackContractViolation), allocatable :: violations(:)
       character(:), allocatable :: reason
       character(:), allocatable :: report_message
-      type(QualifiedExportEntry), allocatable :: grown_matches(:)
       logical :: is_candidate
       logical :: is_own_declared_name_match
       logical :: is_merged_under_src_name
@@ -1060,7 +1157,7 @@ contains
       allocate(matches(0))
 
       root_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
-      namespace = build_qualified_export_namespace(root_meta, _RC)
+      call build_qualified_export_namespace(root_meta, namespace, _RC)
       expected_iface = get_callback_interface(expected_interface_id, _RC)
 
       if (src_pt%v_pt%is_literal()) then
@@ -1125,19 +1222,13 @@ contains
             cycle
          end if
 
-         ! Classic ifort ICE on `matches = [matches, namespace(i)]`; see
-         ! collect_qualified_exports.
-         n = size(matches)
-         allocate(grown_matches(n + 1))
-         grown_matches(1:n) = matches
-         grown_matches(n + 1) = namespace(i)
-         call move_alloc(grown_matches, matches)
+         call append_qualified_export(matches, namespace(i))
       end do
 
       if (present(rejected)) rejected = reject_reasons
 
       _RETURN(_SUCCESS)
-   end function resolve_callback_import
+   end subroutine resolve_callback_import
 
    ! Semicolon-joins every violation's short code (e.g.
    ! "missing_member:tracers"), preserving each code as a substring for

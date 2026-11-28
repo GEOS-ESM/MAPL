@@ -1,0 +1,961 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Tests for GraphBuilder_CallbackExecution_smod.F90: the Invoker-side
+! walk over the matched Handler members of one callback collection
+! (begin_callback_collection/CallbackCollectionIterator/CallbackMemberHandle),
+! built on top of the CallbackMethodBindingMap bound at CONNECT
+! (resolve_callback_destination, exercised here through the same
+! parent/HANDLER/INVOKER MatchConnection pattern as the
+! build_method_binding_fixture of Test_GraphBuilder_CallbackRealization.pf).
+!
+! type=ESMF_TestMethod, npes=[1] throughout: every test creates a real
+! ESMF_Geom and real Fields, which needs a real per-test ESMF VM.
+module Test_GraphBuilder_CallbackExecution
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeRevision_mod, only: NodeRevision, operator(/=)
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELD
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
+        reset_callback_registry_for_testing
+   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELD => MAPL_STATEITEM_FIELD
+   use mapl_GeomUtilities_mod, only: GeomSetId
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, GRAPH_MODE_REGISTRY
+   use mapl_FieldCreate_mod, only: FieldsAreAliased
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ConnectionPt_mod, only: ConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
+   use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT
+   use mapl_StateAddMethod_mod, only: StateAddMethod
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use ESMF_TestMethod_mod
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+   ! Exercised through the I_CallBackMethod interface of
+   ! mapl_StateAddMethod_mod (infrastructure/esmf/ESMF_Interfaces.F90).
+   ! Method "get" has MAPL_ACCESS_IN argument access (the `provides:`
+   ! direction): the data movement happens before invoke(), in
+   ! pull_callback_get_arguments, so this body only records that it ran.
+   ! Method "put" has MAPL_ACCESS_OUT (the `receives:` direction): it
+   ! writes a known literal into the "quantity" member of the composite
+   ! state it receives, standing in for a Handler computing an output.
+   logical :: g_cb_get_called = .false.
+   logical :: g_cb_put_called = .false.
+
+contains
+
+   subroutine cb_get_method(state, rc)
+      type(ESMF_State) :: state
+      integer, intent(out) :: rc
+
+      g_cb_get_called = .true.
+      rc = 0
+      _UNUSED_DUMMY(state)
+   end subroutine cb_get_method
+
+   subroutine cb_put_method(state, rc)
+      type(ESMF_State) :: state
+      integer, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: fptr(:)
+      integer :: status
+
+      call ESMF_StateGet(state, 'quantity', field, rc=status)
+      if (status /= 0) then
+         rc = status
+         return
+      end if
+      call assign_fptr(field, fptr, rc=status)
+      if (status /= 0) then
+         rc = status
+         return
+      end if
+      fptr = 42.0
+      g_cb_put_called = .true.
+      rc = 0
+   end subroutine cb_put_method
+
+   ! Parent with HANDLER (exports "cb", one "quantity" FIELD member) and
+   ! INVOKER (imports "cb", declaring the interface, plus always-present
+   ! INTERNAL items provide_item/receive_item). Every geom/units match
+   ! ("m" throughout), so a resolved match is a direct Field alias, not
+   ! an extension chain - the same-grid get/put case (see test 4 below
+   ! for what that aliasing does and does not prove). `connect` false
+   ! skips the MatchConnection, leaving the import unresolved (no reuse
+   ! entry, so the iterator of begin_callback_collection has zero
+   ! members) - the empty-collection case.
+   subroutine build_execution_fixture(service_name, geom, connect, &
+        parent_meta, handler_meta, invoker_meta, interface_id, rc)
+      character(*), intent(in) :: service_name
+      type(ESMF_Geom), intent(in) :: geom
+      logical, intent(in) :: connect
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: handler_meta
+      type(OuterMetaComponent), pointer, intent(out) :: invoker_meta
+      type(CallbackInterfaceId), intent(out) :: interface_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: handler_driver, invoker_driver
+      type(ESMF_GridComp) :: handler_gc, invoker_gc
+      type(ComponentSpec), pointer :: handler_spec, invoker_spec, parent_spec
+      type(CallbackInterface) :: iface
+      type(VariableSpec) :: cb_export, quantity_member, cb_import, provide_item, receive_item
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+
+      type(GraphBuilder) :: gb
+
+      ! Method "get" pulls the provides: item of the Invoker into the
+      ! Handler member (MAPL_ACCESS_IN); method "put" writes the Handler
+      ! member and advances the receives: item of the Invoker
+      ! (MAPL_ACCESS_OUT) - the access direction of the argument, not
+      ! the name of the method, decides provides:/receives:
+      ! (docs/graph/callbacks.md).
+      call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('put', rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('get', 'quantity', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('put', 'quantity', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface(service_name, iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('parent_' // service_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('HANDLER', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      handler_driver = parent_meta%get_child('HANDLER', _RC)
+      handler_gc = handler_driver%get_gridcomp()
+      handler_meta => get_outer_meta(handler_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      handler_spec => handler_meta%get_component_spec()
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+      quantity_member = make_var(ESMF_STATEINTENT_EXPORT, 'quantity', units='m')
+      quantity_member%itemType = MAPL_STATEITEM_FIELD
+      quantity_member%geom = geom
+      call cb_export%declare_member('quantity', quantity_member, rc=status)
+      @assertEqual(0, status)
+      call handler_spec%add_var_spec(cb_export)
+
+      invoker_spec => invoker_meta%get_component_spec()
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'cb')
+      cb_import%callback_interface_id = interface_id
+      call cb_import%callback_provides%insert('quantity', 'provide_item')
+      call cb_import%callback_receives%insert('quantity', 'receive_item')
+      call invoker_spec%add_var_spec(cb_import)
+
+      provide_item = make_var(ESMF_STATEINTENT_INTERNAL, 'provide_item', units='m')
+      provide_item%itemType = MAPL_STATEITEM_FIELD
+      provide_item%geom = geom
+      call invoker_spec%add_var_spec(provide_item)
+
+      receive_item = make_var(ESMF_STATEINTENT_INTERNAL, 'receive_item', units='m')
+      receive_item%itemType = MAPL_STATEITEM_FIELD
+      receive_item%geom = geom
+      call invoker_spec%add_var_spec(receive_item)
+
+      call gb%advertise(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(invoker_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(parent_meta, status)
+      @assertEqual(0, status)
+
+      if (connect) then
+         conn = MatchConnection( &
+              ConnectionPt('HANDLER', VirtualConnectionPt(state_intent='export', short_name='cb')), &
+              ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='cb')))
+         parent_spec => parent_meta%get_component_spec()
+         call parent_spec%add_connection(conn)
+      end if
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      call set_materialize_extensions(.false.)
+
+      _RETURN(status)
+   end subroutine build_execution_fixture
+
+   ! Carries the fixture through allocate_internals/realize_callback_states/
+   ! StateAddMethod attachment (the own scope of build_execution_fixture
+   ! stops right after resolve_connections, mirroring
+   ! build_method_binding_fixture), sets provide_item to a known value,
+   ! and returns a freshly built (not yet advanced) iterator over the
+   ! "cb" import of the Invoker.
+   subroutine prepare_execution_iterator(service_name, geom_id, connect, &
+        parent_meta, invoker_meta, cb_state, iter, rc)
+      character(*), intent(in) :: service_name
+      integer, intent(in) :: geom_id
+      logical, intent(in) :: connect
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: invoker_meta
+      type(ESMF_State), intent(out) :: cb_state
+      type(CallbackCollectionIterator), intent(out) :: iter
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: handler_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: handler_export_state
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, geom_id, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_execution_fixture(service_name, geom, connect, &
+           parent_meta, handler_meta, invoker_meta, interface_id, status)
+      @assertEqual(0, status)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(invoker_meta, status)
+      @assertEqual(0, status)
+
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(handler_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'get', cb_get_method, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'put', cb_put_method, rc=status)
+      @assertEqual(0, status)
+
+      call set_invoker_internal_value(invoker_meta, 'provide_item', 9.0_ESMF_KIND_R4, status)
+      @assertEqual(0, status)
+
+      iter = begin_callback_collection(invoker_meta, 'cb', status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end subroutine prepare_execution_iterator
+
+   ! Two-Handler variant of build_execution_fixture, for the multi-member
+   ! iteration test below: HANDLER2 is a sibling of HANDLER, also
+   ! exporting "cb" for the same interface. The connection source
+   ! pattern is a regex over the parent own subtree ("<self>", ".*/cb")
+   ! so one resolve_callback_import call returns both matches - two
+   ! separate literal-single-match connections would not merge members,
+   ! since resolve_callback_destination treats an existing reuse entry
+   ! for the same import as already resolved and returns without
+   ! looking at further matches.
+   subroutine build_two_handler_fixture(service_name, geom, &
+        parent_meta, handler_meta, handler2_meta, invoker_meta, interface_id, rc)
+      character(*), intent(in) :: service_name
+      type(ESMF_Geom), intent(in) :: geom
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: handler_meta
+      type(OuterMetaComponent), pointer, intent(out) :: handler2_meta
+      type(OuterMetaComponent), pointer, intent(out) :: invoker_meta
+      type(CallbackInterfaceId), intent(out) :: interface_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: parent_gc
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: handler_driver, handler2_driver, invoker_driver
+      type(ESMF_GridComp) :: handler_gc, handler2_gc, invoker_gc
+      type(ComponentSpec), pointer :: handler_spec, handler2_spec, invoker_spec, parent_spec
+      type(CallbackInterface) :: iface
+      type(VariableSpec) :: cb_export, quantity_member, cb_import, provide_item, receive_item
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+
+      type(GraphBuilder) :: gb
+
+      call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_method('put', rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('get', 'quantity', MAPL_ACCESS_IN, rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('put', 'quantity', MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface(service_name, iface, interface_id, status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('parent_' // service_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('HANDLER', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('HANDLER2', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('INVOKER', child_spec, _RC)
+
+      handler_driver = parent_meta%get_child('HANDLER', _RC)
+      handler_gc = handler_driver%get_gridcomp()
+      handler_meta => get_outer_meta(handler_gc, _RC)
+
+      handler2_driver = parent_meta%get_child('HANDLER2', _RC)
+      handler2_gc = handler2_driver%get_gridcomp()
+      handler2_meta => get_outer_meta(handler2_gc, _RC)
+
+      invoker_driver = parent_meta%get_child('INVOKER', _RC)
+      invoker_gc = invoker_driver%get_gridcomp()
+      invoker_meta => get_outer_meta(invoker_gc, _RC)
+
+      handler_spec => handler_meta%get_component_spec()
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+      quantity_member = make_var(ESMF_STATEINTENT_EXPORT, 'quantity', units='m')
+      quantity_member%itemType = MAPL_STATEITEM_FIELD
+      quantity_member%geom = geom
+      call cb_export%declare_member('quantity', quantity_member, rc=status)
+      @assertEqual(0, status)
+      call handler_spec%add_var_spec(cb_export)
+
+      handler2_spec => handler2_meta%get_component_spec()
+      cb_export = make_var(ESMF_STATEINTENT_EXPORT, 'cb')
+      cb_export%itemType = MAPL_STATEITEM_STATE
+      cb_export%callback_interface_id = interface_id
+      quantity_member = make_var(ESMF_STATEINTENT_EXPORT, 'quantity', units='m')
+      quantity_member%itemType = MAPL_STATEITEM_FIELD
+      quantity_member%geom = geom
+      call cb_export%declare_member('quantity', quantity_member, rc=status)
+      @assertEqual(0, status)
+      call handler2_spec%add_var_spec(cb_export)
+
+      invoker_spec => invoker_meta%get_component_spec()
+      cb_import = make_var(ESMF_STATEINTENT_IMPORT, 'cb')
+      cb_import%callback_interface_id = interface_id
+      call cb_import%callback_provides%insert('quantity', 'provide_item')
+      call cb_import%callback_receives%insert('quantity', 'receive_item')
+      call invoker_spec%add_var_spec(cb_import)
+
+      provide_item = make_var(ESMF_STATEINTENT_INTERNAL, 'provide_item', units='m')
+      provide_item%itemType = MAPL_STATEITEM_FIELD
+      provide_item%geom = geom
+      call invoker_spec%add_var_spec(provide_item)
+
+      receive_item = make_var(ESMF_STATEINTENT_INTERNAL, 'receive_item', units='m')
+      receive_item%itemType = MAPL_STATEITEM_FIELD
+      receive_item%geom = geom
+      call invoker_spec%add_var_spec(receive_item)
+
+      call gb%advertise(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(handler2_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(invoker_meta, status)
+      @assertEqual(0, status)
+      call gb%advertise(parent_meta, status)
+      @assertEqual(0, status)
+
+      conn = MatchConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='.*/cb')), &
+           ConnectionPt('INVOKER', VirtualConnectionPt(state_intent='import', short_name='cb')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      call set_materialize_extensions(.false.)
+
+      _RETURN(status)
+   end subroutine build_two_handler_fixture
+
+   ! Two-Handler variant of prepare_execution_iterator: realizes and
+   ! attaches get/put methods to both Handlers own "cb" composite
+   ! states. Each real composite state is only needed locally, to attach
+   ! the get/put methods (StateAddMethod) - the multi-member test tells
+   ! the two iterations apart by member_qualified_name, not by holding
+   ! onto either state, so neither is returned to the caller.
+   subroutine prepare_two_handler_iterator(service_name, geom_id, &
+        parent_meta, invoker_meta, iter, rc)
+      character(*), intent(in) :: service_name
+      integer, intent(in) :: geom_id
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: invoker_meta
+      type(CallbackCollectionIterator), intent(out) :: iter
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: handler_meta, handler2_meta
+      type(CallbackInterfaceId) :: interface_id
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: cb_state, cb_state2
+      type(ESMF_State) :: handler_export_state, handler2_export_state
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, geom_id, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+
+      call build_two_handler_fixture(service_name, geom, &
+           parent_meta, handler_meta, handler2_meta, invoker_meta, interface_id, status)
+      @assertEqual(0, status)
+
+      call gb%allocate_internals(handler_meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(handler2_meta, status)
+      @assertEqual(0, status)
+      call gb%allocate_internals(invoker_meta, status)
+      @assertEqual(0, status)
+
+      handler_export_state = ESMF_StateCreate(name='handler_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler_meta, handler_export_state, status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(handler_export_state, 'cb', cb_state, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'get', cb_get_method, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state, 'put', cb_put_method, rc=status)
+      @assertEqual(0, status)
+
+      handler2_export_state = ESMF_StateCreate(name='handler2_export', rc=status)
+      @assertEqual(0, status)
+      call gb%realize_callback_states(handler2_meta, handler2_export_state, status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(handler2_export_state, 'cb', cb_state2, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state2, 'get', cb_get_method, rc=status)
+      @assertEqual(0, status)
+      call StateAddMethod(cb_state2, 'put', cb_put_method, rc=status)
+      @assertEqual(0, status)
+
+      call set_invoker_internal_value(invoker_meta, 'provide_item', 9.0_ESMF_KIND_R4, status)
+      @assertEqual(0, status)
+
+      iter = begin_callback_collection(invoker_meta, 'cb', status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end subroutine prepare_two_handler_iterator
+
+   ! Fetches the own real Field of an Invoker INTERNAL item, by the same
+   ! lookup chain the set_invoker_internal_value of
+   ! Test_GraphBuilder_CallbackRealization.pf uses. Shared by
+   ! set_invoker_internal_value (write) and any test that needs to
+   ! compare the Field itself (e.g. for FieldsAreAliased), not just a
+   ! value copied out of it.
+   function get_invoker_field(invoker_meta, short_name, rc) result(field)
+      type(OuterMetaComponent), pointer, intent(in) :: invoker_meta
+      character(*), intent(in) :: short_name
+      integer, optional, intent(out) :: rc
+      type(ESMF_Field) :: field
+
+      integer :: status
+      type(ComponentGraph), pointer :: invoker_graph
+      type(NodeId), pointer :: internal_id
+      class(GraphNode), pointer :: generic_node
+      type(GraphStateItem), pointer :: payload
+
+      invoker_graph => invoker_meta%get_component_graph()
+      internal_id => invoker_graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, short_name))
+      @assertTrue(associated(internal_id))
+      generic_node => invoker_graph%get_node(internal_id)
+      @assertTrue(associated(generic_node))
+      select type (generic_node)
+      class is (StateItemNode)
+         payload => generic_node%get_payload_ptr()
+      class default
+         @assertTrue(.false., short_name // ' is not a StateItemNode')
+      end select
+      field = payload%get_field(rc=status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end function get_invoker_field
+
+   ! Writes the own real Field value of an Invoker INTERNAL item.
+   subroutine set_invoker_internal_value(invoker_meta, short_name, value, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: invoker_meta
+      character(*), intent(in) :: short_name
+      real(ESMF_KIND_R4), intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: fptr(:)
+
+      field = get_invoker_field(invoker_meta, short_name, status)
+      @assertEqual(0, status)
+      call assign_fptr(field, fptr, rc=status)
+      @assertEqual(0, status)
+      fptr = value
+
+      _RETURN(_SUCCESS)
+   end subroutine set_invoker_internal_value
+
+   function get_receive_revision(invoker_meta, rc) result(revision)
+      type(OuterMetaComponent), pointer, intent(in) :: invoker_meta
+      integer, optional, intent(out) :: rc
+      type(NodeRevision) :: revision
+
+      type(ComponentGraph), pointer :: invoker_graph
+      type(NodeId), pointer :: receive_id
+      class(GraphNode), pointer :: generic_node
+
+      invoker_graph => invoker_meta%get_component_graph()
+      receive_id => invoker_graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, 'receive_item'))
+      @assertTrue(associated(receive_id))
+      generic_node => invoker_graph%get_node(receive_id)
+      @assertTrue(associated(generic_node))
+      select type (generic_node)
+      class is (StateItemNode)
+         revision = generic_node%get_revision()
+      class default
+         @assertTrue(.false., 'receive_item is not a StateItemNode')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_receive_revision
+
+   ! -- tests ---------------------------------------------------------
+
+   ! 1. Single-member collection: one advance() -> done() false;
+   ! current()%get_state() is the real composite ESMF_State of the
+   ! Handler (proven by FieldsAreAliased on the "quantity" member, not
+   ! merely a same-named copy).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_single_member_advance_current(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(ESMF_State) :: cb_state, member_state
+      type(ESMF_Field) :: member_field, direct_field
+      type(CallbackCollectionIterator) :: iter
+      type(CallbackMemberHandle) :: handle
+      logical :: aliased
+      integer :: status
+
+      call prepare_execution_iterator('svc-exec-single', 601, .true., &
+           parent_meta, invoker_meta, cb_state, iter, status)
+      @assertEqual(0, status)
+
+      call iter%advance()
+      @assertFalse(iter%done())
+
+      handle = iter%current(status)
+      @assertEqual(0, status)
+
+      member_state = handle%get_state(status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(member_state, 'quantity', member_field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(cb_state, 'quantity', direct_field, rc=status)
+      @assertEqual(0, status)
+      aliased = FieldsAreAliased(member_field, direct_field, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(aliased)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_single_member_advance_current
+
+   ! 2. A second advance() -> done() true.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_single_member_second_advance_done(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(ESMF_State) :: cb_state
+      type(CallbackCollectionIterator) :: iter
+      integer :: status
+
+      call prepare_execution_iterator('svc-exec-second', 602, .true., &
+           parent_meta, invoker_meta, cb_state, iter, status)
+      @assertEqual(0, status)
+
+      call iter%advance()
+      @assertFalse(iter%done())
+      call iter%advance()
+      @assertTrue(iter%done())
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_single_member_second_advance_done
+
+   ! 3. Empty collection (no match resolved, so no reuse entry) -> done()
+   ! true after the first advance(), zero iterations.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_empty_collection_done_after_first_advance(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(ESMF_State) :: cb_state
+      type(CallbackCollectionIterator) :: iter
+      integer :: status
+
+      call prepare_execution_iterator('svc-exec-empty', 603, .false., &
+           parent_meta, invoker_meta, cb_state, iter, status)
+      @assertEqual(0, status)
+
+      call iter%advance()
+      @assertTrue(iter%done())
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_empty_collection_done_after_first_advance
+
+   ! 4. execute("get", rc): the IN argument of "get" is wired as a direct
+   ! Field alias in this same-grid case (build_execution_fixture,
+   ! realize_callback_member), not copied by
+   ! pull_callback_get_arguments/ComponentGraph%update() themselves -
+   ! update() on a plain item-to-item forward edge with no
+   ! TransformGraphNode between them is a no-op (see the class-default
+   ! branch of finish_update_frame in
+   ! ComponentGraph_DemandDrivenUpdate.F90). FieldsAreAliased below
+   ! proves the "quantity"
+   ! member of the Handler already is the provide_item Field of the
+   ! Invoker before execute() ever runs; the attached method body never
+   ! touches the Field, so the matching value after execute() only shows
+   ! that execute() completed (g_cb_get_called) and the alias held, not
+   ! that a pull copied anything - a real data-moving pull only happens
+   ! when an extension chain runs a transform (a units mismatch, not
+   ! exercised here).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_execute_get_pulls_provides_value(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(ESMF_State) :: cb_state
+      type(ESMF_Field) :: quantity_field, provide_field
+      real(ESMF_KIND_R4), pointer :: quantity_fptr(:)
+      type(CallbackCollectionIterator) :: iter
+      type(CallbackMemberHandle) :: handle
+      logical :: aliased
+      integer :: status
+
+      call prepare_execution_iterator('svc-exec-get', 604, .true., &
+           parent_meta, invoker_meta, cb_state, iter, status)
+      @assertEqual(0, status)
+
+      call iter%advance()
+      @assertFalse(iter%done())
+      handle = iter%current(status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(cb_state, 'quantity', quantity_field, rc=status)
+      @assertEqual(0, status)
+      provide_field = get_invoker_field(invoker_meta, 'provide_item', status)
+      @assertEqual(0, status)
+      aliased = FieldsAreAliased(quantity_field, provide_field, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(aliased)
+
+      call handle%execute('get', status)
+      @assertEqual(0, status)
+      @assertTrue(g_cb_get_called)
+
+      call assign_fptr(quantity_field, quantity_fptr, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(9.0_ESMF_KIND_R4, quantity_fptr(1), tolerance=1.0e-4_ESMF_KIND_R4)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_execute_get_pulls_provides_value
+
+   ! 5. execute("put", rc): the attached method body writes a known
+   ! value into the own "quantity" member of the Handler (standing in
+   ! for the Handler producing data - advance_callback_put_arguments
+   ! only advances the own NodeRevision of receive_item, it does not
+   ! copy data; see the known gap of docs/graph/callbacks.md). Asserts
+   ! the method ran and that the revision of receive_item advances after
+   ! a successful invoke; advance-only-on-success is a contract of
+   ! advance_callback_put_arguments itself (reached only after
+   ! method_node%invoke() returns successfully in invoke_callback_method)
+   ! and is not separately exercised here with a failing invoke.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_execute_put_advances_receive_revision(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(ESMF_State) :: cb_state
+      type(ESMF_Field) :: quantity_field
+      real(ESMF_KIND_R4), pointer :: quantity_fptr(:)
+      type(CallbackCollectionIterator) :: iter
+      type(CallbackMemberHandle) :: handle
+      type(NodeRevision) :: revision_before, revision_after
+      integer :: status
+
+      call prepare_execution_iterator('svc-exec-put', 605, .true., &
+           parent_meta, invoker_meta, cb_state, iter, status)
+      @assertEqual(0, status)
+
+      revision_before = get_receive_revision(invoker_meta, status)
+      @assertEqual(0, status)
+
+      call iter%advance()
+      @assertFalse(iter%done())
+      handle = iter%current(status)
+      @assertEqual(0, status)
+
+      call handle%execute('put', status)
+      @assertEqual(0, status)
+      @assertTrue(g_cb_put_called)
+
+      call ESMF_StateGet(cb_state, 'quantity', quantity_field, rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(quantity_field, quantity_fptr, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(42.0_ESMF_KIND_R4, quantity_fptr(1), tolerance=1.0e-4_ESMF_KIND_R4)
+
+      revision_after = get_receive_revision(invoker_meta, status)
+      @assertEqual(0, status)
+      @assertTrue(revision_after /= revision_before)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_execute_put_advances_receive_revision
+
+   ! 6. execute("nonexistent_method", rc) fails loudly (unknown-method
+   ! map lookup assertion) before any pull/invoke/advance: neither gate
+   ! flips and the revision of receive_item does not move - the two
+   ! checks that actually carry the "nothing ran" weight here. The
+   ! quantity Field read afterward only confirms the method body itself
+   ! never ran (it never got the chance to overwrite the sentinel): in
+   ! this same-grid fixture quantity already *is* provide_item (see test
+   ! 4), so a same-grid pull is a Field-identity no-op regardless of
+   ! whether it ran - this check cannot, by itself, tell a real partial
+   ! pull apart from no pull at all.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_execute_unknown_method_fails(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(ESMF_State) :: cb_state
+      type(ESMF_Field) :: quantity_field
+      real(ESMF_KIND_R4), pointer :: quantity_fptr(:)
+      type(CallbackCollectionIterator) :: iter
+      type(CallbackMemberHandle) :: handle
+      type(NodeRevision) :: revision_before, revision_after
+      integer :: status
+
+      call prepare_execution_iterator('svc-exec-unknown', 606, .true., &
+           parent_meta, invoker_meta, cb_state, iter, status)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(cb_state, 'quantity', quantity_field, rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(quantity_field, quantity_fptr, rc=status)
+      @assertEqual(0, status)
+      quantity_fptr = 7.0_ESMF_KIND_R4
+
+      revision_before = get_receive_revision(invoker_meta, status)
+      @assertEqual(0, status)
+
+      call iter%advance()
+      @assertFalse(iter%done())
+      handle = iter%current(status)
+      @assertEqual(0, status)
+
+      call handle%execute('nonexistent_method', status)
+
+      ! The pending exception must be consumed right here, before any
+      ! other pFUnit assertion macro: each one checks the global
+      ! exception stack first and returns early while one is pending.
+      @assertExceptionRaised('CallbackMemberHandle: execute() - unknown method ' // &
+           '"nonexistent_method" for member: cb')
+
+      @assertFalse(g_cb_get_called)
+      @assertFalse(g_cb_put_called)
+
+      revision_after = get_receive_revision(invoker_meta, status)
+      @assertEqual(0, status)
+      @assertFalse(revision_after /= revision_before)
+
+      call assign_fptr(quantity_field, quantity_fptr, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(7.0_ESMF_KIND_R4, quantity_fptr(1), tolerance=1.0e-4_ESMF_KIND_R4)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_execute_unknown_method_fails
+
+   ! 7. current() before any advance(), or after done() is true, is a
+   ! caller-ordering bug: fails loudly (one assertion each), returns a
+   ! default (null-pointer) handle rather than reading past the
+   ! collected name list or segfaulting - get_state() on that default
+   ! handle then also fails loudly instead of dereferencing a null
+   ! collection_node.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_current_before_advance_or_after_done_fails(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(ESMF_State) :: cb_state, dummy_state
+      type(CallbackCollectionIterator) :: iter
+      type(CallbackMemberHandle) :: handle
+      integer :: status
+
+      call prepare_execution_iterator('svc-exec-order', 607, .true., &
+           parent_meta, invoker_meta, cb_state, iter, status)
+      @assertEqual(0, status)
+
+      ! Before any advance(). Each exception must be consumed by
+      ! @assertExceptionRaised right where it is raised: any other
+      ! pFUnit assertion macro (@assertEqual, @assertFalse, ...) checks
+      ! anyExceptions() and returns early, so one left pending here would
+      ! abort the test before the later checks run.
+      handle = iter%current(status)
+      @assertExceptionRaised('CallbackCollectionIterator: current() called before advance() or after done()')
+
+      dummy_state = handle%get_state(status)
+      @assertExceptionRaised('CallbackMemberHandle: get_state() called on an invalid handle')
+      _UNUSED_DUMMY(dummy_state)
+
+      ! Past the end (one real member, two advances) - no exception
+      ! pending here, so ordinary assertions are safe again.
+      call iter%advance()
+      @assertFalse(iter%done())
+      call iter%advance()
+      @assertTrue(iter%done())
+      handle = iter%current(status)
+      @assertExceptionRaised('CallbackCollectionIterator: current() called before advance() or after done()')
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_current_before_advance_or_after_done_fails
+
+   ! 8. Two Handlers matched to the same import: two advance() calls
+   ! each reach a different matched member before a third advance()
+   ! reaches done() - the single-member tests above cannot tell "walks
+   ! every matched member" apart from "always returns the same member
+   ! twice". Distinctness is checked by member_qualified_name, not Field
+   ! identity: the fixture quantity argument is IN on get and OUT on put
+   ! (the same argument serves both methods), so its forward-network
+   ! wiring (the get/IN side; provider_get_ids is shared across every
+   ! match) is what makes both Handlers own quantity alias the one
+   ! Invoker provide_item Field - the same mechanism the single-member
+   ! get test exercises, just not independent per Handler here. An
+   ! OUT-only argument would not alias this way (its wiring is a
+   ! separate put network find_materialized_predecessor never walks), so
+   ! member_qualified_name, not Field comparison, is what this test uses
+   ! to tell the two iterations apart.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_two_member_iteration_sees_both_handlers(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, invoker_meta
+      type(CallbackCollectionIterator) :: iter
+      type(CallbackMemberHandle) :: handle_a, handle_b
+      character(:), allocatable :: name_a, name_b
+      integer :: status
+
+      call prepare_two_handler_iterator('svc-exec-two', 608, &
+           parent_meta, invoker_meta, iter, status)
+      @assertEqual(0, status)
+
+      call iter%advance()
+      @assertFalse(iter%done())
+      handle_a = iter%current(status)
+      @assertEqual(0, status)
+      name_a = handle_a%get_member_qualified_name()
+
+      call iter%advance()
+      @assertFalse(iter%done())
+      handle_b = iter%current(status)
+      @assertEqual(0, status)
+      name_b = handle_b%get_member_qualified_name()
+
+      call iter%advance()
+      @assertTrue(iter%done())
+
+      ! Two distinct iterations, each a different matched member - not
+      ! the same member seen twice, and together exactly HANDLER/cb and
+      ! HANDLER2/cb (either order), not some other pair.
+      @assertTrue((name_a == 'HANDLER/cb' .and. name_b == 'HANDLER2/cb') .or. &
+           (name_a == 'HANDLER2/cb' .and. name_b == 'HANDLER/cb'))
+
+      ! execute() dispatches on each handle without error.
+      call handle_a%execute('put', status)
+      @assertEqual(0, status)
+      @assertTrue(g_cb_put_called)
+      g_cb_put_called = .false.
+      call handle_b%execute('put', status)
+      @assertEqual(0, status)
+      @assertTrue(g_cb_put_called)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_two_member_iteration_sees_both_handlers
+
+   @before
+   subroutine reset_execution_gates(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      g_cb_get_called = .false.
+      g_cb_put_called = .false.
+      _UNUSED_DUMMY(this)
+   end subroutine reset_execution_gates
+
+   @after
+   subroutine restore_execution_gates(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      call set_materialize_extensions(.false.)
+      call reset_callback_registry_for_testing()
+      _UNUSED_DUMMY(this)
+   end subroutine restore_execution_gates
+
+end module Test_GraphBuilder_CallbackExecution

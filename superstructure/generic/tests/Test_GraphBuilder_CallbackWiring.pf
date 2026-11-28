@@ -423,7 +423,7 @@ contains
       if (len(vertical_dim_spec) > 0) attrs = attrs // ', vertical_dim_spec: ' // vertical_dim_spec
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // short_name // ': {' // attrs // '}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(1, var_specs%size())
       iter = var_specs%ftn_begin()
       call iter%next()
@@ -487,7 +487,8 @@ contains
       expected_message = format_callback_contract_report('svc-decl-missing', iface%get_version(), &
            handler_name, 'tracer_callback', expected_violations)
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
 
       ! The pending exception must be drained here, before any plain
       ! @assertTrue/@assert_that: those expand to code that returns
@@ -562,7 +563,8 @@ contains
            handler_name, 'tracer_callback', expected_violations)
       @assertTrue(index(expected_message, "(the weight of 'tracers')") > 0)
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
 
       matched = catch(expected_message)
       do while (catch('status=1'))
@@ -615,7 +617,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(1, size(matches))
       @assertEqual('BAD/tracer_callback', matches(1)%qualified_name)
@@ -675,7 +678,8 @@ contains
       expected_message = format_callback_contract_report('svc-decl-dims', iface%get_version(), &
            handler_name, 'tracer_callback', expected_violations)
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
 
       matched = catch(expected_message)
       do while (catch('status=1'))
@@ -738,7 +742,8 @@ contains
       expected_message = format_callback_contract_report('svc-decl-dims-rev', iface%get_version(), &
            handler_name, 'tracer_callback', expected_violations)
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
 
       matched = catch(expected_message)
       do while (catch('status=1'))
@@ -813,7 +818,8 @@ contains
       expected_message = format_callback_contract_report('svc-decl-kind', iface%get_version(), &
            handler_name, 'tracer_callback', expected_violations)
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
 
       matched = catch(expected_message)
       do while (catch('status=1'))
@@ -931,7 +937,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rejected=rejected, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rejected=rejected, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(matches))
       @assertEqual(1, rejected%size())
@@ -996,7 +1003,8 @@ contains
       expected_message = format_callback_contract_report('svc-decl-multi', iface%get_version(), &
            handler_name, 'tracer_callback', expected_violations)
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
 
       ! The pending exception must be drained here, before any plain
       ! @assertTrue/@assert_that: those expand to code that returns
@@ -1065,7 +1073,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, expected_id, rejected=rejected, rc=status)
+      call resolve_callback_import(root_meta, src_pt, expected_id, &
+           matches, rejected=rejected, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(matches))
       @assertEqual(1, rejected%size())
@@ -1125,7 +1134,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rejected=rejected, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rejected=rejected, rc=status)
       @assert_that(status, is(0))
       @assertEqual(1, size(matches))
       @assertEqual('H2/tracer_callback', matches(1)%qualified_name)
@@ -1189,7 +1199,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(1, size(matches))
       @assertEqual('BAD/tracer_callback', matches(1)%qualified_name)
@@ -1252,7 +1263,7 @@ contains
       call gb%advertise(chem_meta, status)
       @assert_that(status, is(0))
 
-      entries = build_qualified_export_namespace(chem_meta, status)
+      call build_qualified_export_namespace(chem_meta, entries, status)
       @assert_that(status, is(0))
       @assertEqual(3, size(entries))
 
@@ -1268,7 +1279,7 @@ contains
       @assert_that(found_du, is(true()))
       @assert_that(found_ss, is(true()))
 
-      entries_again = build_qualified_export_namespace(chem_meta, status)
+      call build_qualified_export_namespace(chem_meta, entries_again, status)
       @assert_that(status, is(0))
       @assertEqual(size(entries), size(entries_again))
 
@@ -1309,7 +1320,7 @@ contains
       call gb%advertise(du_meta, status)
       @assert_that(status, is(0))
 
-      entries = build_qualified_export_namespace(root_meta, status)
+      call build_qualified_export_namespace(root_meta, entries, status)
       @assert_that(status, is(0))
 
       expected_v_pt = VirtualConnectionPt(state_intent='export', short_name='tracers')
@@ -1357,7 +1368,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
 
       du_index = 0
@@ -1886,7 +1898,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(2, size(matches))
 
@@ -1924,7 +1937,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(matches))
 
@@ -2061,7 +2075,8 @@ contains
 
       src_pt = ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(2, size(matches))
 
@@ -2124,7 +2139,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='^MIXING_CB$'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(matches))
 
@@ -2172,7 +2188,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(1, size(matches))
       @assertEqual('MIXING_CB__DU', matches(1)%qualified_name)
@@ -2228,7 +2245,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
 
-      matches = resolve_callback_import(root_meta, src_pt, expected_id, rejected=rejected, rc=status)
+      call resolve_callback_import(root_meta, src_pt, expected_id, &
+           matches, rejected=rejected, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(matches))
       @assertEqual(1, rejected%size())
@@ -2752,7 +2770,8 @@ contains
 
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='MIXING_CB'))
 
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assert_that(status, is(0))
       @assertEqual(1, size(matches))
       @assertEqual('MIXING_CB', matches(1)%qualified_name)
@@ -2808,7 +2827,8 @@ contains
       ! metacharacters): matches by exact qualified name.
       src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='BAD/tracer_callback'))
 
-      matches = resolve_callback_import(root_meta, src_pt, expected_id, rejected=rejected, rc=status)
+      call resolve_callback_import(root_meta, src_pt, expected_id, &
+           matches, rejected=rejected, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, size(matches))
       @assertEqual(1, rejected%size())

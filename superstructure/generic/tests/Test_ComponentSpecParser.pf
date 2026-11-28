@@ -26,6 +26,7 @@ module Test_ComponentSpecParser
    ! CallbackInterface%declare_argument's expected_kind argument.
    use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE, &
         MAPL_VARIANT_FIELD => MAPL_STATEITEM_FIELD
+   use gFTL2_StringVector, only: StringVector
    use mapl_ErrorHandling_mod
    use mapl_Connection_mod
    use mapl_ConnectionPt_mod
@@ -77,11 +78,56 @@ contains
       config = ESMF_HConfigCreate(content='{mapl: {setServices: {sharedObj: libA}}}')
 
       ss_expected = DsoSetServices('libA', 'setservices_')
-      spec = parse_component_spec(config, registry, 'TEST', _RC)
+      call parse_component_spec(config, registry, 'TEST', spec, _RC)
       @assert_that(allocated(spec%setservices), is(true()))
       @assert_that(spec%setservices == ss_expected, is(true()))
 
    end subroutine test_parse_component_spec_setServices
+
+   ! Iterates %members because only iteration follows the parent
+   ! pointers a shallow vector copy leaves dangling; reliable detection
+   ! needs an allocator checker such as Guard Malloc.
+   @test
+   subroutine test_parse_component_spec_multi_member_members_intact()
+      type(ESMF_HConfig) :: config
+      type(ComponentSpec) :: spec
+      type(StateRegistry) :: registry
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      type(StringVector) :: member_names
+      integer :: rc, status
+      logical :: has_alpha, has_beta
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_multi_member_regress', iface, &
+           expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{mapl: {states: {export: {' // &
+           'cb: {typekind: R4, ' // &
+           'callback_interface: toy_multi_member_regress, ' // &
+           'members: {alpha: {}, beta: {}}}' // &
+           '}}}}', _RC)
+      call parse_component_spec(config, registry, 'TEST', spec, _RC)
+      @assertEqual(1, spec%var_specs%size())
+
+      iter = spec%var_specs%ftn_begin()
+      call iter%next()
+      var_spec => iter%of()
+
+      member_names = var_spec%get_member_names()
+      @assertEqual(2, member_names%size())
+      has_alpha = .false.
+      has_beta = .false.
+      if (member_names%size() >= 1) has_alpha = (member_names%of(1) == 'alpha')
+      if (member_names%size() >= 2) has_beta = (member_names%of(2) == 'beta')
+      @assertTrue(has_alpha)
+      @assertTrue(has_beta)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_component_spec_multi_member_members_intact
 
    ! geometry_mirror: true marks an import to adopt the connected export's
    ! geometry; an item that omits it does not.
@@ -97,7 +143,7 @@ contains
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'A: {typekind: R4, geometry_mirror: true},' // &
            'B: {typekind: R4}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(2, var_specs%size())
 
       n_mirror = 0
@@ -136,7 +182,7 @@ contains
       config = ESMF_HConfigCreate(content='{states: {export: {' // &
            'A: {typekind: R4, non_negative: {fill: column}},' // &
            'B: {typekind: R4}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(2, var_specs%size())
 
       associate (e => var_specs%ftn_end())
@@ -172,7 +218,7 @@ contains
       do i = 1, size(values)
          config = ESMF_HConfigCreate(content='{states: {export: {' // &
               'A: {typekind: R4, non_negative: ' // trim(values(i)) // '}}}}', _RC)
-         var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+         call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
          @assertExceptionRaised('non_negative must be a map with only a scalar fill key, e.g. {fill: column}')
          @assertExceptionRaised('status=1')
          @assertExceptionRaised('status=1')
@@ -192,7 +238,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{states: {internal: {' // &
            'A: {typekind: mirror}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: A')
       ! parse_state_specs and parse_var_specs each pass the failure up
       @assertExceptionRaised('status=1')
@@ -202,7 +248,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'A: {typekind: mirror}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(1, var_specs%size())
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_rejects_mirror_on_internal
@@ -219,7 +265,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'E: {expression: "A + B"}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised('an expression is only valid on an export: E')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
@@ -228,7 +274,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{states: {internal: {' // &
            'E: {expression: "A + B"}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised('an expression is only valid on an export: E')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
@@ -237,7 +283,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // &
            'E: {expression: "A + B"}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(1, var_specs%size())
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_rejects_expression_on_import_and_internal
@@ -256,7 +302,7 @@ contains
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'A: {typekind: R4, vertical_grid_mirror: true},' // &
            'B: {typekind: R4}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(2, var_specs%size())
 
       n_mirror = 0
@@ -296,7 +342,7 @@ contains
            'A: {typekind: R4, standard_name: "<mirror>", ' // &
            'long_name: "<mirror>"},' // &
            'B: {typekind: R4, standard_name: foo, long_name: Bar}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(2, var_specs%size())
 
       n_seen = 0
@@ -340,7 +386,7 @@ contains
            'B: {quantity_type: Quantity_Mixing_Ratio},' // &
            'C: {quantity_type: quantity_unknown},' // &
            'D: {typekind: R4}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(4, var_specs%size())
 
       n_seen = 0
@@ -375,7 +421,7 @@ contains
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // &
            'A: {quantity_type: temperature}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised('Unsupported quantity_type: <temperature>')
       ! parse_state_specs and parse_var_specs each pass it up
       @assertExceptionRaised('status=1')
@@ -408,7 +454,7 @@ contains
            'import: {A: {callback_interface: toy_scaling}, B: {typekind: R4}}, ' // &
            'export: {C: {typekind: R4, callback_interface: toy_scaling}}' // &
            '}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(3, var_specs%size())
 
       n_seen = 0
@@ -441,14 +487,16 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+           "service name 'no_such_interface' not registered; registered: (none)"
 
       call reset_callback_registry_for_testing()
 
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'A: {callback_interface: no_such_interface}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
-           "service name 'no_such_interface' not registered; registered: (none)")
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! make_VariableSpec, parse_state_specs and parse_var_specs each pass it up
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
@@ -467,14 +515,16 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"alias" is only valid inside a "members" ' // &
+           'entry, not a top-level state item: tracer'
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // &
            'tracer: {typekind: R4, alias: TR1}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"alias" is only valid inside a "members" ' // &
-           'entry, not a top-level state item: tracer')
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -490,14 +540,16 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           'a unit-placeholder binding ({Placeholder: ConcreteUnit}) is only ' // &
+           'valid inside a "members" entry, not a top-level state item: bound'
 
       config = ESMF_HConfigCreate(content="{states: {export: {" // &
            "bound: {typekind: R4, units: {U: 'kg kg-1'}}" // &
            "}}}", _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('a unit-placeholder binding ({Placeholder: ConcreteUnit}) is only ' // &
-           'valid inside a "members" entry, not a top-level state item: bound')
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -514,14 +566,16 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" is only valid on a Handler callback-State EXPORT ' // &
+           'declaring "callback_interface": cb'
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // &
            'cb: {typekind: R4, members: {arg1: {}}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" is only valid on a Handler callback-State EXPORT ' // &
-           'declaring "callback_interface": cb')
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -539,6 +593,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" has unsupported key "typekind": a YAML member ' // &
+           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_unsupported_key', iface, expected_id, _RC)
@@ -547,11 +604,10 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_unsupported_key, ' // &
            'members: {arg1: {typekind: R8}}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" has unsupported key "typekind": a YAML member ' // &
-           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"')
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -572,6 +628,10 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" cannot use "vertical_dim_spec: mirror": a member ' // &
+           'is never part of the IMPORT/EXPORT connection-resolution graph, so there is no partner ' // &
+           'to mirror from'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_vertical_mirror', iface, expected_id, _RC)
@@ -580,12 +640,10 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_vertical_mirror, ' // &
            'members: {arg1: {vertical_dim_spec: mirror}}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" cannot use "vertical_dim_spec: mirror": a member ' // &
-           'is never part of the IMPORT/EXPORT connection-resolution graph, so there is no partner ' // &
-           'to mirror from')
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -604,6 +662,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" cannot use "dims: mirror": a member is never ' // &
+           'part of the IMPORT/EXPORT connection-resolution graph, so there is no partner to mirror from'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_dims_mirror', iface, expected_id, _RC)
@@ -612,11 +673,10 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_dims_mirror, ' // &
            'members: {arg1: {dims: mirror}}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" cannot use "dims: mirror": a member is never ' // &
-           'part of the IMPORT/EXPORT connection-resolution graph, so there is no partner to mirror from')
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -636,6 +696,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" has unsupported key "vertical_grid_mirror": a YAML member ' // &
+           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_vgrid_mirror_key', iface, expected_id, _RC)
@@ -644,11 +707,10 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_vgrid_mirror_key, ' // &
            'members: {arg1: {vertical_grid_mirror: true}}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" has unsupported key "vertical_grid_mirror": a YAML member ' // &
-           'supports only "alias", "units", "dims", "vertical_dim_spec", and "vertical_grid"')
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -670,6 +732,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "arg1" cannot combine "vertical_dim_spec: none" with ' // &
+           '"vertical_grid": a 2D field cannot also carry a vertical grid'
 
       call reset_callback_registry_for_testing()
       call register_callback_interface('toy_members_none_with_vgrid', iface, expected_id, _RC)
@@ -678,11 +743,10 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_none_with_vgrid, ' // &
            'members: {arg1: {vertical_dim_spec: none, vertical_grid: {num_levels: 5}}}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "arg1" cannot combine "vertical_dim_spec: none" with ' // &
-           '"vertical_grid": a 2D field cannot also carry a vertical grid')
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -702,6 +766,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"members" entry "bundle_arg" answers a non-FIELD-kind interface ' // &
+           'argument; a YAML member can only answer a FIELD-kind argument: cb'
 
       call reset_callback_registry_for_testing()
       call iface%declare_argument('bundle_arg', MAPL_VARIANT_FIELDBUNDLE, _RC)
@@ -711,11 +778,10 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_fieldbundle, ' // &
            'members: {bundle_arg: {}}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"members" entry "bundle_arg" answers a non-FIELD-kind interface ' // &
-           'argument; a YAML member can only answer a FIELD-kind argument: cb')
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -742,10 +808,10 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_combo, ' // &
            "members: {arg1: {}}, expression: 'A+B'}" // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised('"members:" cannot be combined with "expression:" on the same item')
       ! to_itemtype's own call site and parse_var_specs's own call site
-      ! each pass the failure up (two more _RC levels).
+      ! each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -755,7 +821,7 @@ contains
            'cb: {typekind: R4, callback_interface: toy_members_combo, ' // &
            'members: {arg1: {}}, class: field}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised('"members:" cannot be combined with "class:" on the same item')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
@@ -792,7 +858,7 @@ contains
            'cb: {callback_interface: toy_provides_receives, ' // &
            'provides: {quantity: provide_item}, receives: {quantity: receive_item}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -823,6 +889,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"provides" is only valid on an Invoker callback IMPORT ' // &
+           'declaring "callback_interface": cb'
 
       call reset_callback_registry_for_testing()
       call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', _RC)
@@ -832,10 +901,9 @@ contains
            'cb: {typekind: R4, callback_interface: toy_provides_export, ' // &
            'provides: {quantity: provide_item}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"provides" is only valid on an Invoker callback IMPORT ' // &
-           'declaring "callback_interface": cb')
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -851,14 +919,16 @@ contains
       type(StateRegistry) :: registry
       type(VariableSpecVector) :: var_specs
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"receives" is only valid on an Invoker callback IMPORT ' // &
+           'declaring "callback_interface": cb'
 
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'cb: {typekind: R4, receives: {quantity: receive_item}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"receives" is only valid on an Invoker callback IMPORT ' // &
-           'declaring "callback_interface": cb')
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -876,6 +946,9 @@ contains
       type(CallbackInterface) :: iface
       type(CallbackInterfaceId) :: expected_id
       integer :: rc, status
+      character(*), parameter :: expected = &
+           '"receives" entry names argument "bogus" ' // &
+           'not declared on interface "toy_provides_unknown_arg": cb'
 
       call reset_callback_registry_for_testing()
       call iface%declare_argument('quantity', MAPL_VARIANT_FIELD, dims='xy', _RC)
@@ -885,11 +958,10 @@ contains
            'cb: {callback_interface: toy_provides_unknown_arg, ' // &
            'receives: {bogus: receive_item}}' // &
            '}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
-      @assertExceptionRaised('"receives" entry names argument "bogus" ' // &
-           'not declared on interface "toy_provides_unknown_arg": cb')
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
+      @assertExceptionRaised(expected)
       ! parse_state_specs's own call site, then parse_var_specs's own call
-      ! site, each pass the failure up (two more _RC levels).
+      ! site, each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -911,7 +983,7 @@ contains
       config = ESMF_HConfigCreate(content='{states: {import: {' // &
            'A: {typekind: R4, vertical_alignment: upward},' // &
            'B: {typekind: R4}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(2, var_specs%size())
 
       n_up = 0
