@@ -520,10 +520,6 @@ contains
          call ESMF_StateAdd(scratch_state, [level_field], _RC)
       end if
 
-      ! StateEval only sets rc on failure (it has no success-path _RETURN
-      ! of its own); eval_status must start at 0 so a clean evaluation
-      ! is correctly recognized as success below.
-      eval_status = 0
       call StateEval(scratch_state, function_expr, field, rc=eval_status)
 
       call ESMF_FieldDestroy(lon_field, noGarbage=.true., _RC)

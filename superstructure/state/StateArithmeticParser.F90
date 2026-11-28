@@ -180,8 +180,8 @@ CONTAINS
 
     deallocate(fieldNames,needed)
 
-
-    end subroutine StateEval
+    _RETURN(ESMF_SUCCESS)
+  end subroutine StateEval
   !
   SUBROUTINE parsef (Comp, FuncStr, Var, field, rc)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
