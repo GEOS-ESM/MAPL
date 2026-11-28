@@ -46,6 +46,8 @@ contains
 
       call attach_outer_meta(outer_gc, _RC)
       outer_meta => get_outer_meta(outer_gc, _RC)
+      ! Whole-object copy is safe here: this fixture bypasses
+      ! SetServices, so component_spec never gets populated.
 #ifndef __GFORTRAN__
       outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
 #else

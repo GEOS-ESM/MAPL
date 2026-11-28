@@ -86,13 +86,14 @@ module mapl_ComponentSpecParser_mod
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, component_name, rc) result(spec)
-         type(ComponentSpec) :: spec
+      module subroutine parse_component_spec(hconfig, registry, &
+           component_name, spec, rc)
          type(ESMF_HConfig), target, intent(inout) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
          character(*), intent(in) :: component_name
+         type(ComponentSpec), intent(out) :: spec
          integer, optional, intent(out) :: rc
-      end function parse_component_spec
+      end subroutine parse_component_spec
 
       module function parse_geometry_spec(mapl_cfg, registry, component_name, rc) result(geometry_spec)
          type(GeometrySpec) :: geometry_spec
@@ -109,13 +110,14 @@ module mapl_ComponentSpecParser_mod
          integer, optional, intent(out) :: rc
       end subroutine parse_vertical_grid
 
-      module function parse_var_specs(hconfig, registry, component_name, rc) result(var_specs)
-         type(VariableSpecVector) :: var_specs
+      module subroutine parse_var_specs(hconfig, registry, &
+           component_name, var_specs, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
          character(*), intent(in) :: component_name
+         type(VariableSpecVector), intent(out) :: var_specs
          integer, optional, intent(out) :: rc
-      end function parse_var_specs
+      end subroutine parse_var_specs
 
       module function parse_connections(hconfig, rc) result(connections)
          type(ConnectionVector) :: connections

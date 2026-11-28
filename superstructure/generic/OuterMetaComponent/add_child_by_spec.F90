@@ -59,6 +59,8 @@ contains
          call attach_outer_meta(child_outer_gc, _RC)
          child_meta => get_outer_meta(child_outer_gc, _RC)
          child_driver = GriddedComponentDriver(child_user_gc)
+         ! Whole-object copy is safe here: component_spec is still its
+         ! default (unpopulated) value; SetServices fills it later.
 #ifndef __GFORTRAN__
          child_meta = OuterMetaComponent(child_outer_gc, child_driver, hconfig=total_hconfig)
 #else

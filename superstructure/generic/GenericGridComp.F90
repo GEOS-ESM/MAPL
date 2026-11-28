@@ -85,6 +85,8 @@ contains
          call set_is_generic(gridcomp, _RC)
          call attach_outer_meta(gridcomp, _RC)
          outer_meta => get_outer_meta(gridcomp, _RC)
+         ! Whole-object copy is safe here: component_spec is still its
+         ! default (unpopulated) value; SetServices fills it later.
 #ifndef __GFORTRAN__
          outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, hconfig=hconfig)
 #else
@@ -189,6 +191,8 @@ contains
       ! must be processed later as the information gets stored in the ComponentSpec.
 
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
+      ! Whole-object copy is safe here: component_spec is still its
+      ! default (unpopulated) value; SetServices fills it later.
 #ifndef __GFORTRAN__
       if (present(set_services)) then
          outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)

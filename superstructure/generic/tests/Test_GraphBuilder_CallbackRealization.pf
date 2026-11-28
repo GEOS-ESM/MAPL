@@ -1016,7 +1016,7 @@ contains
            'cb: {callback_interface: svc-yaml-new-field, members: {arg1: {units: K}}}' // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -1113,7 +1113,7 @@ contains
            'export: {cb: {callback_interface: toy_yaml_alias, members: {tracer: {alias: TR1}}}}' // &
            '}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(2, var_specs%size())
 
@@ -1219,7 +1219,7 @@ contains
            "cb: {callback_interface: svc-yaml-unit-placeholder, members: {arg1: {units: {U: 'kg kg-1'}}}}" // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -1505,7 +1505,7 @@ contains
            'edge_member: {vertical_dim_spec: edge}}}' // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -1619,7 +1619,7 @@ contains
            'arg1: {vertical_dim_spec: center, vertical_grid: {num_levels: 5}}}}' // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -1707,7 +1707,7 @@ contains
            'cb: {callback_interface: svc-yaml-stay-2d, members: {arg1: {}}}' // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -1806,7 +1806,7 @@ contains
            'cb: {callback_interface: svc-yaml-2d-with-vgrid, members: {arg1: {}}}' // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -1898,7 +1898,7 @@ contains
            'arg1: {vertical_grid: {num_levels: 5}}}}' // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 
@@ -1996,7 +1996,7 @@ contains
            'arg1: {dims: z, vertical_dim_spec: center}}}' // &
            '}}}', rc=status)
       @assertEqual(0, status)
-      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, var_specs%size())
 

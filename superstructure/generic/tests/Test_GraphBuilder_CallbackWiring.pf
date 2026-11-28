@@ -423,7 +423,7 @@ contains
       if (len(vertical_dim_spec) > 0) attrs = attrs // ', vertical_dim_spec: ' // vertical_dim_spec
 
       config = ESMF_HConfigCreate(content='{states: {export: {' // short_name // ': {' // attrs // '}}}}', _RC)
-      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      call parse_var_specs(config, registry, 'TEST', var_specs, _RC)
       @assertEqual(1, var_specs%size())
       iter = var_specs%ftn_begin()
       call iter%next()

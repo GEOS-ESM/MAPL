@@ -64,7 +64,16 @@ contains
       type(VariableSpecVector), optional, intent(in) :: var_specs
       type(ConnectionVector), optional, intent(in) :: connections
 
-      if (present(var_specs)) spec%var_specs = var_specs
+      integer :: i
+
+      ! Copies element by element: gfortran skips VariableSpec's nested
+      ! gFTL map deep_copy (%members) in whole-vector intrinsic
+      ! assignment, leaving the copy with dangling parent pointers.
+      if (present(var_specs)) then
+         do i = 1, var_specs%size()
+            call spec%var_specs%push_back(var_specs%of(i))
+         end do
+      end if
       if (present(connections)) spec%connections = connections
 
    end function new_ComponentSpec
