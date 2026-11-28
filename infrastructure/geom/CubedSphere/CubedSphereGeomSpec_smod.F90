@@ -51,9 +51,9 @@ contains
          type(ESMF_CubedSphereTransform_Args), intent(in) :: b
 
          equal_schmidt = &
-              (a%target_lat /= b%target_lat) .and. &
-              (a%target_lon /= b%target_lon) .and. &
-              (a%stretch_factor /= b%stretch_factor)
+              (a%target_lat == b%target_lat) .and. &
+              (a%target_lon == b%target_lon) .and. &
+              (a%stretch_factor == b%stretch_factor)
       end function equal_schmidt
 
    end function equal_to
