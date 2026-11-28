@@ -666,12 +666,11 @@ module mapl_GraphBuilder_mod
    end function graphbuilder_build_label_map
 
       ! Callback wiring procedures (GraphBuilder_CallbackWiring_smod.F90)
-   module function build_qualified_export_namespace(root, rc) result(entries)
+   module subroutine build_qualified_export_namespace(root, entries, rc)
       class(OuterMetaComponent), target, intent(inout) :: root
+      type(QualifiedExportEntry), allocatable, intent(out) :: entries(:)
       integer, optional, intent(out) :: rc
-      type(QualifiedExportEntry), allocatable :: entries(:)
-
-   end function build_qualified_export_namespace
+   end subroutine build_qualified_export_namespace
    recursive module subroutine collect_qualified_exports(owner, path_prefix, entries, rc)
       class(OuterMetaComponent), target, intent(inout) :: owner
       character(*), intent(in) :: path_prefix
@@ -679,6 +678,10 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine collect_qualified_exports
+   module subroutine append_qualified_export(entries, entry)
+      type(QualifiedExportEntry), allocatable, intent(inout) :: entries(:)
+      type(QualifiedExportEntry), intent(in) :: entry
+   end subroutine append_qualified_export
    module function resolve_descendant(root, comp_path, rc) result(meta)
       class(OuterMetaComponent), target, intent(inout) :: root
       character(*), intent(in) :: comp_path
@@ -1003,7 +1006,7 @@ contains
                if (.not. associated(candidate_node)) cycle
                select type (candidate_node)
                class is (StateItemNode)
-                  ! Grow via move_alloc; see collect_qualified_exports.
+                  ! Grow via move_alloc; see append_qualified_export.
                   n = size(node_ids)
                   allocate(grown(n + 1))
                   if (n > 0) grown(1:n) = node_ids
@@ -1123,13 +1126,14 @@ contains
    ! (callback_declaration_report) and fails the build rather than being
    ! silently skipped. Read-only (never mutates a ComponentGraph), so
    ! safe from both the activate-time check and connect-time resolution.
-   function resolve_callback_import(this, src_pt, expected_interface_id, rejected, rc) result(matches)
+   subroutine resolve_callback_import(this, src_pt, expected_interface_id, &
+        matches, rejected, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(QualifiedExportEntry), allocatable, intent(out) :: matches(:)
       type(StringVector), optional, intent(out) :: rejected
       integer, optional, intent(out) :: rc
-      type(QualifiedExportEntry), allocatable :: matches(:)
 
       integer :: status
       class(OuterMetaComponent), pointer :: root_meta
@@ -1138,14 +1142,12 @@ contains
       type(CallbackInterface) :: expected_iface
       type(StringVector) :: reject_reasons
       integer :: i, j
-      integer :: n
       logical :: conforms
       type(CallbackInterfaceId) :: declared_id
       character(:), allocatable :: declared_name
       type(CallbackContractViolation), allocatable :: violations(:)
       character(:), allocatable :: reason
       character(:), allocatable :: report_message
-      type(QualifiedExportEntry), allocatable :: grown_matches(:)
       logical :: is_candidate
       logical :: is_own_declared_name_match
       logical :: is_merged_under_src_name
@@ -1155,7 +1157,7 @@ contains
       allocate(matches(0))
 
       root_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
-      namespace = build_qualified_export_namespace(root_meta, _RC)
+      call build_qualified_export_namespace(root_meta, namespace, _RC)
       expected_iface = get_callback_interface(expected_interface_id, _RC)
 
       if (src_pt%v_pt%is_literal()) then
@@ -1220,19 +1222,13 @@ contains
             cycle
          end if
 
-         ! Classic ifort ICE on `matches = [matches, namespace(i)]`; see
-         ! collect_qualified_exports.
-         n = size(matches)
-         allocate(grown_matches(n + 1))
-         grown_matches(1:n) = matches
-         grown_matches(n + 1) = namespace(i)
-         call move_alloc(grown_matches, matches)
+         call append_qualified_export(matches, namespace(i))
       end do
 
       if (present(rejected)) rejected = reject_reasons
 
       _RETURN(_SUCCESS)
-   end function resolve_callback_import
+   end subroutine resolve_callback_import
 
    ! Semicolon-joins every violation's short code (e.g.
    ! "missing_member:tracers"), preserving each code as a substring for

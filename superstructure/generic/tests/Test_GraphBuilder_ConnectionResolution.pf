@@ -6263,7 +6263,8 @@ contains
            dyn_meta, iface, interface_id, _RC)
 
       src_pt = ConnectionPt('CHEM/NOPE', VirtualConnectionPt(state_intent='export', short_name='tracer_callback'))
-      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      call resolve_callback_import(root_meta, src_pt, interface_id, &
+           matches, rc=status)
       @assertExceptionRaised('Child not found: <NOPE>.')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')

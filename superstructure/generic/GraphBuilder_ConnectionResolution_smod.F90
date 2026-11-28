@@ -117,7 +117,7 @@ contains
       wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, node%get_short_name())
 
       root_meta => resolve_qualified_component(owner, src_component_name, _RC)
-      namespace = build_qualified_export_namespace(root_meta, _RC)
+      call build_qualified_export_namespace(root_meta, namespace, _RC)
 
       do i = 1, size(namespace)
          candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
@@ -200,8 +200,8 @@ contains
          ! NAG rejects `f()%method()` on a function result; use a local temporary.
          callback_interface_id = node%get_callback_interface_id()
          if (callback_interface_id%is_valid()) then
-            callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, &
-                 rejected=callback_rejected, rc=status)
+            call resolve_callback_import(this, src_pt, callback_interface_id, &
+                 callback_matches, rejected=callback_rejected, rc=status)
             _VERIFY(status)
             ! See callback_zero_match_is_empty: a plain src_name with zero
             ! matches and zero rejected candidates resolves with an empty
@@ -696,8 +696,9 @@ contains
                   entry%short_name = generic_node%get_short_name()
                   entry%node_id = node_id
 
-                  ! Grow via a fresh temporary + move_alloc: a self-referencing array
-                  ! constructor ICEs some compilers (as in collect_qualified_exports).
+                  ! Grow via a fresh temporary + move_alloc: a self-referencing
+                  ! array constructor ICEs some compilers (as in
+                  ! append_qualified_export).
                   n = size(unresolved)
                   allocate(grown(n + 1))
                   if (n > 0) grown(1:n) = unresolved
@@ -796,8 +797,8 @@ contains
 
       callback_interface_id = node%get_callback_interface_id()
       if (callback_interface_id%is_valid()) then
-         callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, &
-              rejected=callback_rejected, rc=status)
+         call resolve_callback_import(owner, src_pt, callback_interface_id, &
+              callback_matches, rejected=callback_rejected, rc=status)
          _VERIFY(status)
          ! Same callback_zero_match_is_empty exception as check_one: resolved
          ! with an empty collection only when src_comp has no Handler of its
@@ -2423,7 +2424,8 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      matches = resolve_callback_import(this, src_pt, expected_interface_id, rejected, _RC)
+      call resolve_callback_import(this, src_pt, expected_interface_id, &
+           matches, rejected, _RC)
 
       collection_id = materialize_callback_collection(this, src_pt, matches, _RC)
       call graph%add_reuse_entry(collection_key, collection_id, _RC)
@@ -2476,7 +2478,6 @@ contains
       class(OuterMetaComponent), pointer :: root_meta
       type(QualifiedExportEntry), allocatable :: namespace(:)
       type(QualifiedExportEntry), allocatable :: matches(:)
-      type(QualifiedExportEntry), allocatable :: grown_matches(:)
       type(VirtualConnectionPt) :: wildcard_v_pt
       type(VirtualConnectionPt) :: candidate_v_pt
       type(GraphStateItem), pointer :: payload
@@ -2485,7 +2486,7 @@ contains
       type(NodeId) :: dst_node_id
       class(Logger), pointer :: lgr
       character(:), allocatable :: msg
-      integer :: i, n, n_skipped
+      integer :: i, n_skipped
 
       graph => this%get_component_graph()
       dst_node_id = dst_node%get_node_id()
@@ -2512,7 +2513,7 @@ contains
       wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, dst_node%get_short_name())
 
       root_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
-      namespace = build_qualified_export_namespace(root_meta, _RC)
+      call build_qualified_export_namespace(root_meta, namespace, _RC)
 
       do i = 1, size(namespace)
          candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
@@ -2532,13 +2533,7 @@ contains
             cycle
          end if
 
-         ! Grow via a fresh temporary + move_alloc: a self-referencing array
-         ! constructor ICEs classic ifort.
-         n = size(matches)
-         allocate(grown_matches(n + 1))
-         grown_matches(1:n) = matches
-         grown_matches(n + 1) = namespace(i)
-         call move_alloc(grown_matches, matches)
+         call append_qualified_export(matches, namespace(i))
       end do
 
       if (size(matches) == 0) then
