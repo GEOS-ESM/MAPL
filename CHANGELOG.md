@@ -108,6 +108,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Geometry and vertical-grid construction moved from the factories to the
+  specs: `GeomSpec` now provides `make_geom`, `make_file_metadata`,
+  `make_gridded_dims` and `make_variable_attributes`, and
+  `VerticalGridSpec` provides `make_grid`. `GeomFactory` and
+  `VerticalGridFactory` only build specs from HConfig or file metadata.
+  Building a geom or vertical grid no longer requires its factory to be
+  registered.
+
 - The members of a field bundle in a checkpointed state (`MAPL_StateGet` into a
   bundle, used by the netCDF and in-memory checkpoints) are named
   `<bundle>_<member name>` instead of `<bundle>_<index>`, so a checkpoint no
@@ -527,6 +535,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the stale `MAPL.shared` dependency with `MAPL.utils` and `MAPL.enums`.
 
 ### Removed
+
+- Removed `GeomFactory%supports_spec`, the factory-side `make_geom`/
+  `make_file_metadata`/`make_gridded_dims`/`make_variable_attributes`,
+  `MaplGeom%get_factory()`, and `VerticalGridManager%find_factory_for_spec`
+  (superseded by the spec methods above).
 
 - Removed obsolete `BUILD_SHARED_MAPL` CMake option and unused
   `MAPL_LIBRARY_TYPE` variable from root `CMakeLists.txt` and `INSTALL.md`, as
