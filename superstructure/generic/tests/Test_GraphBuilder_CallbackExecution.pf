@@ -761,7 +761,7 @@ contains
    end subroutine test_execute_put_advances_receive_revision
 
    ! 6. execute("nonexistent_method", rc) fails loudly (unknown-method
-   ! map lookup, _ASSERT) before any pull/invoke/advance: neither gate
+   ! map lookup assertion) before any pull/invoke/advance: neither gate
    ! flips and the revision of receive_item does not move - the two
    ! checks that actually carry the "nothing ran" weight here. The
    ! quantity Field read afterward only confirms the method body itself
@@ -826,7 +826,7 @@ contains
    end subroutine test_execute_unknown_method_fails
 
    ! 7. current() before any advance(), or after done() is true, is a
-   ! caller-ordering bug: fails loudly (one _ASSERT each), returns a
+   ! caller-ordering bug: fails loudly (one assertion each), returns a
    ! default (null-pointer) handle rather than reading past the
    ! collected name list or segfaulting - get_state() on that default
    ! handle then also fails loudly instead of dereferencing a null

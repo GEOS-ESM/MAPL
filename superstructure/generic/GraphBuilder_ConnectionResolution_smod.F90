@@ -1036,8 +1036,8 @@ contains
 
       do k = 1, size(src_node_ids)
          call reexport_add_or_merge(this_graph, dst_name, src_node_ids(k), status)
-         ! Not _VERIFY: reexport_add_or_merge's own _ASSERT already raised
-         ! the one reportable exception for this failure; an extra _VERIFY
+         ! Not a verify here: reexport_add_or_merge already raised
+         ! the one reportable exception for this failure; an extra check
          ! here would raise a second, redundant 'status=1' on top of it.
          if (status /= 0) then
             rc = status

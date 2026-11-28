@@ -524,7 +524,7 @@ contains
            '}}}', _RC)
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -549,7 +549,7 @@ contains
            "}}}", _RC)
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -575,7 +575,7 @@ contains
            '}}}', _RC)
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -607,7 +607,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -643,7 +643,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -676,7 +676,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -710,7 +710,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -746,7 +746,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -781,7 +781,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
       ! parse_callback_members's own call site and parse_var_specs's own
-      ! call site each pass the failure up (two more _RC levels).
+      ! call site each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -811,7 +811,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised('"members:" cannot be combined with "expression:" on the same item')
       ! to_itemtype's own call site and parse_var_specs's own call site
-      ! each pass the failure up (two more _RC levels).
+      ! each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
@@ -903,7 +903,7 @@ contains
            '}}}', _RC)
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -928,7 +928,7 @@ contains
            '}}}', _RC)
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
-      ! parse_var_specs's own _RC propagates parse_state_specs's failure.
+      ! parse_var_specs propagates the parse_state_specs failure.
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)
 
@@ -961,7 +961,7 @@ contains
       call parse_var_specs(config, registry, 'TEST', var_specs, rc=status)
       @assertExceptionRaised(expected)
       ! parse_state_specs's own call site, then parse_var_specs's own call
-      ! site, each pass the failure up (two more _RC levels).
+      ! site, each pass the failure up (two more propagation levels).
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertEqual(1, status)

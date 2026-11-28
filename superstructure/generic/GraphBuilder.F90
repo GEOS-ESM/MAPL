@@ -1021,7 +1021,7 @@ contains
    end function find_export_port_node_ids
 
    ! Same resolution as resolve_qualified_export_node_id, but found is
-   ! .false. (rather than a build-failing _ASSERT) for an export not yet
+   ! .false. (rather than a build-failing assertion) for an export not yet
    ! advertised. resolve_callback_import's candidate search calls this on
    ! every namespace entry while a merge is possible, including ones that
    ! may not be this import's match and may not be advertised yet; only
